@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — dobras (folding) | Guia Vim</title>
+<meta name="description" content="Esconda partes do arquivo com dobras no Vim: zf, zo, zc, za, zR, zM, zj, zk; foldmethod manual, indent, syntax e marker; e como salvar as dobras com mkview.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Dobras (folding)</span></h1>
+
+<p class="intro">Uma <strong>dobra</strong> esconde um trecho do arquivo atrás de uma única linha resumo, como fechar uma seção num índice. Em um arquivo de 2.000 linhas, você dobra tudo o que não está usando e enxerga só a função em que está trabalhando. O texto não é apagado: ele continua lá, só fica recolhido.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Abrir e fechar dobras com <code>zo</code>, <code>zc</code> e <code>za</code>.</li>
+  <li>Abrir ou fechar tudo de uma vez com <code>zR</code> e <code>zM</code>.</li>
+  <li>Criar dobras à mão com <code>zf</code> e automaticamente com <code>foldmethod</code>.</li>
+  <li>Escolher entre os métodos <code>manual</code>, <code>indent</code>, <code>syntax</code> e <code>marker</code>.</li>
+  <li>Salvar as dobras manuais com <code>:mkview</code>.</li>
+</ul>
+</div>
+
+<div class="note">
+<strong>Sobre o simulador</strong>
+<p>O Vim simulado não tem dobras, e o <code>vim-tiny</code> (que vem em algumas distribuições) também não: instale o pacote <code>vim</code> completo. As telas desta aula mostram o Vim real.</p>
+</div>
+
+<hr>
+
+<h2>Como uma dobra aparece</h2>
+<p>Este é um arquivo Python aberto normalmente:</p>
+
+<div class="vimdemo" data-file="notas.py">
+<pre class="vim-inicial">def media(notas):
+    total = sum(notas)
+    qtd = len(notas)
+    return total / qtd
+
+def maior(notas):
+    return max(notas)</pre>
+</div>
+
+<p>Com a função <code>media</code> dobrada, as 4 linhas dela viram uma só:</p>
+
+<pre class="term" data-title="notas.py — Vim">+--  4 lines: def media(notas):-------------------------------
+                                                              « linha 5, vazia
+def maior(notas):
+    return max(notas)</pre>
+
+<dl class="anatomy">
+  <dt>+--</dt><dd>Marca de dobra. Cada <code>-</code> a mais indica um nível de dobra dentro de outra.</dd>
+  <dt>4 lines:</dt><dd>Quantas linhas estão escondidas. Esse texto aparece em inglês mesmo com o Vim em português, porque não tem tradução.</dd>
+  <dt>def media(notas):</dt><dd>A primeira linha do trecho, sem os espaços do começo.</dd>
+  <dt>------</dt><dd>Preenchimento até o fim da janela. O caractere vem da opção <code>fillchars</code> (o padrão é <code>-</code>).</dd>
+</dl>
+
+<p>Você pode mover o cursor sobre a linha dobrada como se fosse uma linha comum. Um <code>dd</code> nela apaga <strong>todas</strong> as linhas escondidas.</p>
+
+<hr>
+
+<h2>Abrir e fechar: zo, zc, za</h2>
+<p>Todos os comandos de dobra começam com <code>z</code>. A letra <code>z</code> foi escolhida porque desenha uma folha dobrada.</p>
+
+<dl class="anatomy">
+  <dt>z</dt><dd>Prefixo dos comandos de dobra (e de rolagem da tela).</dd>
+  <dt>o</dt><dd><em>open</em>: abre a dobra sob o cursor.</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th><th>Para lembrar</th></tr>
+<tr><td><code>zo</code></td><td>Abre a dobra sob o cursor</td><td><em>open</em></td></tr>
+<tr><td><code>zc</code></td><td>Fecha a dobra que contém o cursor</td><td><em>close</em></td></tr>
+<tr><td><code>za</code></td><td>Abre se está fechada, fecha se está aberta</td><td>a mais usada: alterna</td></tr>
+<tr><td><code>zO</code> / <code>zC</code> / <code>zA</code></td><td>O mesmo, incluindo as dobras de dentro (recursivo)</td><td>maiúscula = tudo dentro</td></tr>
+<tr><td><code>zv</code></td><td>Abre o suficiente para ver a linha do cursor</td><td><em>view</em></td></tr>
+</table>
+</div>
+
+<div class="tip">
+<strong>Dica</strong>
+<p>Muita gente mapeia a barra de espaço para alternar dobras: <code>nnoremap &lt;Space&gt; za</code>. Veja <a href="mapeamentos.html">Mapeamentos</a>.</p>
+</div>
+
+<h3>Tudo de uma vez: zR e zM</h3>
+<p><code>zR</code> abre todas as dobras do arquivo e <code>zM</code> fecha todas. É o jeito mais rápido de ter uma "visão geral" de um arquivo grande: <code>zM</code> e você vê só as primeiras linhas de cada função.</p>
+
+<pre class="term" data-title="loja.py — Vim, depois de zM">+-- 12 lines: class Cliente:---------------------------------
+
++-- 30 lines: class Pedido:----------------------------------
+
++--  8 lines: def main():------------------------------------</pre>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>zR</code></td><td>Abre todas as dobras (<em>Reduce</em> o nível de dobra ao mínimo)</td></tr>
+<tr><td><code>zM</code></td><td>Fecha todas as dobras (<em>More</em>, o máximo)</td></tr>
+<tr><td><code>zr</code> / <code>zm</code></td><td>Abre / fecha um nível por vez</td></tr>
+<tr><td><code>zj</code> / <code>zk</code></td><td>Vai para o começo da próxima dobra / o fim da anterior</td></tr>
+<tr><td><code>[z</code> / <code>]z</code></td><td>Vai para o começo / fim da dobra aberta atual</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Criar dobras à mão: zf</h2>
+<p>No método padrão, <code>manual</code>, você mesmo diz o que dobrar. O <code>zf</code> é um <strong>operador</strong> (como o <code>d</code>): ele dobra o trecho de um movimento.</p>
+
+<dl class="anatomy">
+  <dt>zf</dt><dd>Operador "criar dobra" (de <em>fold</em>).</dd>
+  <dt>ap</dt><dd>O trecho: um parágrafo inteiro (veja <a href="objetos.html">Objetos de Texto</a>).</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Dobra</th></tr>
+<tr><td><code>zfap</code></td><td>O parágrafo atual</td></tr>
+<tr><td><code>zf3j</code></td><td>A linha atual e as 3 de baixo</td></tr>
+<tr><td><code>zf%</code></td><td>Do <code>{</code> sob o cursor até o <code>}</code> correspondente</td></tr>
+<tr><td><code>Vjjzf</code></td><td>As linhas selecionadas no modo visual</td></tr>
+<tr><td><code>:10,40fold</code></td><td>Da linha 10 à 40</td></tr>
+<tr><td><code>zd</code> / <code>zE</code></td><td>Remove a dobra sob o cursor / todas as dobras (o texto fica)</td></tr>
+</table>
+</div>
+
+<p>Dobras manuais somem quando você fecha o arquivo. Para guardá-las, veja <a href="#salvar">Salvar as dobras</a> mais abaixo.</p>
+
+<hr>
+
+<h2>Dobras automáticas: foldmethod</h2>
+<p>A opção <code>foldmethod</code> (método de dobra) diz como o Vim cria as dobras. Ela vale para o arquivo atual.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Método</th><th>Como dobra</th><th>Bom para</th></tr>
+<tr><td><code>manual</code></td><td>Só o que você criar com <code>zf</code> (padrão)</td><td>Trechos específicos</td></tr>
+<tr><td><code>indent</code></td><td>Pela indentação: linhas mais recuadas ficam dentro</td><td>Python, YAML e código bem indentado</td></tr>
+<tr><td><code>syntax</code></td><td>Pelos blocos que o arquivo de sintaxe da linguagem define</td><td>C, JavaScript, JSON (quando o arquivo de sintaxe suporta)</td></tr>
+<tr><td><code>marker</code></td><td>Entre as marcas <code>{{{</code> e <code>}}}</code> escritas no texto</td><td><code>.vimrc</code> e arquivos de configuração</td></tr>
+<tr><td><code>expr</code></td><td>Por uma expressão que você escreve</td><td>Casos especiais (Vimscript)</td></tr>
+<tr><td><code>diff</code></td><td>Esconde o que não mudou</td><td>Usado sozinho pelo <a href="diff.html">vimdiff</a></td></tr>
+</table>
+</div>
+
+<h3>indent: o mais simples para código</h3>
+<pre class="term" data-title="notas.py — Vim">:set foldmethod=indent</pre>
+
+<p>Na hora, todo bloco recuado vira uma dobra fechada. Muita gente acha estranho abrir um arquivo "todo fechado". Para começar com tudo aberto, use <code>foldlevelstart</code> no <code>.vimrc</code>:</p>
+
+<pre class="file" data-file="~/.vimrc">" dobras automáticas por indentação, mas o arquivo abre com tudo aberto
+set foldmethod=indent
+set foldlevelstart=99</pre>
+
+<dl class="anatomy">
+  <dt>foldlevelstart=99</dt><dd>Nível inicial de dobra. Dobras até o nível 99 começam abertas, ou seja, todas. Você fecha o que quiser com <code>zc</code> ou <code>zM</code>.</dd>
+</dl>
+
+<h3>marker: dobras escritas no próprio arquivo</h3>
+<p>Com <code>foldmethod=marker</code>, tudo entre <code>{{{</code> e <code>}}}</code> vira uma dobra. Como as marcas ficam salvas no texto, as dobras sobrevivem ao fechar o arquivo. Elas geralmente vão dentro de comentários:</p>
+
+<pre class="file" data-file="~/.vimrc">" vim: foldmethod=marker
+" Aparência {{{
+set number
+set relativenumber
+" }}}
+
+" Busca {{{
+set ignorecase
+set smartcase
+set hlsearch
+" }}}</pre>
+
+<p>A primeira linha é uma <strong>modeline</strong>: o Vim lê opções escritas no próprio arquivo. Ao abrir esse <code>.vimrc</code>, ele aparece assim:</p>
+
+<pre class="term" data-title=".vimrc — Vim">" vim: foldmethod=marker
++--  4 lines: Aparência---------------------------------------
+
++--  5 lines: Busca-------------------------------------------</pre>
+
+<hr>
+
+<h2 id="salvar">Salvar as dobras: :mkview e :loadview</h2>
+<p>Dobras manuais (e quais dobras estavam abertas) se perdem ao sair. O <code>:mkview</code> grava o estado da janela num arquivo, e o <code>:loadview</code> recupera.</p>
+
+<pre class="term" data-title="relatorio.txt — Vim">:mkview
+:q</pre>
+
+<p>Para fazer isso sempre, sem pensar, use autocomandos no <code>.vimrc</code> (veja <a href="autocmd.html">Autocomandos</a>):</p>
+
+<pre class="file" data-file="~/.vimrc">" grava a visão ao sair de um arquivo e recupera ao abrir de novo
+augroup salvar_dobras
+  autocmd!
+  autocmd BufWinLeave ?* silent! mkview
+  autocmd BufWinEnter ?* silent! loadview
+augroup END</pre>
+
+<dl class="anatomy">
+  <dt>BufWinLeave</dt><dd>Evento: quando o arquivo sai da janela (ao fechar ou trocar).</dd>
+  <dt>?*</dt><dd>Só arquivos com nome (evita buffers temporários).</dd>
+  <dt>silent!</dt><dd>Não mostra erro se não houver visão salva.</dd>
+</dl>
+
+<p>As visões ficam na pasta <code>~/.vim/view/</code> (no Windows, <code>~/vimfiles/view/</code>). Veja também <a href="sessoes.html">Sessões e Undo Persistente</a>.</p>
+
+<hr>
+
+<h2>Formas diferentes de "ver menos" de um arquivo</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Como</th><th>Quando usar</th></tr>
+<tr><td>Dobras manuais</td><td><code>zfap</code>, <code>zf%</code></td><td>Esconder um trecho específico agora</td></tr>
+<tr><td>Dobras por indentação</td><td><code>:set fdm=indent</code> + <code>zM</code></td><td>Visão geral de um arquivo de código</td></tr>
+<tr><td>Marcas no texto</td><td><code>{{{</code> e <code>}}}</code></td><td>Arquivos longos que você mesmo mantém, como o <code>.vimrc</code></td></tr>
+<tr><td>Dividir a janela</td><td><code>:split</code></td><td>Ver dois trechos distantes ao mesmo tempo (veja <a href="janelas.html">Janelas</a>)</td></tr>
+<tr><td>Listar linhas</td><td><code>:g/def /p</code></td><td>Só ver os títulos, sem mexer no arquivo (veja <a href="ex-avancado.html">Comandos Ex</a>)</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"Nenhuma dobra encontrada"</strong>
+<pre class="term" data-title="notas.py — Vim">E490: Nenhuma dobra encontrada</pre>
+<p><strong>O que aconteceu:</strong> você usou <code>zo</code>, <code>zc</code> ou <code>za</code> numa linha sem dobra. Com <code>foldmethod=manual</code>, nada está dobrado até você criar.</p>
+<p><strong>Como resolver:</strong> crie com <code>zf</code> ou mude o método: <code>:set foldmethod=indent</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>zf não funciona</strong>
+<pre class="term" data-title="notas.py — Vim">E350: Impossível criar dobra com a configuração atual de 'foldmethod'</pre>
+<p><strong>O que aconteceu:</strong> <code>zf</code> só funciona com os métodos <code>manual</code> e <code>marker</code>. Com <code>indent</code> ou <code>syntax</code>, quem cria as dobras é o Vim.</p>
+<p><strong>Como resolver:</strong> <code>:set foldmethod=manual</code> antes de usar <code>zf</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Abri um arquivo e está tudo fechado</strong>
+<p><strong>O que aconteceu:</strong> o seu <code>.vimrc</code> (ou um plugin) liga dobras automáticas.</p>
+<p><strong>Como resolver:</strong> <code>zR</code> abre tudo agora. Para sempre, coloque <code>set foldlevelstart=99</code> no <code>.vimrc</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei dd numa dobra e sumiram 30 linhas</strong>
+<p><strong>O que aconteceu:</strong> numa linha dobrada, os comandos agem sobre todas as linhas escondidas.</p>
+<p><strong>Como resolver:</strong> <code>u</code> desfaz. Abra a dobra (<code>zo</code>) antes de editar uma linha específica.</p>
+</div>
+
+<div class="cenario">
+<strong>"E492: Não é um comando do editor" ao usar :fold</strong>
+<p><strong>O que aconteceu:</strong> o seu Vim foi compilado sem dobras (é o caso do <code>vim-tiny</code>). Confira com <code>vim --version | grep fold</code>: deve aparecer <code>+folding</code>.</p>
+<p><strong>Como resolver:</strong> instale o Vim completo, por exemplo <code>sudo apt install vim</code>. Veja <a href="instalar.html">Instalar</a>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>zo</code> / <code>zc</code> / <code>za</code></td><td>Abre / fecha / alterna a dobra</td></tr>
+<tr><td><code>zO</code> / <code>zC</code> / <code>zA</code></td><td>O mesmo, recursivo</td></tr>
+<tr><td><code>zR</code> / <code>zM</code></td><td>Abre todas / fecha todas</td></tr>
+<tr><td><code>zr</code> / <code>zm</code></td><td>Abre / fecha um nível</td></tr>
+<tr><td><code>zj</code> / <code>zk</code></td><td>Próxima / anterior dobra</td></tr>
+<tr><td><code>zf{movimento}</code></td><td>Cria dobra (métodos manual e marker)</td></tr>
+<tr><td><code>zd</code> / <code>zE</code></td><td>Remove a dobra / todas (sem apagar texto)</td></tr>
+<tr><td><code>:set foldmethod=…</code></td><td><code>manual</code>, <code>indent</code>, <code>syntax</code>, <code>marker</code>, <code>expr</code>, <code>diff</code></td></tr>
+<tr><td><code>:set foldlevelstart=99</code></td><td>Arquivos abrem com as dobras abertas</td></tr>
+<tr><td><code>:set foldcolumn=2</code></td><td>Mostra uma coluna com o desenho das dobras à esquerda</td></tr>
+<tr><td><code>:mkview</code> / <code>:loadview</code></td><td>Grava / recupera dobras e posição</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Alternar</h3>
+<p>Qual comando abre a dobra se ela está fechada e fecha se está aberta?</p>
+<div class="ex-code"><input data-answer="za" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Dobrar por indentação</h3>
+<p>Complete o comando:</p>
+<div class="ex-code">:set foldmethod=<input data-answer="indent" aria-label="método"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Visão geral</h3>
+<p>Quais teclas fecham <strong>todas</strong> as dobras do arquivo?</p>
+<div class="ex-code"><input data-answer="zM" aria-label="teclas"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Qual método guarda as dobras dentro do próprio arquivo?</p>
+<label><input type="radio" name="q4"> <code>indent</code></label>
+<label><input type="radio" name="q4"> <code>marker</code></label>
+<label><input type="radio" name="q4"> <code>manual</code></label>
+<label><input type="radio" name="q4"> <code>syntax</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Dobras escondem trechos sem apagá-los. Todos os comandos começam com <code>z</code>.</li>
+  <li><code>za</code> alterna; <code>zR</code> abre tudo; <code>zM</code> fecha tudo.</li>
+  <li><code>zf</code> cria dobras no método <code>manual</code>; <code>indent</code>, <code>syntax</code> e <code>marker</code> criam sozinhos.</li>
+  <li><code>set foldlevelstart=99</code> evita abrir arquivos todo fechados.</li>
+  <li>Dobras manuais se perdem ao sair; <code>:mkview</code> e <code>:loadview</code> guardam.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

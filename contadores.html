@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — números, repetição com ponto e Ctrl-a | Guia Vim</title>
+<meta name="description" content="Use números no Vim para repetir comandos (3dw, d3w, 5j, 20i-), o ponto para repetir a última alteração e Ctrl-a / Ctrl-x para somar e subtrair números no texto. Com demonstrações e Vim simulado.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Números e Repetição (.)</span></h1>
+
+<p class="intro">Duas ideias deixam o Vim muito mais rápido: um <strong>número</strong> antes de um comando faz ele acontecer várias vezes, e o <strong>ponto</strong> (<code>.</code>) repete a última alteração com uma tecla só. Juntas, elas transformam trabalho repetitivo em poucas teclas.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Onde colocar o número: <code>3dw</code> e <code>d3w</code>, e por que dão o mesmo resultado.</li>
+  <li>Repetir texto digitado: <code>20i-</code> cria uma linha de 20 traços.</li>
+  <li>O ponto <code>.</code>: o que ele repete, o que não repete e como usá-lo com buscas.</li>
+  <li>Somar e subtrair números no texto com <code>Ctrl-a</code> e <code>Ctrl-x</code>.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Você precisa conhecer a gramática verbo + movimento (<a href="gramatica.html">Verbo + Movimento</a>) e os operadores (<a href="operadores.html">Operadores d, c, y</a>). Tudo aqui é no <strong>modo normal</strong>.</p>
+</div>
+
+<hr>
+
+<h2>Um número antes do comando</h2>
+<p>Quase todo comando do modo normal aceita um número na frente. O número diz <strong>quantas vezes</strong>. Você digita o número e depois o comando; nada acontece até o comando chegar, e o número aparece no canto direito do rodapé enquanto isso.</p>
+
+<dl class="anatomy">
+  <dt>3</dt><dd>A contagem: três vezes.</dd>
+  <dt>x</dt><dd>O comando: apagar um caractere.</dd>
+</dl>
+
+<div class="vimdemo" data-file="nota.txt" data-col="9" data-keys="3x">
+<pre class="vim-inicial">Total: 100000 reais</pre>
+</div>
+
+<p>Três zeros saíram de uma vez. Funciona com movimentos também: <code>5j</code> desce 5 linhas, <code>3w</code> anda 3 palavras, <code>2}</code> pula 2 parágrafos.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Com número</th><th>Faz</th></tr>
+<tr><td><code>5j</code></td><td>Desce 5 linhas</td></tr>
+<tr><td><code>3w</code></td><td>Anda 3 palavras</td></tr>
+<tr><td><code>4x</code></td><td>Apaga 4 caracteres</td></tr>
+<tr><td><code>3dd</code></td><td>Apaga 3 linhas</td></tr>
+<tr><td><code>2p</code></td><td>Cola 2 vezes</td></tr>
+<tr><td><code>10G</code></td><td>Vai para a linha 10 (aqui o número é "qual", não "quantas")</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Antes do verbo ou antes do movimento?</h2>
+<p>Com um operador, o número pode ir em dois lugares, e o resultado é o mesmo:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Frase</th><th>Lê-se</th><th>Resultado</th></tr>
+<tr><td><code>3dw</code></td><td>três vezes, apague uma palavra</td><td>Apaga 3 palavras</td></tr>
+<tr><td><code>d3w</code></td><td>apague três palavras</td><td>Apaga 3 palavras</td></tr>
+<tr><td><code>2d3w</code></td><td>duas vezes, apague três palavras</td><td>Apaga 6 palavras (os números se multiplicam)</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="numeros.txt" data-keys="d3w">
+<pre class="vim-inicial">uma duas três quatro cinco seis</pre>
+</div>
+
+<p>Escolha a ordem que for mais natural de ler. Muita gente prefere <code>d3w</code>, que soa como uma frase ("apague três palavras").</p>
+
+<hr>
+
+<h2>Repetir texto digitado</h2>
+<p>O número também vale para comandos que entram no modo de inserção, como <code>i</code>, <code>a</code> e <code>o</code>. O texto que você digitar é repetido quando você aperta <kbd>Esc</kbd>:</p>
+
+<dl class="anatomy">
+  <dt>20</dt><dd>Contagem: vinte vezes.</dd>
+  <dt>i</dt><dd>Entra no modo de inserção.</dd>
+  <dt>-</dt><dd>O texto digitado: um traço.</dd>
+  <dt>&lt;Esc&gt;</dt><dd>Sai do modo de inserção. Só agora o Vim repete o texto mais 19 vezes.</dd>
+</dl>
+
+<div class="vimdemo" data-file="relatorio.txt" data-line="2" data-keys="20i-&lt;Esc&gt;">
+<pre class="vim-inicial">RELATÓRIO MENSAL
+
+Vendas: 42</pre>
+</div>
+
+<p>Repare: enquanto você digita, aparece só um traço. A mágica acontece no <kbd>Esc</kbd>. Com <code>3o</code>, você cria três linhas iguais de uma vez:</p>
+
+<div class="vimdemo" data-file="lista.txt" data-keys="3o- [ ] tarefa&lt;Esc&gt;">
+<pre class="vim-inicial">TAREFAS</pre>
+</div>
+
+<div class="vimtry" data-file="tabela.txt">
+<pre class="vim-inicial">Nome      Idade
+
+Ana       30</pre>
+<pre class="vim-meta">Nome      Idade
+================
+Ana       30</pre>
+<p class="try-task"><strong>Missão:</strong> desça até a linha vazia e preencha com exatamente 16 sinais de igual, usando um número antes do <code>i</code>. Não esqueça do <kbd>Esc</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>O ponto: repita a última alteração</h2>
+<p>O <code>.</code> (ponto) repete a <strong>última alteração</strong> que você fez no texto, exatamente como foi feita. É provavelmente a tecla mais poderosa do Vim.</p>
+
+<dl class="anatomy">
+  <dt>.</dt><dd>Repete o último comando que alterou o texto: um <code>dw</code>, um <code>x</code>, um <code>A;&lt;Esc&gt;</code> inteiro…</dd>
+</dl>
+
+<p>Exemplo: colocar ponto e vírgula no fim de várias linhas. Você faz uma vez com <code>A;&lt;Esc&gt;</code> (ir ao fim da linha, digitar <code>;</code>, sair) e depois só repete com <code>j.</code> (descer, repetir):</p>
+
+<div class="vimdemo" data-file="codigo.js" data-keys="A;&lt;Esc&gt;j.j.j.">
+<pre class="vim-inicial">let a = 1
+let b = 2
+let c = 3
+let d = 4</pre>
+</div>
+
+<p>Clique em "Próxima tecla" e conte: a primeira linha gastou 3 teclas (<code>A</code>, <code>;</code>, <kbd>Esc</kbd>), e cada linha seguinte gastou só 2 (<code>j</code> e <code>.</code>).</p>
+
+<h3>O que conta como "alteração"</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>O ponto repete</th><th>O ponto não repete</th></tr>
+<tr><td>Operadores: <code>dw</code>, <code>ci"</code>, <code>&gt;&gt;</code>, <code>gUiw</code></td><td>Movimentos: <code>w</code>, <code>j</code>, <code>G</code></td></tr>
+<tr><td>Atalhos: <code>x</code>, <code>D</code>, <code>J</code>, <code>p</code></td><td>Buscas: <code>/</code>, <code>n</code>, <code>*</code></td></tr>
+<tr><td>Uma sessão de inserção inteira: <code>A;&lt;Esc&gt;</code>, <code>cwnovo&lt;Esc&gt;</code></td><td>Desfazer e refazer: <code>u</code>, <code>Ctrl-r</code></td></tr>
+<tr><td><code>Ctrl-a</code> e <code>Ctrl-x</code></td><td>Comandos <code>:</code> (para eles existe <code>@:</code>)</td></tr>
+</table>
+</div>
+
+<h3>Ponto com número</h3>
+<p>Um número antes do ponto <strong>troca</strong> a contagem original. Se a última alteração foi <code>dw</code>, então <code>3.</code> funciona como <code>3dw</code>:</p>
+
+<div class="vimdemo" data-file="numeros.txt" data-keys="dw3.">
+<pre class="vim-inicial">um dois três quatro cinco seis</pre>
+</div>
+
+<div class="vimtry" data-file="lista.txt">
+<pre class="vim-inicial">pão
+leite
+café
+açúcar</pre>
+<pre class="vim-meta">- pão
+- leite
+- café
+- açúcar</pre>
+<p class="try-task"><strong>Missão:</strong> transforme as linhas numa lista com "- " no começo. Faça a primeira com <code>I- &lt;Esc&gt;</code> (<code>I</code> insere no começo da linha) e repita nas outras com <code>j.</code>.</p>
+</div>
+
+<hr>
+
+<h2>A dupla busca + ponto</h2>
+<p>O ponto fica ainda melhor com a busca. A ideia: <strong>uma tecla para chegar, uma tecla para alterar</strong>. Para trocar "azul" por "verde" em alguns lugares, escolhendo um por um:</p>
+
+<ol class="passo">
+  <li>Ponha o cursor numa ocorrência de "azul" e aperte <code>*</code>. Ele busca a palavra sob o cursor.</li>
+  <li>Volte com <code>N</code> para a ocorrência onde você estava, e troque com <code>cwverde&lt;Esc&gt;</code>.</li>
+  <li>Agora repita: <code>n</code> pula para o próximo "azul" e <code>.</code> troca. Onde não quiser trocar, aperte só <code>n</code> e pule.</li>
+</ol>
+
+<div class="vimdemo" data-file="estilo.css" data-col="6" data-keys="*Ncwverde&lt;Esc&gt;n.n.">
+<pre class="vim-inicial">cor: azul
+fundo: branco
+borda: azul
+texto: azul</pre>
+</div>
+
+<p>Essa técnica é uma alternativa ao <code>:s</code> (substituir) quando você quer decidir caso a caso. O <code>:s</code> aparece em <a href="substituir.html">Substituir</a>.</p>
+
+<div class="vimtry" data-file="estilo.css" data-col="6">
+<pre class="vim-inicial">cor: azul
+fundo: azul
+borda: azul
+sombra: preta</pre>
+<pre class="vim-meta">cor: verde
+fundo: verde
+borda: verde
+sombra: preta</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está no primeiro "azul". Troque os três "azul" por "verde" com <code>cw</code> uma vez e depois <code>n.</code>. Comece com <code>*N</code> para preparar a busca.</p>
+</div>
+
+<hr>
+
+<h2>Ctrl-a e Ctrl-x: somar e subtrair</h2>
+<p><kbd>Ctrl</kbd>+<kbd>a</kbd> soma 1 ao número sob o cursor ou ao primeiro número à direita dele na linha. <kbd>Ctrl</kbd>+<kbd>x</kbd> subtrai. Com uma contagem, soma ou subtrai aquele valor.</p>
+
+<dl class="anatomy">
+  <dt>5</dt><dd>Contagem: o valor a somar.</dd>
+  <dt>&lt;C-a&gt;</dt><dd><kbd>Ctrl</kbd>+<kbd>a</kbd> (de <em>add</em>): soma ao próximo número da linha.</dd>
+</dl>
+
+<div class="vimdemo" data-file="servidor.conf" data-keys="5&lt;C-a&gt;">
+<pre class="vim-inicial">conexoes_max = 10</pre>
+</div>
+
+<p>O cursor estava no começo da linha, longe do número. O <kbd>Ctrl</kbd>+<kbd>a</kbd> procurou o primeiro número à direita, somou 5 e deixou o cursor no último dígito.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Antes</th><th>Teclas</th><th>Depois</th></tr>
+<tr><td><code>porta 8080</code></td><td><code>10&lt;C-x&gt;</code></td><td><code>porta 8070</code></td></tr>
+<tr><td><code>temperatura: -3</code></td><td><code>5&lt;C-a&gt;</code></td><td><code>temperatura: 2</code></td></tr>
+<tr><td><code>arquivo007</code></td><td><code>&lt;C-a&gt;</code></td><td><code>arquivo008</code> (os zeros à esquerda ficam)</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>Nota: números com zero à esquerda</strong>
+<p>Com a configuração padrão do Vim (<code>defaults.vim</code>), <code>007</code> é tratado como decimal e vira <code>008</code>. Em configurações antigas que incluem <code>octal</code> na opção <code>nrformats</code>, <code>007</code> seria lido como número octal e viraria <code>010</code>. Para ver a sua: <code>:set nrformats?</code>.</p>
+</div>
+
+<p>Com contagens diferentes em cada linha, dá para numerar uma lista em sequência. Na linha 2 some 1, na 3 some 2, na 4 some 3:</p>
+
+<div class="vimdemo" data-file="capitulos.txt" data-keys="j&lt;C-a&gt;j2&lt;C-a&gt;j3&lt;C-a&gt;">
+<pre class="vim-inicial">Capítulo 1
+Capítulo 1
+Capítulo 1
+Capítulo 1</pre>
+</div>
+
+<div class="vimtry" data-file="versao.txt">
+<pre class="vim-inicial">versao = 41
+porta = 8080</pre>
+<pre class="vim-meta">versao = 42
+porta = 8000</pre>
+<p class="try-task"><strong>Missão:</strong> some 1 à versão e subtraia 80 da porta, sem digitar nenhum número novo no texto. Dica: <code>&lt;C-a&gt;</code>, depois <code>j</code> e <code>80&lt;C-x&gt;</code>.</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de repetir</h2>
+<p>Objetivo: apagar 4 palavras.</p>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Como funciona</th><th>Quando usar</th></tr>
+<tr><td><code>d4w</code> ou <code>4dw</code></td><td>Uma frase com contagem</td><td>Você sabe quantas são.</td></tr>
+<tr><td><code>dw...</code></td><td>Apaga uma e repete três vezes</td><td>Você não quer contar e prefere ir vendo.</td></tr>
+<tr><td><code>dw3.</code></td><td>Apaga uma e depois mais três de uma vez</td><td>Você viu o resultado da primeira e já sabe quantas faltam.</td></tr>
+<tr><td><code>vw...d</code> (visual)</td><td>Seleciona andando e apaga</td><td>Você quer ver a seleção antes (veja <a href="visual.html">Modo Visual</a>).</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Digitei 20i- e só apareceu um traço</strong>
+<p><strong>O que aconteceu:</strong> a repetição só acontece quando você sai do modo de inserção.</p>
+<p><strong>Como resolver:</strong> aperte <kbd>Esc</kbd>. Se você saiu com as setas ou clicando com o mouse, a repetição não acontece; use sempre <kbd>Esc</kbd>.</p>
+</div>
+
+<div class="cenario">
+<strong>O ponto repetiu outra coisa</strong>
+<p><strong>O que aconteceu:</strong> o ponto repete a <strong>última alteração</strong>, não o último comando. Se depois do <code>A;&lt;Esc&gt;</code> você apagou algo com <code>x</code>, o ponto agora repete o <code>x</code>.</p>
+<p><strong>Como resolver:</strong> <code>u</code> desfaz o que o ponto fez. Para repetir uma sequência mais longa sem depender da última alteração, grave uma <a href="macros.html">macro</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>Ctrl-a não fez nada</strong>
+<p><strong>O que aconteceu:</strong> não há número no cursor nem à direita dele na linha. O <kbd>Ctrl</kbd>+<kbd>a</kbd> não procura em outras linhas.</p>
+<p><strong>Como resolver:</strong> leve o cursor para a linha do número. Num terminal dentro do <code>tmux</code> ou <code>screen</code>, <kbd>Ctrl</kbd>+<kbd>a</kbd> pode ser capturado por eles antes de chegar ao Vim.</p>
+</div>
+
+<div class="cenario">
+<strong>Digitei um número e o Vim parou de responder às teclas</strong>
+<p><strong>O que aconteceu:</strong> o número está esperando um comando. O rodapé mostra os dígitos no canto direito, como <code>25</code>.</p>
+<p><strong>Como resolver:</strong> complete o comando ou aperte <kbd>Esc</kbd> para cancelar a contagem.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Faz</th></tr>
+<tr><td><code>{n}comando</code></td><td>Repete o comando n vezes (<code>3x</code>, <code>5j</code>)</td></tr>
+<tr><td><code>d{n}movimento</code></td><td>Operador com contagem no movimento (<code>d3w</code>)</td></tr>
+<tr><td><code>{n}i texto &lt;Esc&gt;</code></td><td>Insere o texto n vezes</td></tr>
+<tr><td><code>{n}o texto &lt;Esc&gt;</code></td><td>Cria n linhas com o texto</td></tr>
+<tr><td><code>.</code></td><td>Repete a última alteração</td></tr>
+<tr><td><code>{n}.</code></td><td>Repete trocando a contagem por n</td></tr>
+<tr><td><code>&lt;C-a&gt;</code> / <code>{n}&lt;C-a&gt;</code></td><td>Soma 1 / n ao próximo número da linha</td></tr>
+<tr><td><code>&lt;C-x&gt;</code> / <code>{n}&lt;C-x&gt;</code></td><td>Subtrai 1 / n</td></tr>
+<tr><td><code>@:</code></td><td>Repete o último comando <code>:</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Linha de asteriscos</h3>
+<p>Complete para criar uma linha com 30 asteriscos:</p>
+<div class="ex-code"><input data-answer="30" aria-label="número">i*&lt;Esc&gt;</div>
+</div>
+
+<div class="exercise">
+<h3>2. Repetir</h3>
+<p>Você acabou de apagar uma palavra com <code>dw</code>. Que tecla apaga a próxima palavra do mesmo jeito?</p>
+<div class="ex-code"><input data-answer="." aria-label="tecla"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. Quantas palavras <code>2d3w</code> apaga?</p>
+<label><input type="radio" name="q3"> 2</label>
+<label><input type="radio" name="q3"> 5</label>
+<label><input type="radio" name="q3"> 6</label>
+<label><input type="radio" name="q3"> 23</label>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Na linha <code>itens = 9</code>, com o cursor no "i", o que <code>&lt;C-a&gt;</code> faz?</p>
+<label><input type="radio" name="q4"> Nada: o cursor não está no número.</label>
+<label><input type="radio" name="q4"> Muda para <code>itens = 10</code>.</label>
+<label><input type="radio" name="q4"> Seleciona a linha toda.</label>
+<label><input type="radio" name="q4"> Insere a letra "a".</label>
+</div>
+
+<div class="vimtry" data-file="config.txt">
+<pre class="vim-inicial">debug = sim
+debug = sim
+debug = sim
+workers = 4</pre>
+<pre class="vim-meta">debug = nao
+debug = nao
+debug = nao
+workers = 8</pre>
+<p class="try-task"><strong>Missão final:</strong> troque os três "sim" por "nao" (faça o primeiro com <code>$ciwnao&lt;Esc&gt;</code> e repita com <code>j.</code>) e dobre os workers com <code>4&lt;C-a&gt;</code>.</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Número antes do comando = repetir: <code>3x</code>, <code>5j</code>, <code>3dd</code>.</li>
+  <li><code>3dw</code> e <code>d3w</code> dão o mesmo resultado; números em dois lugares se multiplicam.</li>
+  <li><code>20i-&lt;Esc&gt;</code> repete o texto digitado; a repetição acontece no <kbd>Esc</kbd>.</li>
+  <li><code>.</code> repete a última alteração; com busca, <code>n.</code> troca caso a caso.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>a</kbd> / <kbd>Ctrl</kbd>+<kbd>x</kbd> somam e subtraem números no texto.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

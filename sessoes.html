@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — sessões, undo persistente e viminfo | Guia Vim</title>
+<meta name="description" content="Continue de onde parou no Vim: :mksession e vim -S, :mkview, desfazer mesmo depois de fechar o arquivo com undofile e undodir, viajar no tempo com :earlier e :later, e o que o viminfo guarda.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Sessões e Undo Persistente</span></h1>
+
+<p class="intro">Você passou a tarde com cinco arquivos abertos em janelas, fechou o Vim e no dia seguinte quer tudo de volta, do mesmo jeito. Ou salvou e fechou um arquivo e só depois percebeu que apagou um trecho importante. O Vim tem recursos para os dois casos: <strong>sessões</strong> guardam o ambiente de trabalho e o <strong>undo persistente</strong> guarda o histórico de alterações mesmo depois de fechar o arquivo.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Salvar e restaurar um ambiente inteiro com <code>:mksession</code> e <code>vim -S</code>.</li>
+  <li>Guardar dobras e posição de um arquivo com <code>:mkview</code>.</li>
+  <li>Desfazer alterações de ontem com <code>undofile</code> e <code>undodir</code>.</li>
+  <li>Voltar no tempo com <code>:earlier 10m</code> e <code>:later</code>.</li>
+  <li>O que o arquivo <code>viminfo</code> guarda entre uma execução e outra.</li>
+</ul>
+</div>
+
+<div class="note">
+<strong>Sobre o simulador</strong>
+<p>O Vim simulado tem o <code>u</code> e o <kbd>Ctrl</kbd>+<kbd>R</kbd>, mas não grava sessões nem histórico em disco. As telas desta aula mostram o Vim real. O <code>vim-tiny</code> também não tem sessões nem undo persistente: use o Vim completo.</p>
+</div>
+
+<hr>
+
+<h2>Sessões: o ambiente inteiro num arquivo</h2>
+<p>Uma <strong>sessão</strong> é um script que recria o que você tinha aberto: arquivos, janelas e abas, tamanhos, posição do cursor e a pasta atual.</p>
+
+<dl class="anatomy">
+  <dt>:mksession</dt><dd><em>make session</em>: grava a sessão. Sem nome, cria <code>Session.vim</code> na pasta atual.</dd>
+  <dt>~/sessoes/loja.vim</dt><dd>Opcional: onde gravar.</dd>
+</dl>
+
+<pre class="term" data-title="pedido.py — VIM">:mksession ~/sessoes/loja.vim</pre>
+
+<p>A pasta <code>~/sessoes</code> precisa existir; crie antes com <code>mkdir -p ~/sessoes</code>. Para voltar ao trabalho, abra o Vim com a sessão:</p>
+
+<dl class="anatomy">
+  <dt>vim</dt><dd>O editor.</dd>
+  <dt>-S</dt><dd>Carrega (<em>source</em>) um arquivo de sessão ao abrir.</dd>
+  <dt>~/sessoes/loja.vim</dt><dd>A sessão gravada. Sem nome, o <code>-S</code> procura <code>Session.vim</code>.</dd>
+</dl>
+
+<pre class="term">$ vim -S ~/sessoes/loja.vim</pre>
+
+<p>Tudo volta como estava. Se o Vim já estiver aberto, use <code>:source ~/sessoes/loja.vim</code>.</p>
+
+<h3>Atualizar uma sessão</h3>
+<p>Gravar de novo no mesmo arquivo exige o <code>!</code>, para você não sobrescrever uma sessão sem querer. Com o nome padrão:</p>
+
+<pre class="term" data-title="pedido.py — VIM">:mksession
+E189: "Session.vim" existe (adicione ! para forçar)
+:mksession!</pre>
+
+<div class="tip">
+<strong>O que entra na sessão</strong>
+<p>A opção <code>sessionoptions</code> define o que é gravado (por padrão: arquivos abertos, janelas, abas, pasta atual, dobras e mais). Se não quiser que as sessões guardem opções e mapeamentos, tire-os: <code>set sessionoptions-=options</code>.</p>
+</div>
+
+<div class="warning">
+<strong>A sessão não guarda o texto</strong>
+<p>A sessão lembra <strong>quais</strong> arquivos estavam abertos, não o conteúdo deles. Alterações não salvas são perdidas ao sair. Salve com <code>:wa</code> antes de fechar.</p>
+</div>
+
+<hr>
+
+<h2>Visões: um arquivo só</h2>
+<p>O <code>:mkview</code> é uma "mini-sessão" de um arquivo: guarda as <a href="dobras.html">dobras</a>, a posição do cursor e as opções locais. O <code>:loadview</code> recupera. Na aula <a href="dobras.html#salvar">Dobras</a> há uma configuração que faz isso sozinho, sempre que você abre e fecha um arquivo.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th></th><th>Sessão</th><th>Visão</th></tr>
+<tr><td>Guarda</td><td>Todos os arquivos, janelas e abas</td><td>Um arquivo: dobras, cursor, opções locais</td></tr>
+<tr><td>Gravar</td><td><code>:mksession[!] arq</code></td><td><code>:mkview</code></td></tr>
+<tr><td>Recuperar</td><td><code>vim -S arq</code> ou <code>:source arq</code></td><td><code>:loadview</code></td></tr>
+<tr><td>Fica em</td><td>Onde você mandar (padrão <code>Session.vim</code>)</td><td><code>~/.vim/view/</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Undo persistente: desfazer depois de fechar</h2>
+<p>Por padrão, o histórico do <code>u</code> vive só na memória: fechou o arquivo, perdeu. Com <code>undofile</code>, o Vim grava esse histórico num arquivo separado e o recupera ao abrir de novo. Você pode desfazer alterações de dias atrás.</p>
+
+<p>Lembrete rápido de como funciona o desfazer (detalhes em <a href="desfazer.html">Desfazer e Refazer</a>):</p>
+
+<div class="vimdemo" data-file="notas.txt" data-keys="ddddu">
+<pre class="vim-inicial">primeira linha
+segunda linha
+terceira linha</pre>
+</div>
+
+<p>Para ligar o undo persistente, coloque no <code>.vimrc</code>:</p>
+
+<pre class="file" data-file="~/.vimrc">" guarda o histórico de desfazer em arquivos, numa pasta própria
+set undofile
+set undodir=~/.vim/undo//
+" cria a pasta, se ainda não existir
+if !isdirectory(expand('~/.vim/undo'))
+  call mkdir(expand('~/.vim/undo'), 'p')
+endif</pre>
+
+<dl class="anatomy">
+  <dt>set undofile</dt><dd>Liga a gravação do histórico de desfazer.</dd>
+  <dt>set undodir=~/.vim/undo//</dt><dd>Onde guardar. As <strong>duas barras</strong> no fim fazem o Vim usar o caminho completo do arquivo no nome, evitando que dois <code>config.txt</code> de pastas diferentes se misturem.</dd>
+  <dt>isdirectory(…)</dt><dd>Pergunta se a pasta existe.</dd>
+  <dt>call mkdir(…, 'p')</dt><dd>Cria a pasta, incluindo as pastas-pai (como <code>mkdir -p</code> no terminal).</dd>
+</dl>
+
+<p>Sem o <code>undodir</code>, o Vim cria arquivos <code>.notas.txt.un~</code> ao lado de cada arquivo editado, o que suja as pastas. Com ele, tudo fica organizado em <code>~/.vim/undo/</code>. No Windows, use <code>~/vimfiles/undo//</code>.</p>
+
+<pre class="term">$ ls ~/.vim/undo/
+%home%ana%projetos%loja%pedido.py  %home%ana%notas.txt</pre>
+
+<p>Os <code>%</code> são as barras do caminho, por causa do <code>//</code>.</p>
+
+<div class="warning">
+<strong>Arquivos sensíveis</strong>
+<p>O histórico guarda texto que você apagou. Se apagou uma senha de um arquivo, ela continua no arquivo de undo. Para esses casos, desligue no arquivo atual com <code>:setlocal noundofile</code> e apague o arquivo correspondente em <code>~/.vim/undo/</code>.</p>
+</div>
+
+<hr>
+
+<h2>Viajar no tempo: :earlier e :later</h2>
+<p>Além de <code>u</code> (um passo), o Vim volta para um <strong>momento</strong>. Combinado com o undo persistente, isso funciona entre dias diferentes.</p>
+
+<dl class="anatomy">
+  <dt>:earlier</dt><dd>Volta o arquivo para como estava antes.</dd>
+  <dt>10m</dt><dd>Quanto voltar: 10 minutos. Também aceita <code>s</code> (segundos), <code>h</code> (horas), <code>d</code> (dias) e <code>f</code> (gravações do arquivo).</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:earlier 10m</code></td><td>Como o arquivo estava há 10 minutos</td></tr>
+<tr><td><code>:earlier 1h</code> / <code>:earlier 2d</code></td><td>Há 1 hora / há 2 dias (com <code>undofile</code>)</td></tr>
+<tr><td><code>:earlier 1f</code></td><td>Como estava na última vez que você salvou</td></tr>
+<tr><td><code>:later 5m</code></td><td>Avança 5 minutos de volta para o presente</td></tr>
+<tr><td><code>g-</code> / <code>g+</code></td><td>Anda pelo histórico em ordem de tempo, incluindo "ramos" que o <code>u</code> não alcança</td></tr>
+<tr><td><code>:undolist</code></td><td>Mostra os pontos finais dos ramos do histórico</td></tr>
+</table>
+</div>
+
+<pre class="term" data-title="notas.txt — VIM">:undolist
+número mudanças quando             salvo
+     6       3  10:12:40
+     9       4  10:20:05         1</pre>
+
+<p>O <code>:undolist</code> mostra os "ramos" do histórico: quando você desfaz e depois digita outra coisa, o Vim não joga fora o caminho antigo, ele cria um ramo. A coluna <code>salvo</code> indica que naquele ponto o arquivo foi gravado (1 = primeira gravação). Os números e horários acima são ilustrativos.</p>
+
+<div class="tip">
+<strong>Recuperar um trecho apagado ontem</strong>
+<p>Abra o arquivo, faça <code>:earlier 1d</code>, copie o trecho (<code>yy</code>, <code>yap</code>…), volte com <code>:later 1d</code> e cole com <code>p</code>. A cópia continua no registrador.</p>
+</div>
+
+<hr>
+
+<h2>viminfo: a memória entre execuções</h2>
+<p>Mesmo sem sessão, o Vim lembra coisas de uma execução para a outra. Elas ficam no arquivo <code>~/.viminfo</code> (no Neovim, o equivalente se chama <code>shada</code>):</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Guarda</th><th>Por isso…</th></tr>
+<tr><td>Histórico de comandos <code>:</code> e de buscas <code>/</code></td><td>A seta <kbd>↑</kbd> na linha de comando traz comandos de ontem</td></tr>
+<tr><td>Conteúdo dos registradores</td><td>Um <code>"ap</code> cola o que você copiou na última vez</td></tr>
+<tr><td>Marcas maiúsculas (<code>mA</code>…)</td><td><code>'A</code> abre o arquivo marcado (veja <a href="marcas.html">Marcas</a>)</td></tr>
+<tr><td>Última posição em cada arquivo</td><td>Ao reabrir, o cursor volta para onde estava</td></tr>
+</table>
+</div>
+
+<p>A volta automática para a última posição vem do <code>defaults.vim</code>, que o Vim carrega quando você não tem <code>.vimrc</code>. Se você criou um <code>.vimrc</code> e isso parou de funcionar, coloque no começo dele:</p>
+
+<pre class="file" data-file="~/.vimrc">" carrega os padrões do Vim (inclui voltar à última posição do cursor)
+unlet! skip_defaults_vim
+source $VIMRUNTIME/defaults.vim</pre>
+
+<p>O que e quanto o viminfo guarda é controlado pela opção <code>viminfo</code>. Para gravar ou ler na hora, use <code>:wviminfo</code> e <code>:rviminfo</code>.</p>
+
+<hr>
+
+<h2>Formas diferentes de "continuar de onde parei"</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Situação</th><th>Recurso</th></tr>
+<tr><td>Reabrir um arquivo no mesmo ponto</td><td>viminfo (automático com <code>defaults.vim</code>)</td></tr>
+<tr><td>Reabrir com as mesmas dobras</td><td><code>:mkview</code> / <code>:loadview</code></td></tr>
+<tr><td>Reabrir um projeto com vários arquivos e janelas</td><td><code>:mksession</code> / <code>vim -S</code></td></tr>
+<tr><td>Desfazer algo de antes de fechar o arquivo</td><td><code>undofile</code> + <code>:earlier</code></td></tr>
+<tr><td>Recuperar após uma queda (luz, terminal fechado)</td><td>Arquivo de troca (<code>.swp</code>) e <code>vim -r</code>; veja <a href="socorro.html">Estou Preso no Vim!</a></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"existe (adicione ! para forçar)" ao gravar a sessão</strong>
+<pre class="term" data-title="pedido.py — VIM">E189: "Session.vim" existe (adicione ! para forçar)</pre>
+<p><strong>O que aconteceu:</strong> já há uma sessão com esse nome.</p>
+<p><strong>Como resolver:</strong> <code>:mksession!</code> para sobrescrever, ou escolha outro nome.</p>
+</div>
+
+<div class="cenario">
+<strong>Fechei e reabri, mas o u diz "Já está na alteração mais antiga"</strong>
+<pre class="term" data-title="notas.txt — VIM">Já está na alteração mais antiga</pre>
+<p><strong>O que aconteceu:</strong> o undo persistente está desligado, ou a pasta do <code>undodir</code> não existe (o Vim não cria sozinho).</p>
+<p><strong>Como resolver:</strong> confira com <code>:set undofile? undodir?</code> e crie a pasta. A partir daí, o histórico passa a ser gravado.</p>
+</div>
+
+<div class="cenario">
+<strong>O histórico sumiu depois que o arquivo foi mudado por outro programa</strong>
+<p><strong>O que aconteceu:</strong> o Vim só usa o arquivo de undo se o texto for exatamente o que ele gravou. Uma alteração feita por fora (outro editor, <code>git checkout</code>) invalida o histórico, e o Vim o ignora sem avisar. Com <code>:set verbose=1</code> antes de abrir o arquivo, ele mostra o motivo: <code>Conteúdo do arquivo mudou; não posso usar informação de desfazer</code>.</p>
+<p><strong>Como resolver:</strong> não há como recuperar esse histórico. Para versões antigas, use controle de versão (veja o Git) ou backups.</p>
+</div>
+
+<div class="cenario">
+<strong>A sessão abre arquivos de pastas erradas</strong>
+<p><strong>O que aconteceu:</strong> a sessão guarda a pasta atual e caminhos relativos a ela. Se você moveu o projeto, os caminhos não batem.</p>
+<p><strong>Como resolver:</strong> abra os arquivos de novo e grave a sessão outra vez com <code>:mksession!</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:mksession[!] [arq]</code></td><td>Grava a sessão (padrão <code>Session.vim</code>)</td></tr>
+<tr><td><code>vim -S [arq]</code> / <code>:source arq</code></td><td>Restaura a sessão</td></tr>
+<tr><td><code>:mkview</code> / <code>:loadview</code></td><td>Grava / restaura a visão do arquivo atual</td></tr>
+<tr><td><code>set undofile undodir=…//</code></td><td>Liga o undo persistente</td></tr>
+<tr><td><code>:earlier N{s,m,h,d,f}</code></td><td>Volta no tempo</td></tr>
+<tr><td><code>:later N{s,m,h,d,f}</code></td><td>Avança no tempo</td></tr>
+<tr><td><code>g-</code> / <code>g+</code></td><td>Anda pelo histórico em ordem cronológica</td></tr>
+<tr><td><code>:undolist</code></td><td>Lista os ramos do histórico</td></tr>
+<tr><td><code>:wviminfo</code> / <code>:rviminfo</code></td><td>Grava / lê o viminfo agora</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Abrir com a sessão</h3>
+<p>Complete o comando do terminal que abre o Vim com a sessão <code>loja.vim</code>:</p>
+<div class="ex-code">vim <input data-answer="-S" aria-label="opção"> loja.vim</div>
+</div>
+
+<div class="exercise">
+<h3>2. Meia hora atrás</h3>
+<p>Complete o comando que mostra o arquivo como estava há 30 minutos:</p>
+<div class="ex-code">:earlier <input data-answer="30m" aria-label="tempo"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. Para que servem as duas barras em <code>set undodir=~/.vim/undo//</code>?</p>
+<label><input type="radio" name="q3"> São um erro de digitação; uma barra basta.</label>
+<label><input type="radio" name="q3"> Fazem o Vim criar a pasta sozinho.</label>
+<label><input type="radio" name="q3"> Usam o caminho completo do arquivo no nome, evitando conflitos entre arquivos com o mesmo nome.</label>
+<label><input type="radio" name="q3"> Ativam a compressão do histórico.</label>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Você fechou o Vim sem salvar alterações num arquivo. Ao restaurar a sessão com <code>vim -S</code>, o que acontece com elas?</p>
+<label><input type="radio" name="q4"> Voltam, porque a sessão guarda o texto.</label>
+<label><input type="radio" name="q4"> Foram perdidas: a sessão guarda quais arquivos estavam abertos, não o conteúdo.</label>
+<label><input type="radio" name="q4"> Ficam no registrador <code>"s</code>.</label>
+<label><input type="radio" name="q4"> Aparecem em <code>~/.vim/view/</code>.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>:mksession</code> grava o ambiente (arquivos, janelas, abas); <code>vim -S</code> restaura.</li>
+  <li><code>:mkview</code>/<code>:loadview</code> fazem o mesmo para um arquivo só.</li>
+  <li><code>set undofile</code> com <code>undodir=…//</code> mantém o histórico de desfazer depois de fechar.</li>
+  <li><code>:earlier 10m</code> e <code>:later 10m</code> viajam no tempo; <code>1f</code> = última gravação.</li>
+  <li>O viminfo lembra históricos, registradores, marcas e a última posição em cada arquivo.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

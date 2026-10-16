@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — comandos Ex avançados: faixas, :g, :norm, :sort | Guia Vim</title>
+<meta name="description" content="Domine os comandos de linha do Vim: faixas de linhas, :g e :v para agir em linhas que casam com um padrão, :norm, :m, :t e :sort, com demonstrações e Vim simulado.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Comandos Ex (:g, :norm, faixas)</span></h1>
+
+<p class="intro">Os comandos que começam com <code>:</code> são chamados de <strong>comandos Ex</strong>, herança do editor <em>ex</em>, que deu origem ao Vi. Eles não trabalham com o cursor, e sim com <strong>linhas</strong>: "apague das linhas 10 a 20", "em toda linha que tem DEBUG, faça isto". Com eles, edições em centenas de linhas viram um único comando.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Escrever <strong>faixas</strong> de linhas: <code>2,5</code>, <code>.,$</code>, <code>%</code>, <code>'a,'b</code>, <code>/início/,/fim/</code>.</li>
+  <li>Apagar, copiar e mover linhas com <code>:d</code>, <code>:t</code> e <code>:m</code>.</li>
+  <li>Rodar comandos de modo normal em várias linhas com <code>:norm</code>.</li>
+  <li>Agir só nas linhas que casam com um padrão, com <code>:g</code> e <code>:v</code>.</li>
+  <li>Ordenar linhas com <code>:sort</code>.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Você já usou um comando Ex: o <code>:s</code> de <a href="substituir.html">Substituir</a>. Tudo o que aprender aqui sobre faixas vale para ele também.</p>
+</div>
+
+<hr>
+
+<h2>Anatomia de um comando Ex</h2>
+<p>Quase todo comando Ex tem o mesmo formato: <strong>onde</strong> (a faixa de linhas), <strong>o quê</strong> (o comando) e, às vezes, um argumento.</p>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Abre a linha de comando no rodapé.</dd>
+  <dt>2,4</dt><dd>A <strong>faixa</strong>: da linha 2 até a linha 4. Sem faixa, o comando age só na linha do cursor.</dd>
+  <dt>d</dt><dd>O comando: <code>d</code> de <em>delete</em>, apagar as linhas.</dd>
+  <dt>&lt;CR&gt;</dt><dd><kbd>Enter</kbd> executa.</dd>
+</dl>
+
+<div class="vimdemo" data-file="itens.txt" data-set="number" data-keys=":2,4d&lt;CR&gt;">
+<pre class="vim-inicial">primeiro
+segundo
+terceiro
+quarto
+quinto</pre>
+</div>
+
+<p>Ligamos os números de linha (<code>:set number</code>) para você conferir: as linhas 2, 3 e 4 saíram. Como foram mais de duas, o rodapé avisou <code>3 linhas a menos</code>.</p>
+
+<hr>
+
+<h2>Faixas: dizendo quais linhas</h2>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Faixa</th><th>Significa</th><th>Exemplo</th></tr>
+<tr><td><code>5</code></td><td>A linha 5</td><td><code>:5d</code></td></tr>
+<tr><td><code>.</code></td><td>A linha do cursor</td><td><code>:.d</code> (igual a <code>:d</code>)</td></tr>
+<tr><td><code>$</code></td><td>A última linha</td><td><code>:$d</code></td></tr>
+<tr><td><code>%</code></td><td>O arquivo inteiro (o mesmo que <code>1,$</code>)</td><td><code>:%d</code></td></tr>
+<tr><td><code>2,8</code></td><td>Da linha 2 à 8</td><td><code>:2,8d</code></td></tr>
+<tr><td><code>.,$</code></td><td>Do cursor até o fim</td><td><code>:.,$d</code></td></tr>
+<tr><td><code>.,+3</code></td><td>O cursor e as 3 linhas seguintes</td><td><code>:.,+3d</code></td></tr>
+<tr><td><code>-2,.</code></td><td>Duas linhas acima até o cursor</td><td><code>:-2,.d</code></td></tr>
+<tr><td><code>'a,'b</code></td><td>Da marca <code>a</code> até a marca <code>b</code></td><td><code>:'a,'bd</code></td></tr>
+<tr><td><code>'&lt;,'&gt;</code></td><td>A seleção do modo visual</td><td>aparece sozinho ao apertar <code>:</code> no visual</td></tr>
+<tr><td><code>/padrão/</code></td><td>A próxima linha que contém o padrão</td><td><code>:/fim/d</code></td></tr>
+<tr><td><code>/ini/,/fim/</code></td><td>Da próxima linha com "ini" até a próxima com "fim"</td><td><code>:/ini/,/fim/d</code></td></tr>
+</table>
+</div>
+
+<p>O <code>+</code> e o <code>-</code> podem ser somados a qualquer endereço: <code>/fim/-1</code> é a linha <strong>antes</strong> da que contém "fim".</p>
+
+<h3>Faixa por padrão</h3>
+<p>Endereços por padrão são ótimos quando você não sabe os números das linhas. Aqui apagamos o bloco entre os marcadores, incluindo os próprios marcadores:</p>
+
+<div class="vimdemo" data-file="config.txt" data-keys=":/inicio/,/fim/d&lt;CR&gt;">
+<pre class="vim-inicial">topo
+&lt;inicio&gt;
+linha velha 1
+linha velha 2
+&lt;fim&gt;
+base</pre>
+</div>
+
+<h3>Faixa pela seleção visual</h3>
+<p>Selecione linhas com <code>V</code> e aperte <code>:</code>. O Vim já escreve <code>:'&lt;,'&gt;</code> para você: <code>'&lt;</code> é o começo da seleção e <code>'&gt;</code> o fim. É o jeito mais visual de dar uma faixa.</p>
+
+<div class="vimdemo" data-file="lista.txt" data-keys="Vjj:sort&lt;CR&gt;">
+<pre class="vim-inicial">uva
+pera
+abacaxi
+zebra
+morango</pre>
+</div>
+
+<p>Só as três primeiras linhas (as selecionadas) foram ordenadas. As duas últimas ficaram onde estavam.</p>
+
+<div class="vimtry" data-file="itens.txt" data-set="number" data-line="1">
+<pre class="vim-inicial">manter 1
+manter 2
+apagar A
+apagar B
+apagar C
+apagar D
+manter 3</pre>
+<pre class="vim-meta">manter 1
+manter 2
+manter 3</pre>
+<p class="try-task"><strong>Missão:</strong> apague as linhas 3 a 6 com <strong>um único</strong> comando <code>:</code>. Os números estão à esquerda.</p>
+</div>
+
+<hr>
+
+<h2>:d, :t e :m — apagar, copiar e mover linhas</h2>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Faz</th><th>Exemplo</th></tr>
+<tr><td><code>:d</code></td><td>Apaga as linhas (vão para o registrador, como o <code>dd</code>)</td><td><code>:10,20d</code></td></tr>
+<tr><td><code>:t</code> ou <code>:co</code></td><td>Copia as linhas para depois de outra linha (<em>transfer</em>/<em>copy</em>)</td><td><code>:5t.</code> copia a linha 5 para baixo do cursor</td></tr>
+<tr><td><code>:m</code></td><td>Move as linhas para depois de outra linha (<em>move</em>)</td><td><code>:m0</code> leva a linha atual para o topo</td></tr>
+<tr><td><code>:y</code></td><td>Copia as linhas para o registrador (<em>yank</em>)</td><td><code>:1,3y</code></td></tr>
+</table>
+</div>
+
+<p>O destino de <code>:t</code> e <code>:m</code> é a linha <strong>depois da qual</strong> o texto vai ficar. Por isso <code>0</code> significa "antes da primeira linha", ou seja, o topo.</p>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Linha de comando.</dd>
+  <dt>2</dt><dd>Faixa: a linha 2 (o que copiar).</dd>
+  <dt>t</dt><dd>Comando: copiar.</dd>
+  <dt>.</dt><dd>Destino: depois da linha do cursor.</dd>
+</dl>
+
+<div class="vimdemo" data-file="numeros.txt" data-line="5" data-set="number" data-keys=":2t.&lt;CR&gt;">
+<pre class="vim-inicial">um
+dois
+três
+quatro
+cinco</pre>
+</div>
+
+<p>O cursor estava na linha 5, e a cópia da linha 2 ("dois") foi parar logo abaixo dela. Você não precisou ir até a linha 2 e voltar.</p>
+
+<h3>Subir e descer linhas com :m</h3>
+<p>Dois atalhos muito usados: <code>:m-2</code> sobe a linha atual uma posição, e <code>:m+1</code> desce uma posição.</p>
+
+<div class="vimdemo" data-file="passos.txt" data-line="3" data-keys=":m-2&lt;CR&gt;">
+<pre class="vim-inicial">1. abrir
+3. salvar
+2. editar</pre>
+</div>
+
+<div class="tip">
+<strong>Por que -2 para subir?</strong>
+<p>O destino é "depois de qual linha". Para a linha 3 ir para a posição 2, ela precisa ficar depois da linha 1, que é <code>.-2</code> (dois acima). Para descer, ela fica depois da linha de baixo: <code>.+1</code>.</p>
+</div>
+
+<hr>
+
+<h2>:norm — comandos do modo normal em várias linhas</h2>
+<p>O <code>:norm</code> (de <em>normal</em>) executa teclas do modo normal em <strong>cada linha da faixa</strong>, uma de cada vez, com o cursor no começo da linha. É como um <code>.</code> ou uma macro aplicados linha a linha, sem precisar gravar nada.</p>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Linha de comando.</dd>
+  <dt>2,4</dt><dd>Faixa: as linhas 2, 3 e 4.</dd>
+  <dt>norm</dt><dd>Executar como se fossem teclas do modo normal.</dd>
+  <dt>I# </dt><dd>As teclas: <code>I</code> (inserir no começo) e o texto <code># </code>. O fim do comando volta ao modo normal sozinho.</dd>
+</dl>
+
+<div class="vimdemo" data-file="script.sh" data-keys=":2,4norm I# &lt;CR&gt;">
+<pre class="vim-inicial">echo início
+rm -rf /tmp/teste
+echo apagando
+ls /tmp
+echo fim</pre>
+</div>
+
+<p>As linhas 2 a 4 viraram comentários. Note que não foi preciso apertar <kbd>Esc</kbd> no fim do texto: o <code>:norm</code> sai do modo de inserção sozinho quando as teclas acabam.</p>
+
+<h3>Combinações úteis</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:%norm A;</code></td><td>Põe <code>;</code> no fim de todas as linhas</td></tr>
+<tr><td><code>:'&lt;,'&gt;norm .</code></td><td>Repete a última alteração em cada linha selecionada</td></tr>
+<tr><td><code>:%norm @a</code></td><td>Roda a macro <code>a</code> em cada linha (veja <a href="macros.html">Macros</a>)</td></tr>
+<tr><td><code>:norm! dw</code></td><td>Com <code>!</code>, ignora seus <a href="mapeamentos.html">mapeamentos</a> e usa os comandos originais</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="codigo.js" data-keys="A;&lt;Esc&gt;j:.,$norm .&lt;CR&gt;">
+<pre class="vim-inicial">x = 1
+y = 2
+z = 3</pre>
+</div>
+
+<p>Primeiro fizemos a edição uma vez (<code>A;</code> e <kbd>Esc</kbd>) na linha 1. Depois, <code>:.,$norm .</code> repetiu essa última alteração da linha do cursor até o fim.</p>
+
+<div class="warning">
+<strong>Teclas especiais no :norm</strong>
+<p>Escrever <code>&lt;Esc&gt;</code> no <code>:norm</code> digita os 5 caracteres literalmente, e não a tecla <kbd>Esc</kbd>. Para incluir um Esc no meio, digite <kbd>Ctrl</kbd>+<kbd>V</kbd> e depois <kbd>Esc</kbd> (aparece <code>^[</code>), ou use Vimscript: <code>:exe "norm Afim\&lt;Esc&gt;Iinício"</code>.</p>
+</div>
+
+<div class="vimtry" data-file="query.sql">
+<pre class="vim-inicial">SELECT nome
+FROM clientes
+WHERE ativo = 1
+ORDER BY nome</pre>
+<pre class="vim-meta">-- SELECT nome
+-- FROM clientes
+-- WHERE ativo = 1
+-- ORDER BY nome</pre>
+<p class="try-task"><strong>Missão:</strong> comente todas as linhas com <code>-- </code> (dois hífens e um espaço) usando um único <code>:norm</code> em todo o arquivo.</p>
+</div>
+
+<hr>
+
+<h2>:g — agir nas linhas que casam com um padrão</h2>
+<p>O <code>:g</code> (de <em>global</em>) é o comando mais poderoso desta aula. Ele procura todas as linhas que contêm um padrão e executa um comando Ex em cada uma.</p>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Linha de comando.</dd>
+  <dt>g</dt><dd>Global: em todas as linhas do arquivo que casarem…</dd>
+  <dt>/DEBUG/</dt><dd>…com este padrão (uma <a href="regex.html">expressão regular</a>)…</dd>
+  <dt>d</dt><dd>…execute este comando. Aqui, apagar a linha.</dd>
+</dl>
+
+<div class="vimdemo" data-file="app.py" data-keys=":g/DEBUG/d&lt;CR&gt;">
+<pre class="vim-inicial">iniciar()
+print("DEBUG x =", x)
+processar()
+print("DEBUG fim")
+salvar()</pre>
+</div>
+
+<p>As duas linhas de depuração sumiram e o resto ficou intacto. O <code>:g</code> funciona em duas etapas: primeiro <strong>marca</strong> todas as linhas que casam, depois executa o comando em cada marcada. Por isso ele não se perde quando apaga linhas no caminho.</p>
+
+<h3>:v — o contrário</h3>
+<p><code>:v</code> (de <em>inverse</em>; também pode ser escrito <code>:g!</code>) age nas linhas que <strong>não</strong> casam. Útil para "manter só o que interessa":</p>
+
+<div class="vimdemo" data-file="contatos.txt" data-keys=":v/@/d&lt;CR&gt;">
+<pre class="vim-inicial">ana@exemplo.com
+ligar amanhã
+bia@exemplo.com
+---
+caio@exemplo.com</pre>
+</div>
+
+<h3>Receitas com :g</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:g/^$/d</code></td><td>Apaga as linhas vazias</td></tr>
+<tr><td><code>:g/^\s*$/d</code></td><td>Apaga as linhas vazias ou só com espaços</td></tr>
+<tr><td><code>:g/TODO/norm I# </code></td><td>Comenta as linhas que têm TODO</td></tr>
+<tr><td><code>:g/^/m0</code></td><td>Inverte a ordem de todas as linhas</td></tr>
+<tr><td><code>:g/erro/t$</code></td><td>Copia as linhas com "erro" para o fim do arquivo</td></tr>
+<tr><td><code>:g/erro/m$</code></td><td>Move as linhas com "erro" para o fim</td></tr>
+<tr><td><code>:g/padrão/</code></td><td>Só lista as linhas que casam (o comando padrão é <code>p</code>, imprimir)</td></tr>
+<tr><td><code>:g/^cliente/s/ativo/inativo/</code></td><td>Substitui só nas linhas que começam com "cliente"</td></tr>
+</table>
+</div>
+
+<p>Veja o <code>:g/^/m0</code> em ação. O padrão <code>^</code> (começo de linha) casa com todas as linhas, e cada uma é movida para o topo, uma depois da outra. O resultado é o arquivo de trás para frente:</p>
+
+<div class="vimdemo" data-file="passos.txt" data-keys=":g/^/m0&lt;CR&gt;">
+<pre class="vim-inicial">passo 1
+passo 2
+passo 3
+passo 4</pre>
+</div>
+
+<p>E o <code>:g</code> com <code>:norm</code>, para comentar só as linhas marcadas como TODO:</p>
+
+<div class="vimdemo" data-file="calc.py" data-keys=":g/TODO/norm I# &lt;CR&gt;">
+<pre class="vim-inicial">a = 1  # TODO revisar
+b = 2
+c = 3  # TODO testar</pre>
+</div>
+
+<h3>Apagar linhas vazias</h3>
+<p>Antes e depois de <code>:g/^$/d</code>: o padrão <code>^$</code> significa "começo de linha seguido de fim de linha", ou seja, uma linha sem nada.</p>
+
+<div class="vimdemo" data-file="texto.txt" data-title="antes — texto.txt">
+<pre class="vim-inicial">linha um
+
+linha dois
+
+
+linha três</pre>
+</div>
+
+<div class="vimdemo" data-file="texto.txt" data-title="depois de :g/^$/d — texto.txt">
+<pre class="vim-inicial">linha um
+linha dois
+linha três</pre>
+</div>
+
+<div class="note">
+<strong>Nota sobre o simulador</strong>
+<p>No Vim simulado, o <code>:g</code> pode falhar quando várias linhas casadas são idênticas (como duas linhas vazias seguidas). No Vim real ele funciona sempre. Por isso esse exemplo aparece como antes e depois.</p>
+</div>
+
+<div class="vimtry" data-file="log.txt">
+<pre class="vim-inicial">10:01 INFO servidor iniciado
+10:02 ERRO disco cheio
+10:03 INFO usuário entrou
+10:04 ERRO falha ao salvar
+10:05 INFO usuário saiu</pre>
+<pre class="vim-meta">10:02 ERRO disco cheio
+10:04 ERRO falha ao salvar</pre>
+<p class="try-task"><strong>Missão:</strong> deixe no log só as linhas de ERRO, com um único comando. Há duas formas: com <code>:g</code> ou com <code>:v</code>.</p>
+</div>
+
+<hr>
+
+<h2>:sort — ordenar linhas</h2>
+<p>O <code>:sort</code> ordena a faixa (sem faixa, o arquivo inteiro). Letras depois do comando mudam o jeito de ordenar:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Ordena…</th></tr>
+<tr><td><code>:sort</code></td><td>Em ordem alfabética, pelo código de cada caractere (maiúsculas antes de minúsculas)</td></tr>
+<tr><td><code>:sort i</code></td><td>Ignorando maiúsculas e minúsculas (<em>ignore case</em>)</td></tr>
+<tr><td><code>:sort n</code></td><td>Pelo primeiro número da linha (<em>numeric</em>)</td></tr>
+<tr><td><code>:sort u</code></td><td>E remove linhas repetidas (<em>unique</em>)</td></tr>
+<tr><td><code>:sort!</code></td><td>Em ordem inversa</td></tr>
+<tr><td><code>:'&lt;,'&gt;sort</code></td><td>Só as linhas selecionadas</td></tr>
+</table>
+</div>
+
+<p>Cuidado com a ordem alfabética "pura": sem o <code>i</code>, as maiúsculas vêm todas antes.</p>
+
+<div class="vimdemo" data-file="frutas.txt" data-keys=":sort&lt;CR&gt;">
+<pre class="vim-inicial">Pera
+abacate
+Banana</pre>
+</div>
+
+<div class="vimdemo" data-file="frutas.txt" data-keys=":sort i&lt;CR&gt;">
+<pre class="vim-inicial">Pera
+abacate
+Banana</pre>
+</div>
+
+<p>E sem o <code>n</code>, números são comparados como texto: "120" vem antes de "30", porque "1" vem antes de "3". Com <code>:sort n</code>, a ordem fica a numérica:</p>
+
+<div class="vimtry" data-file="estoque.txt">
+<pre class="vim-inicial">30 ovos
+4 maçãs
+120 grãos
+15 pães</pre>
+<pre class="vim-meta">4 maçãs
+15 pães
+30 ovos
+120 grãos</pre>
+<p class="try-task"><strong>Missão:</strong> ordene o estoque pela quantidade, do menor para o maior. Experimente antes o <code>:sort</code> sem nada para ver o problema (e desfaça com <code>u</code>).</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de fazer</h2>
+<p>A mesma tarefa, "apagar todas as linhas com DEBUG", resolvida de jeitos diferentes:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Teclas</th><th>Quando usar</th></tr>
+<tr><td>Uma a uma</td><td><code>/DEBUG</code>, <code>dd</code>, <code>n</code>, <code>dd</code>…</td><td>Poucas linhas e você quer olhar cada uma antes.</td></tr>
+<tr><td>Busca + ponto</td><td><code>/DEBUG</code>, <code>dd</code>, depois <code>n.</code> repetido</td><td>Você quer decidir linha a linha, mas rápido.</td></tr>
+<tr><td>Global</td><td><code>:g/DEBUG/d</code></td><td>Todas as linhas, sem exceção. O mais rápido.</td></tr>
+<tr><td>Fora do Vim</td><td><code>:%!grep -v DEBUG</code></td><td>Você já conhece o <code>grep</code> (veja <a href="shell.html">Integração com o Shell</a>).</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"E16: Intervalo inválido"</strong>
+<p><strong>O que aconteceu:</strong> a faixa aponta para linhas que não existem, como <code>:1,99d</code> num arquivo de 20 linhas.</p>
+<p><strong>Como resolver:</strong> use <code>$</code> para "a última linha": <code>:1,$d</code>, ou <code>%</code>. No Vim em inglês: <code>E16: Invalid range</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"E492: Não é um comando do editor"</strong>
+<p><strong>O que aconteceu:</strong> erro de digitação no nome do comando, como <code>:nrom A;</code>.</p>
+<p><strong>Como resolver:</strong> aperte <code>:</code> e a seta <kbd>↑</kbd> para trazer o comando de volta, corrija e aperte <kbd>Enter</kbd>.</p>
+</div>
+
+<div class="cenario">
+<strong>"Padrão não encontrado" depois do :g</strong>
+<p><strong>O que aconteceu:</strong> nenhuma linha casou com o padrão. Nada foi alterado. Confira maiúsculas e minúsculas: <code>:g/debug/</code> não acha "DEBUG", a não ser que <code>ignorecase</code> esteja ligado (veja <a href="opcoes.html">Opções</a>).</p>
+</div>
+
+<div class="cenario">
+<strong>"E20: Marca não definida"</strong>
+<p><strong>O que aconteceu:</strong> a faixa usa uma marca, como <code>'x</code>, que você não criou.</p>
+<p><strong>Como resolver:</strong> crie a marca com <code>mx</code> na linha desejada (veja <a href="marcas.html">Marcas e Saltos</a>) ou use números de linha.</p>
+</div>
+
+<div class="cenario">
+<strong>O :norm inseriu "&lt;Esc&gt;" no texto</strong>
+<p><strong>O que aconteceu:</strong> o <code>:norm</code> recebe as teclas literalmente; <code>&lt;Esc&gt;</code> virou cinco caracteres.</p>
+<p><strong>Como resolver:</strong> desfaça com <code>u</code> e use <kbd>Ctrl</kbd>+<kbd>V</kbd> <kbd>Esc</kbd> para digitar o Esc de verdade, ou divida em dois comandos <code>:norm</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:{faixa}d</code></td><td>Apaga linhas</td></tr>
+<tr><td><code>:{faixa}y</code></td><td>Copia linhas para o registrador</td></tr>
+<tr><td><code>:{faixa}t {destino}</code></td><td>Copia linhas para depois do destino (<code>:co</code> é sinônimo)</td></tr>
+<tr><td><code>:{faixa}m {destino}</code></td><td>Move linhas para depois do destino</td></tr>
+<tr><td><code>:{faixa}norm {teclas}</code></td><td>Executa teclas do modo normal em cada linha</td></tr>
+<tr><td><code>:{faixa}g/padrão/cmd</code></td><td>Executa <code>cmd</code> em cada linha que casa</td></tr>
+<tr><td><code>:{faixa}v/padrão/cmd</code></td><td>Executa <code>cmd</code> em cada linha que <strong>não</strong> casa</td></tr>
+<tr><td><code>:{faixa}sort [i] [n] [u]</code></td><td>Ordena linhas</td></tr>
+<tr><td><code>:{faixa}j</code></td><td>Junta as linhas (como <code>J</code>)</td></tr>
+<tr><td><code>:{faixa}&gt;</code> / <code>:{faixa}&lt;</code></td><td>Aumenta / diminui o recuo</td></tr>
+<tr><td><code>@:</code></td><td>Repete o último comando Ex</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Do cursor até o fim</h3>
+<p>Complete para apagar da linha do cursor até a última linha do arquivo:</p>
+<div class="ex-code">:<input data-answer=".,$|.,$d" aria-label="faixa">d</div>
+</div>
+
+<div class="exercise">
+<h3>2. Linha para o topo</h3>
+<p>Qual comando leva a linha atual para o começo do arquivo?</p>
+<div class="ex-code">:<input data-answer="m0|move0|m 0|move 0" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Só as linhas com "senha"</h3>
+<p>Complete para apagar todas as linhas que contêm "senha":</p>
+<div class="ex-code">:<input data-answer="g/senha/d|g/senha/delete" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">4. O que faz <code>:%norm A,</code>?</p>
+<label><input type="radio" name="q4"> Apaga a última vírgula de cada linha.</label>
+<label><input type="radio" name="q4"> Insere "A," no começo do arquivo.</label>
+<label><input type="radio" name="q4"> Acrescenta uma vírgula no fim de todas as linhas.</label>
+<label><input type="radio" name="q4"> Substitui "A" por vírgula em todas as linhas.</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">5. Qual comando mantém <strong>somente</strong> as linhas que contêm "OK"?</p>
+<label><input type="radio" name="q5"> <code>:v/OK/d</code></label>
+<label><input type="radio" name="q5"> <code>:g/OK/d</code></label>
+<label><input type="radio" name="q5"> <code>:sort u</code></label>
+<label><input type="radio" name="q5"> <code>:%norm OK</code></label>
+</div>
+
+<div class="vimtry" data-file="tarefas.md">
+<pre class="vim-inicial">comprar pão
+TODO: pagar luz
+ligar para o banco
+TODO: marcar dentista
+lavar o carro</pre>
+<pre class="vim-meta">TODO: pagar luz
+TODO: marcar dentista
+comprar pão
+ligar para o banco
+lavar o carro</pre>
+<p class="try-task"><strong>Missão final:</strong> leve as linhas com TODO para o topo, mantendo a ordem entre elas. Dica: <code>:g/TODO/m0</code> leva para o topo, mas inverte a ordem delas… E se você movesse primeiro as que <strong>não</strong> são TODO para o fim?</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Comandos Ex agem em <strong>faixas</strong> de linhas: <code>5</code>, <code>2,8</code>, <code>.,$</code>, <code>%</code>, <code>'&lt;,'&gt;</code>, <code>/ini/,/fim/</code>.</li>
+  <li><code>:d</code> apaga, <code>:t</code> copia, <code>:m</code> move; <code>:m0</code> leva ao topo.</li>
+  <li><code>:norm</code> executa teclas do modo normal em cada linha da faixa.</li>
+  <li><code>:g/padrão/cmd</code> age nas linhas que casam; <code>:v</code>, nas que não casam.</li>
+  <li><code>:sort</code> ordena; <code>n</code> para números, <code>i</code> ignora maiúsculas, <code>u</code> tira repetidas.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

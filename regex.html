@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — expressões regulares (\+, \(\), \v, \&lt; \&gt;) | Guia Vim</title>
+<meta name="description" content="Expressões regulares no Vim explicadas do zero: caracteres especiais, quantificadores \+ \? \{n,m}, grupos, alternativas, limites de palavra, classes \s \d \w, o modo very magic \v e as diferenças para grep e sed.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Expressões Regulares</span></h1>
+
+<p class="intro">Uma <strong>expressão regular</strong> (ou <em>regex</em>) é um padrão que descreve um <strong>tipo</strong> de texto, e não um texto exato: "qualquer número", "uma palavra no começo da linha", "um ano com 4 dígitos". Você usa regex no Vim o tempo todo, em <code>/</code>, <code>:s</code> e <code>:g</code>. Esta aula ensina a sintaxe do Vim, que tem algumas diferenças em relação a outras ferramentas.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Os caracteres especiais: <code>.</code> <code>*</code> <code>^</code> <code>$</code> <code>[ ]</code>.</li>
+  <li>Os quantificadores do Vim: <code>\+</code>, <code>\?</code>, <code>\=</code> e <code>\{n,m}</code>, e por que eles têm barra.</li>
+  <li>Grupos <code>\( \)</code>, alternativas <code>\|</code> e limites de palavra <code>\&lt; \&gt;</code>.</li>
+  <li>Classes prontas como <code>\s</code>, <code>\d</code> e <code>\w</code>.</li>
+  <li>O modo <code>\v</code> (<em>very magic</em>), que deixa a regex parecida com a de outras linguagens.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Como testar uma regex</strong>
+<p>Ligue <code>:set hlsearch</code> e busque com <code>/</code>: tudo que casar fica pintado de amarelo. Quando estiver certo, use o mesmo padrão num <code>:s</code>. Reveja <a href="busca.html">Buscar</a> e <a href="substituir.html">Substituir</a>.</p>
+</div>
+
+<hr>
+
+<h2>Caracteres comuns e especiais</h2>
+<p>A maioria dos caracteres casa com eles mesmos: <code>/gato</code> encontra "gato". Alguns, porém, têm significado especial:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Símbolo</th><th>Significa</th><th>Exemplo</th><th>Casa com</th></tr>
+<tr><td><code>.</code></td><td>Qualquer caractere (um só)</td><td><code>c.sa</code></td><td>casa, cosa, c-sa</td></tr>
+<tr><td><code>*</code></td><td>O anterior repetido 0 ou mais vezes</td><td><code>abc*</code></td><td>ab, abc, abcc…</td></tr>
+<tr><td><code>^</code></td><td>Começo da linha</td><td><code>^#</code></td><td>"#" só se estiver no início</td></tr>
+<tr><td><code>$</code></td><td>Fim da linha</td><td><code>;$</code></td><td>";" só se for o último caractere</td></tr>
+<tr><td><code>[abc]</code></td><td>Um caractere da lista</td><td><code>[gr]ato</code></td><td>gato, rato</td></tr>
+<tr><td><code>[0-9]</code></td><td>Um caractere da faixa</td><td><code>[0-9][0-9]</code></td><td>dois dígitos</td></tr>
+<tr><td><code>[^0-9]</code></td><td>Um caractere que <strong>não</strong> está na lista</td><td><code>[^ ]</code></td><td>qualquer coisa menos espaço</td></tr>
+<tr><td><code>\</code></td><td>Tira o poder especial do próximo caractere</td><td><code>\.</code></td><td>um ponto de verdade</td></tr>
+</table>
+</div>
+
+<p>Veja a diferença entre <code>.</code> e <code>\.</code>. O primeiro troca todos os caracteres, porque <code>.</code> casa com qualquer um:</p>
+
+<div class="vimdemo" data-file="versao.txt" data-keys=":s/./-/g&lt;CR&gt;">
+<pre class="vim-inicial">a.b.c</pre>
+</div>
+
+<p>Com a barra invertida, só os pontos de verdade são trocados:</p>
+
+<div class="vimdemo" data-file="versao.txt" data-keys=":s/\./-/g&lt;CR&gt;">
+<pre class="vim-inicial">a.b.c</pre>
+</div>
+
+<hr>
+
+<h2>Quantificadores: quantas vezes</h2>
+<p>Aqui está a maior diferença do Vim. No modo padrão do Vim, chamado <strong>magic</strong>, só o <code>*</code> é quantificador "puro". Os outros precisam de uma barra invertida na frente. Sem a barra, eles são caracteres comuns: <code>+</code> casa com um sinal de mais.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>No Vim</th><th>Significa</th><th>Em grep -E, sed -E, Python, JS</th></tr>
+<tr><td><code>*</code></td><td>0 ou mais vezes</td><td><code>*</code></td></tr>
+<tr><td><code>\+</code></td><td>1 ou mais vezes</td><td><code>+</code></td></tr>
+<tr><td><code>\?</code> ou <code>\=</code></td><td>0 ou 1 vez (opcional)</td><td><code>?</code></td></tr>
+<tr><td><code>\{3}</code></td><td>Exatamente 3 vezes</td><td><code>{3}</code></td></tr>
+<tr><td><code>\{2,}</code></td><td>2 ou mais vezes</td><td><code>{2,}</code></td></tr>
+<tr><td><code>\{2,4}</code></td><td>De 2 a 4 vezes</td><td><code>{2,4}</code></td></tr>
+<tr><td><code>\{-}</code></td><td>0 ou mais, o mínimo possível (não guloso)</td><td><code>*?</code></td></tr>
+</table>
+</div>
+
+<h3>\+ : um ou mais</h3>
+<p>Para juntar vários espaços seguidos num só, procure "um ou mais espaços" (<code>\s\+</code>) e troque por um espaço:</p>
+
+<dl class="anatomy">
+  <dt>\s</dt><dd>Um espaço ou tab (veja as classes mais abaixo).</dd>
+  <dt>\+</dt><dd>O anterior, uma ou mais vezes.</dd>
+</dl>
+
+<div class="vimdemo" data-file="texto.txt" data-keys=":s/\s\+/ /g&lt;CR&gt;">
+<pre class="vim-inicial">foo  bar   baz</pre>
+</div>
+
+<h3>\= : opcional</h3>
+<p><code>colou\=r</code> quer dizer "colo, depois um <code>u</code> opcional, depois r". Casa com "color" e "colour":</p>
+
+<div class="vimdemo" data-file="cores.txt" data-keys=":s/colou\=r/COR/g&lt;CR&gt;">
+<pre class="vim-inicial">cor colour color</pre>
+</div>
+
+<h3>* : zero ou mais</h3>
+<div class="vimdemo" data-file="ab.txt" data-keys=":s/abc*/-/g&lt;CR&gt;">
+<pre class="vim-inicial">ab abc abcc</pre>
+</div>
+<p>As três palavras viraram <code>-</code>: "ab" tem zero letras c, "abc" tem uma e "abcc" tem duas. Todas casam com <code>abc*</code>.</p>
+
+<h3>\{n,m} : quantidade exata</h3>
+<div class="vimdemo" data-file="codigos.txt" data-keys=":s/x\d\{2,}/Y/g&lt;CR&gt;">
+<pre class="vim-inicial">x1 x22 x333</pre>
+</div>
+<p>"x seguido de <strong>2 ou mais</strong> dígitos": o "x1" ficou, porque tem só um dígito.</p>
+
+<hr>
+
+<h2>Grupos e alternativas</h2>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>No Vim</th><th>Significa</th><th>Em outras ferramentas</th></tr>
+<tr><td><code>\(…\)</code></td><td>Grupo: agrupa e guarda para usar como <code>\1</code></td><td><code>(…)</code></td></tr>
+<tr><td><code>\|</code></td><td>"Ou": um ou outro</td><td><code>|</code></td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="bichos.txt" data-keys=":s/\(g\|r\)ato/X/g&lt;CR&gt;">
+<pre class="vim-inicial">gato pato rato</pre>
+</div>
+<p>O grupo <code>\(g\|r\)</code> casa com "g" <strong>ou</strong> "r". Por isso "gato" e "rato" viraram X e "pato" ficou. Grupos também servem para reaproveitar partes no <code>:s</code>, com <code>\1</code> e <code>\2</code>; veja em <a href="substituir.html">Substituir</a>.</p>
+
+<hr>
+
+<h2>Limites de palavra: \&lt; e \&gt;</h2>
+<p><code>\&lt;</code> marca o começo de uma palavra e <code>\&gt;</code> o fim. Com eles, "casa" não casa mais com o "casa" de dentro de "casamento":</p>
+
+<div class="vimdemo" data-file="casa.txt" data-keys=":s/\&lt;casa\&gt;/LAR/g&lt;CR&gt;">
+<pre class="vim-inicial">casa casamento acasalar</pre>
+</div>
+
+<p>Em grep, Python e outras ferramentas, o equivalente costuma ser <code>\b</code>. No Vim, <code>\b</code> é outra coisa (um backspace). É o <code>*</code> que monta <code>\&lt;palavra\&gt;</code> sozinho quando você busca a palavra sob o cursor.</p>
+
+<hr>
+
+<h2>Classes prontas</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Classe</th><th>Casa com</th><th>Equivale a</th></tr>
+<tr><td><code>\s</code></td><td>Espaço ou tab</td><td><code>[ \t]</code></td></tr>
+<tr><td><code>\S</code></td><td>Qualquer coisa que não seja espaço ou tab</td><td><code>[^ \t]</code></td></tr>
+<tr><td><code>\d</code></td><td>Dígito</td><td><code>[0-9]</code></td></tr>
+<tr><td><code>\D</code></td><td>Não dígito</td><td><code>[^0-9]</code></td></tr>
+<tr><td><code>\w</code></td><td>Letra sem acento, dígito ou <code>_</code></td><td><code>[0-9A-Za-z_]</code></td></tr>
+<tr><td><code>\W</code></td><td>O contrário de <code>\w</code></td><td><code>[^0-9A-Za-z_]</code></td></tr>
+<tr><td><code>\a</code></td><td>Letra sem acento</td><td><code>[A-Za-z]</code></td></tr>
+<tr><td><code>\l</code> / <code>\u</code></td><td>Letra minúscula / maiúscula</td><td><code>[a-z]</code> / <code>[A-Z]</code></td></tr>
+<tr><td><code>\k</code></td><td>Caractere de palavra, inclusive acentuado</td><td><code>[0-9A-Za-z_À-ÿ]</code></td></tr>
+<tr><td><code>\n</code></td><td>Quebra de linha</td><td>—</td></tr>
+</table>
+</div>
+
+<div class="warning">
+<strong>Atenção com acentos</strong>
+<p><code>\w</code>, <code>\a</code> e até <code>[[:alpha:]]</code> não incluem letras acentuadas: em "João", <code>\w\+</code> casa só com "Jo". Para texto em português, use <code>\k</code> (caractere de palavra segundo a opção <code>iskeyword</code>, que inclui letras acentuadas) ou uma faixa explícita, como <code>[a-zA-ZÀ-ÿ]</code>.</p>
+</div>
+
+<hr>
+
+<h2>\v: o modo "very magic"</h2>
+<p>Todas essas barras cansam. Se você começar o padrão com <code>\v</code>, o Vim passa a tratar <strong>todo símbolo como especial</strong>, como nas outras linguagens. Assim <code>+</code>, <code>?</code>, <code>( )</code>, <code>{ }</code> e <code>|</code> funcionam sem barra:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>O que você quer</th><th>Modo normal (magic)</th><th>Com <code>\v</code></th></tr>
+<tr><td>Um ou mais dígitos</td><td><code>\d\+</code></td><td><code>\v\d+</code></td></tr>
+<tr><td>Ano com 4 dígitos, num grupo</td><td><code>\(\d\{4}\)</code></td><td><code>\v(\d{4})</code></td></tr>
+<tr><td>gato ou rato</td><td><code>\(g\|r\)ato</code></td><td><code>\v(g|r)ato</code></td></tr>
+<tr><td>A palavra "casa"</td><td><code>\&lt;casa\&gt;</code></td><td><code>\v&lt;casa&gt;</code></td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="anos.txt" data-keys=":%s/\v(\d{4})/[\1]/g&lt;CR&gt;">
+<pre class="vim-inicial">ano 2024 e 2025
+foi 1999</pre>
+</div>
+
+<p>Com <code>\v</code>, o grupo é <code>( )</code> e a repetição é <code>{4}</code>, sem barras. No substituto, o <code>\1</code> continua igual.</p>
+
+<div class="tip">
+<strong>Dica</strong>
+<p>Se você já conhece regex de outra linguagem, comece seus padrões com <code>\v</code>. A única surpresa que sobra é <code>&lt;</code> e <code>&gt;</code> como limite de palavra.</p>
+</div>
+
+<hr>
+
+<h2>Regex com :g: agir em linhas que casam</h2>
+<p>O comando <code>:g/padrão/comando</code> roda um comando em cada linha que casa com o padrão. O mais comum é apagar linhas:</p>
+
+<dl class="anatomy">
+  <dt>:g</dt><dd>"Global": para cada linha que casar…</dd>
+  <dt>/^#/</dt><dd>…com este padrão (linhas que começam com <code>#</code>)…</dd>
+  <dt>d</dt><dd>…execute este comando (<code>d</code> = apagar a linha).</dd>
+</dl>
+
+<div class="vimdemo" data-file="script.py" data-keys=":g/^#/d&lt;CR&gt;">
+<pre class="vim-inicial"># c1
+código
+# c2
+mais</pre>
+</div>
+
+<p>O <code>:v</code> faz o contrário: age nas linhas que <strong>não</strong> casam. <code>:v/apagar/d</code> mantém só as linhas que têm "apagar".</p>
+
+<div class="vimdemo" data-file="lista.txt" data-keys=":v/apagar/d&lt;CR&gt;">
+<pre class="vim-inicial">manter
+apagar 1
+manter
+apagar 2</pre>
+</div>
+
+<p>Você aprende mais sobre <code>:g</code> em <a href="ex-avancado.html">Comandos Ex</a>.</p>
+
+<div class="vimtry" data-file="config.ini">
+<pre class="vim-inicial">; comentário 1
+nome = app
+; comentário 2
+porta = 80
+; comentário 3
+debug = sim</pre>
+<pre class="vim-meta">nome = app
+porta = 80
+debug = sim</pre>
+<p class="try-task"><strong>Missão:</strong> apague todas as linhas que começam com <code>;</code> usando um único comando <code>:g</code>.</p>
+</div>
+
+<hr>
+
+<h2>Exemplos úteis</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tarefa</th><th>Comando</th></tr>
+<tr><td>Remover espaços no fim das linhas</td><td><code>:%s/\s\+$//</code></td></tr>
+<tr><td>Apagar linhas vazias</td><td><code>:g/^$/d</code></td></tr>
+<tr><td>Apagar linhas vazias ou só com espaços</td><td><code>:g/^\s*$/d</code></td></tr>
+<tr><td>Juntar espaços repetidos</td><td><code>:%s/ \+/ /g</code></td></tr>
+<tr><td>Colocar aspas em volta de cada número</td><td><code>:%s/\d\+/"&amp;"/g</code></td></tr>
+<tr><td>Trocar datas 2026-10-15 por 15/10/2026</td><td><code>:%s/\v(\d{4})-(\d{2})-(\d{2})/\3\/\2\/\1/g</code></td></tr>
+<tr><td>Apagar tudo depois de <code>#</code></td><td><code>:%s/#.*//</code></td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="limpar.txt" data-text="linha com espaço no fim   \noutra linha  \nsem espaço\núltima\t">
+<pre class="vim-meta">linha com espaço no fim
+outra linha
+sem espaço
+última</pre>
+<p class="try-task"><strong>Missão:</strong> remova os espaços (e o tab) que sobram no <strong>fim</strong> das linhas, sem mexer nos espaços do meio. Use <code>\s\+$</code>.</p>
+</div>
+
+<hr>
+
+<h2>Diferenças para grep e sed</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Recurso</th><th>Vim (magic)</th><th>grep / sed (básico)</th><th>grep -E / sed -E</th></tr>
+<tr><td>Um ou mais</td><td><code>\+</code></td><td><code>\+</code> (no GNU)</td><td><code>+</code></td></tr>
+<tr><td>Opcional</td><td><code>\?</code> ou <code>\=</code></td><td><code>\?</code> (no GNU)</td><td><code>?</code></td></tr>
+<tr><td>Grupo</td><td><code>\( \)</code></td><td><code>\( \)</code></td><td><code>( )</code></td></tr>
+<tr><td>Ou</td><td><code>\|</code></td><td><code>\|</code> (no GNU)</td><td><code>|</code></td></tr>
+<tr><td>Repetição</td><td><code>\{2,4}</code></td><td><code>\{2,4\}</code></td><td><code>{2,4}</code></td></tr>
+<tr><td>Limite de palavra</td><td><code>\&lt; \&gt;</code></td><td><code>\&lt; \&gt;</code> ou <code>\b</code></td><td><code>\&lt; \&gt;</code> ou <code>\b</code></td></tr>
+<tr><td>Dígito</td><td><code>\d</code></td><td><code>[0-9]</code></td><td><code>[0-9]</code></td></tr>
+<tr><td>Não guloso</td><td><code>\{-}</code></td><td>não existe</td><td>não existe</td></tr>
+</table>
+</div>
+<p>Repare: o fechamento da repetição no Vim é <code>\{2,4}</code>, sem barra antes do <code>}</code>, enquanto no sed básico é <code>\{2,4\}</code>.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Escrevi <code>\d+</code> e só casou "1+"</strong>
+<p><strong>O que aconteceu:</strong> no modo normal do Vim, <code>+</code> sem barra é um sinal de mais comum.</p>
+<p><strong>Como resolver:</strong> use <code>\d\+</code>, ou o very magic: <code>\v\d+</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>O padrão com parênteses não encontra nada</strong>
+<p><strong>O que aconteceu:</strong> <code>(g|r)ato</code> sem <code>\v</code> procura literalmente "(g|r)ato", com parênteses e barra.</p>
+<p><strong>Como resolver:</strong> <code>\(g\|r\)ato</code> ou <code>\v(g|r)ato</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>\w\+ cortou "João" no meio</strong>
+<p><strong>O que aconteceu:</strong> <code>\w</code> não inclui letras com acento.</p>
+<p><strong>Como resolver:</strong> use <code>\k\+</code> ou uma faixa com acentos, como <code>[a-zA-ZÀ-ÿ]\+</code>. Cuidado: <code>[[:alpha:]]</code> também ignora os acentos.</p>
+</div>
+
+<div class="cenario">
+<strong>O .* pegou demais</strong>
+<p><strong>O que aconteceu:</strong> <code>.*</code> é "guloso": pega o máximo possível. Em <code>"a" e "b"</code>, o padrão <code>".*"</code> casa com tudo, de uma aspa à última.</p>
+<p><strong>Como resolver:</strong> use a versão "mínima" do Vim, <code>".\{-}"</code>, ou exclua o fechamento: <code>"[^"]*"</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência rápida</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Padrão</th><th>Significa</th></tr>
+<tr><td><code>.</code> <code>*</code> <code>^</code> <code>$</code> <code>[ ]</code></td><td>Qualquer caractere, 0+ vezes, início, fim, lista</td></tr>
+<tr><td><code>\+</code> <code>\?</code> <code>\=</code> <code>\{n,m}</code> <code>\{-}</code></td><td>1+ vezes, opcional, opcional, de n a m, mínimo</td></tr>
+<tr><td><code>\( \)</code> <code>\|</code></td><td>Grupo, alternativa</td></tr>
+<tr><td><code>\&lt;</code> <code>\&gt;</code></td><td>Começo e fim de palavra</td></tr>
+<tr><td><code>\s</code> <code>\d</code> <code>\w</code> <code>\a</code> <code>\k</code></td><td>Espaço, dígito, letra/dígito/_, letra, palavra com acentos</td></tr>
+<tr><td><code>\c</code> <code>\C</code></td><td>Ignora / respeita maiúsculas</td></tr>
+<tr><td><code>\v</code></td><td>Very magic: símbolos sem barra</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Um ou mais dígitos</h3>
+<p>No modo normal (sem <code>\v</code>), escreva o padrão para "um ou mais dígitos":</p>
+<div class="ex-code">/<input data-answer="\d\+|[0-9]\+" aria-label="padrão"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Linhas vazias</h3>
+<p>Complete o comando que apaga as linhas vazias:</p>
+<div class="ex-code">:g/<input data-answer="^$" aria-label="padrão">/d</div>
+</div>
+
+<div class="exercise">
+<h3>3. Very magic</h3>
+<p>Reescreva <code>\(abc\)\+</code> no modo <code>\v</code>:</p>
+<div class="ex-code"><input data-answer="\v(abc)+" aria-label="padrão"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. O que <code>/\&lt;ana\&gt;</code> encontra no texto "ana banana Ana"?</p>
+<label><input type="radio" name="q4"> "ana", "ana" (de banana) e "Ana".</label>
+<label><input type="radio" name="q4"> Só a palavra "ana" sozinha.</label>
+<label><input type="radio" name="q4"> Só o "ana" dentro de "banana".</label>
+<label><input type="radio" name="q4"> Nada, porque falta o <code>\v</code>.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">5. No Vim sem <code>\v</code>, o que <code>a+</code> encontra?</p>
+<label><input type="radio" name="q5"> Um ou mais "a".</label>
+<label><input type="radio" name="q5"> Zero ou mais "a".</label>
+<label><input type="radio" name="q5"> Qualquer caractere seguido de "a".</label>
+<label><input type="radio" name="q5"> O texto "a+", com o sinal de mais.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>.</code> é qualquer caractere; <code>\.</code>, um ponto de verdade.</li>
+  <li>No Vim, os quantificadores têm barra: <code>\+</code>, <code>\?</code>, <code>\{n,m}</code>. Só <code>*</code> não tem.</li>
+  <li>Grupos são <code>\( \)</code>, "ou" é <code>\|</code> e palavras inteiras usam <code>\&lt; \&gt;</code>.</li>
+  <li><code>\s</code>, <code>\d</code> e <code>\w</code> são atalhos; <code>\w</code> não pega acentos, <code>\k</code> pega.</li>
+  <li>Comece com <code>\v</code> para escrever como em outras linguagens.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

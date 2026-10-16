@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — modo visual: selecionar com v, V e Ctrl-v | Guia Vim</title>
+<meta name="description" content="Aprenda o modo visual do Vim: selecionar caracteres (v), linhas (V) e blocos (Ctrl-v), operar na seleção com d, y, c, &gt;, ~ e U, reselecionar com gv e usar :'&lt;,'&gt; com Vim simulado para praticar.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Modo Visual</span></h1>
+
+<p class="intro">Em outros editores você seleciona um trecho com o mouse ou com <kbd>Shift</kbd> e setas, e depois faz algo com ele. O <strong>modo visual</strong> do Vim é isso: você primeiro <strong>vê</strong> o que vai ser afetado, destacado na tela, e só então escolhe o comando. É a forma mais segura de editar enquanto você ainda não confia nos movimentos.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Os três tipos de seleção: caracteres (<code>v</code>), linhas (<code>V</code>) e bloco (<kbd>Ctrl</kbd>+<kbd>v</kbd>).</li>
+  <li>Aumentar a seleção com qualquer movimento e trocar de ponta com <code>o</code>.</li>
+  <li>Agir na seleção: apagar, copiar, trocar, indentar, mudar maiúsculas, juntar.</li>
+  <li>Selecionar objetos inteiros de uma vez: <code>viw</code>, <code>vi(</code>, <code>vip</code>.</li>
+  <li>Reselecionar com <code>gv</code> e usar a seleção em comandos <code>:</code>.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>O modo visual começa no <strong>modo normal</strong>. Ele lembra muito o <a href="gramatica.html">Verbo + Movimento</a>, só que na ordem inversa: primeiro o movimento (a seleção), depois o verbo.</p>
+</div>
+
+<hr>
+
+<h2>v: selecionar caracteres</h2>
+<p>Aperte <code>v</code> (de <em>visual</em>). O caractere sob o cursor fica destacado e o rodapé mostra <code>-- VISUAL --</code>. A partir daí, <strong>todo movimento aumenta a seleção</strong>: <code>l</code>, <code>w</code>, <code>e</code>, <code>$</code>, <code>j</code>, uma busca com <code>/</code>…</p>
+
+<dl class="anatomy">
+  <dt>v</dt><dd>Entra no modo visual, começando a seleção no cursor.</dd>
+  <dt>e</dt><dd>Movimento: até o fim da palavra. A seleção cresce junto.</dd>
+  <dt>e</dt><dd>Mais uma palavra.</dd>
+</dl>
+
+<div class="vimdemo" data-file="frase.txt" data-keys="vee">
+<pre class="vim-inicial">O Vim e um editor de texto
+muito rapido e leve
+que roda em qualquer lugar
+fim do texto</pre>
+</div>
+
+<p>Agora "O Vim e" está destacado. Repare no canto direito do rodapé: o número <code>7</code> é o tamanho da seleção em caracteres. Nada foi alterado ainda; o Vim está esperando o que fazer com esse trecho.</p>
+
+<p>Para desistir, aperte <kbd>Esc</kbd> (ou <code>v</code> de novo). A seleção some e você volta ao modo normal.</p>
+
+<h3>Agir na seleção</h3>
+<p>Com o trecho destacado, aperte o verbo. O <code>d</code> apaga:</p>
+
+<div class="vimdemo" data-file="frase.txt" data-keys="veed">
+<pre class="vim-inicial">O Vim e um editor de texto
+muito rapido e leve
+que roda em qualquer lugar
+fim do texto</pre>
+</div>
+
+<p>Depois do verbo, o Vim volta sozinho ao modo normal.</p>
+
+<hr>
+
+<h2>V: selecionar linhas inteiras</h2>
+<p>O <code>V</code> maiúsculo seleciona <strong>linhas inteiras</strong>, não importa onde o cursor esteja nelas. O rodapé mostra <code>-- VISUAL/LINHA --</code> (em inglês, <code>-- VISUAL LINE --</code>), e o número no canto passa a ser a quantidade de linhas.</p>
+
+<div class="vimdemo" data-file="frase.txt" data-keys="Vjjd">
+<pre class="vim-inicial">O Vim e um editor de texto
+muito rapido e leve
+que roda em qualquer lugar
+fim do texto</pre>
+</div>
+
+<p>Três linhas selecionadas com <code>Vjj</code> e apagadas com <code>d</code>. Como foram mais de duas, o rodapé avisa: <code>3 linhas a menos</code>.</p>
+
+<p>Compare com o <code>v</code> minúsculo: <code>vjd</code> apaga do cursor até a <strong>mesma coluna</strong> da linha de baixo, cortando as linhas no meio. Já <code>Vjd</code> apaga as duas linhas inteiras.</p>
+
+<div class="vimdemo" data-file="frase.txt" data-keys="vjd">
+<pre class="vim-inicial">O Vim e um editor de texto
+muito rapido e leve
+que roda em qualquer lugar
+fim do texto</pre>
+</div>
+
+<hr>
+
+<h2>Ctrl-v: selecionar um bloco</h2>
+<p><kbd>Ctrl</kbd>+<kbd>v</kbd> seleciona um <strong>retângulo</strong>: as mesmas colunas em várias linhas. O rodapé mostra <code>-- VISUAL/BLOCO --</code> e o tamanho aparece como "linhas x colunas", por exemplo <code>3x4</code>. É ótimo para comentar várias linhas de uma vez e tem uma aula só para ele: <a href="bloco.html">Modo Visual de Bloco</a>.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Seleciona</th><th>Rodapé</th><th>Tamanho no canto</th></tr>
+<tr><td><code>v</code></td><td>Caracteres, de um ponto a outro</td><td><code>-- VISUAL --</code></td><td>Caracteres (ou linhas, se passar de uma)</td></tr>
+<tr><td><code>V</code></td><td>Linhas inteiras</td><td><code>-- VISUAL/LINHA --</code></td><td>Linhas</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>v</kbd></td><td>Um retângulo</td><td><code>-- VISUAL/BLOCO --</code></td><td>Linhas x colunas</td></tr>
+</table>
+</div>
+
+<p>Dá para trocar de tipo sem perder a seleção: estando em <code>v</code>, aperte <code>V</code> para passar a linhas inteiras, e vice-versa.</p>
+
+<hr>
+
+<h2>O que fazer com a seleção</h2>
+<p>Quase todo verbo funciona na seleção. Estes são os mais usados:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Efeito na seleção</th></tr>
+<tr><td><code>d</code> ou <code>x</code></td><td>Apaga (e guarda no registrador, como recortar)</td></tr>
+<tr><td><code>y</code></td><td>Copia (de <em>yank</em>)</td></tr>
+<tr><td><code>c</code></td><td>Apaga e entra no modo de inserção para digitar o substituto</td></tr>
+<tr><td><code>p</code></td><td>Troca a seleção pelo que foi copiado antes</td></tr>
+<tr><td><code>&gt;</code> / <code>&lt;</code></td><td>Aumenta / diminui a indentação das linhas</td></tr>
+<tr><td><code>U</code> / <code>u</code></td><td>Tudo em maiúsculas / minúsculas</td></tr>
+<tr><td><code>~</code></td><td>Inverte maiúsculas e minúsculas</td></tr>
+<tr><td><code>J</code></td><td>Junta as linhas selecionadas numa só</td></tr>
+<tr><td><code>r</code> + letra</td><td>Troca cada caractere selecionado pela letra</td></tr>
+<tr><td><code>:</code></td><td>Abre um comando Ex só para as linhas selecionadas</td></tr>
+</table>
+</div>
+
+<h3>U: maiúsculas</h3>
+<div class="vimdemo" data-file="frase.txt" data-col="3" data-keys="veU">
+<pre class="vim-inicial">O Vim e um editor de texto</pre>
+</div>
+
+<h3>c: trocar o trecho</h3>
+<div class="vimdemo" data-file="frase.txt" data-col="3" data-keys="vecNeovim&lt;Esc&gt;">
+<pre class="vim-inicial">O Vim e um editor de texto</pre>
+</div>
+<p>O <code>c</code> apagou "Vim" e abriu o modo de inserção ali. Digitamos "Neovim" e saímos com <kbd>Esc</kbd>.</p>
+
+<h3>&gt;: indentar</h3>
+<div class="vimdemo" data-file="codigo.py" data-set="shiftwidth=4 expandtab" data-line="2" data-keys="Vj&gt;">
+<pre class="vim-inicial">def ola():
+print("oi")
+return 1</pre>
+</div>
+<p>As duas linhas ganharam 4 espaços. Quanto o <code>&gt;</code> anda depende da opção <code>shiftwidth</code>; aqui ela está em 4, com <code>expandtab</code> para usar espaços. Sem configurar, o Vim usa 8 e insere um tab. Veja <a href="opcoes.html">Opções Úteis</a>.</p>
+
+<h3>J: juntar linhas</h3>
+<div class="vimdemo" data-file="frase.txt" data-keys="VjJ">
+<pre class="vim-inicial">O Vim e um editor de texto
+muito rapido e leve
+que roda em qualquer lugar</pre>
+</div>
+
+<h3>r: trocar cada caractere</h3>
+<div class="vimdemo" data-file="senha.txt" data-col="8" data-keys="vlllr*">
+<pre class="vim-inicial">senha: 1234 (confidencial)</pre>
+</div>
+<p>Útil para esconder dados antes de compartilhar um arquivo: cada caractere selecionado virou <code>*</code>.</p>
+
+<div class="vimtry" data-file="aviso.txt">
+<pre class="vim-inicial">atencao: o servidor vai reiniciar hoje</pre>
+<pre class="vim-meta">ATENCAO: o servidor vai reiniciar HOJE</pre>
+<p class="try-task"><strong>Missão:</strong> deixe em maiúsculas só as palavras "atencao" e "hoje". Selecione cada uma com <code>v</code> e um movimento (<code>e</code> serve) e aperte <code>U</code>.</p>
+</div>
+
+<hr>
+
+<h2>o: mudar a ponta da seleção</h2>
+<p>A seleção tem duas pontas: onde você começou e onde o cursor está. Só a ponta do cursor se mexe. Aperte <code>o</code> (de <em>other</em>, "outra") para o cursor pular para a outra ponta; assim você ajusta o começo da seleção sem recomeçar.</p>
+
+<div class="vimdemo" data-file="frase.txt" data-col="4" data-keys="vjojd">
+<pre class="vim-inicial">O Vim e um editor de texto
+muito rapido e leve
+que roda em qualquer lugar</pre>
+</div>
+
+<p>Acompanhe: <code>v</code> começa na coluna 4, <code>j</code> leva a seleção para a linha 2, <code>o</code> faz o cursor pular para a ponta de cima, e o segundo <code>j</code> move essa ponta para baixo também. No fim a seleção ficou só na linha 2, e o <code>d</code> apagou ali.</p>
+
+<hr>
+
+<h2>Selecionar objetos inteiros</h2>
+<p>Em vez de mover até o fim de algo, você pode selecionar um <strong>objeto de texto</strong> inteiro de uma vez, com o cursor em qualquer lugar dele. A letra <code>i</code> quer dizer "dentro" (<em>inner</em>) e <code>a</code>, "com as bordas" (<em>around</em>).</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Seleciona</th></tr>
+<tr><td><code>viw</code></td><td>A palavra sob o cursor</td></tr>
+<tr><td><code>vaw</code></td><td>A palavra e um espaço</td></tr>
+<tr><td><code>vi(</code> ou <code>vib</code></td><td>O que está dentro dos parênteses</td></tr>
+<tr><td><code>vi"</code></td><td>O que está dentro das aspas</td></tr>
+<tr><td><code>vip</code></td><td>O parágrafo inteiro (vira seleção de linhas)</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="frase.txt" data-col="16" data-keys="viwd">
+<pre class="vim-inicial">O Vim e um editor de texto</pre>
+</div>
+
+<p>O cursor estava no meio de "editor", e <code>viw</code> selecionou a palavra inteira. Veja todos os objetos em <a href="objetos.html">Objetos de Texto</a>.</p>
+
+<div class="vimtry" data-file="notas.txt" data-line="5">
+<pre class="vim-inicial">Primeiro paragrafo,
+com duas linhas.
+
+Segundo paragrafo
+que deve sumir
+inteiro.
+
+Terceiro.</pre>
+<pre class="vim-meta">Primeiro paragrafo,
+com duas linhas.
+
+
+Terceiro.</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está no segundo parágrafo. Selecione-o inteiro com <code>vip</code> (veja o rodapé mudar para <code>-- VISUAL/LINHA --</code>) e apague com <code>d</code>.</p>
+</div>
+
+<hr>
+
+<h2>gv: selecionar de novo</h2>
+<p>Fez uma seleção, saiu com <kbd>Esc</kbd> e precisa dela outra vez? <code>gv</code> (de <em>go visual</em>) refaz a última seleção, exatamente igual. É muito útil depois de um <code>&gt;</code>: <code>&gt;gv&gt;</code> indenta duas vezes.</p>
+
+<div class="vimdemo" data-file="frase.txt" data-keys="vee&lt;Esc&gt;gvd">
+<pre class="vim-inicial">O Vim e um editor de texto</pre>
+</div>
+
+<hr>
+
+<h2>: com uma seleção</h2>
+<p>Se você apertar <code>:</code> com algo selecionado, o rodapé já aparece assim:</p>
+<pre class="term" data-title="rodapé do Vim">:'&lt;,'&gt;</pre>
+<p>Não apague isso! <code>'&lt;</code> é a primeira linha da seleção e <code>'&gt;</code>, a última. É a <strong>faixa</strong> do comando. Complete com o que quiser, por exemplo <code>s/a/b/g</code> para substituir só nessas linhas:</p>
+
+<div class="vimdemo" data-file="script.sh" data-keys="Vjj:s/^/# /&lt;CR&gt;">
+<pre class="vim-inicial">echo "um"
+echo "dois"
+echo "tres"
+echo "fim"</pre>
+</div>
+
+<p>Veja mais em <a href="substituir.html">Substituir</a>.</p>
+
+<hr>
+
+<h2>Formas diferentes: visual ou verbo + movimento?</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tarefa</th><th>Com modo visual</th><th>Com verbo + movimento</th></tr>
+<tr><td>Apagar 3 linhas</td><td><code>Vjjd</code></td><td><code>3dd</code></td></tr>
+<tr><td>Apagar uma palavra</td><td><code>viwd</code></td><td><code>daw</code></td></tr>
+<tr><td>Copiar até o fim da linha</td><td><code>v$y</code></td><td><code>y$</code></td></tr>
+<tr><td>Indentar um parágrafo</td><td><code>vip&gt;</code></td><td><code>&gt;ip</code></td></tr>
+</table>
+</div>
+<p>O visual gasta uma ou duas teclas a mais, mas mostra antes o que vai mudar. Use-o quando não tiver certeza do alcance do movimento. Outra vantagem do verbo + movimento: ele pode ser repetido com <code>.</code>.</p>
+
+<div class="vimtry" data-file="codigo.py" data-set="shiftwidth=4 expandtab">
+<pre class="vim-inicial">def soma(a, b):
+resultado = a + b
+return resultado</pre>
+<pre class="vim-meta">def soma(a, b):
+    resultado = a + b
+    return resultado</pre>
+<p class="try-task"><strong>Missão:</strong> indente as duas últimas linhas (o <code>shiftwidth</code> aqui é 4). Desça com <code>j</code>, selecione as duas linhas com <code>Vj</code> e aperte <code>&gt;</code>.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Apertei d e apagou mais (ou menos) do que eu via</strong>
+<p><strong>O que aconteceu:</strong> com <code>v</code> minúsculo, a seleção vai de um caractere a outro, e as linhas do meio são apagadas, mas as pontas podem ficar cortadas.</p>
+<p><strong>Como resolver:</strong> <code>u</code> para desfazer. Para linhas inteiras, use <code>V</code> maiúsculo.</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei Ctrl+V e o terminal colou um texto</strong>
+<p><strong>O que aconteceu:</strong> alguns terminais (como o do Windows) usam <kbd>Ctrl</kbd>+<kbd>v</kbd> para colar, antes que o Vim veja a tecla.</p>
+<p><strong>Como resolver:</strong> use <kbd>Ctrl</kbd>+<kbd>q</kbd>, que no Vim faz o mesmo que <kbd>Ctrl</kbd>+<kbd>v</kbd>. Veja <a href="bloco.html">Modo Visual de Bloco</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>Apaguei ":'&lt;,'&gt;" sem querer e o comando foi para o arquivo todo</strong>
+<p><strong>O que aconteceu:</strong> sem a faixa, um <code>:s</code> age só na linha do cursor; com <code>%</code>, no arquivo todo. A faixa <code>'&lt;,'&gt;</code> é que limita à seleção.</p>
+<p><strong>Como resolver:</strong> <code>u</code>, depois <code>gv</code> para reselecionar e <code>:</code> de novo.</p>
+</div>
+
+<div class="cenario">
+<strong>Selecionei com o mouse e virou modo visual</strong>
+<p><strong>O que aconteceu:</strong> com <code>:set mouse=a</code> (comum em configurações prontas), arrastar o mouse cria uma seleção visual do Vim, e não do terminal.</p>
+<p><strong>Como resolver:</strong> use a seleção normalmente, ou segure <kbd>Shift</kbd> enquanto arrasta para selecionar pelo terminal.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>O que faz</th></tr>
+<tr><td><code>v</code> / <code>V</code> / <kbd>Ctrl</kbd>+<kbd>v</kbd></td><td>Seleção de caracteres / linhas / bloco</td></tr>
+<tr><td><kbd>Esc</kbd></td><td>Cancela a seleção</td></tr>
+<tr><td><code>o</code></td><td>Pula para a outra ponta da seleção</td></tr>
+<tr><td><code>gv</code></td><td>Refaz a última seleção</td></tr>
+<tr><td><code>iw</code> <code>ip</code> <code>i(</code> <code>i"</code></td><td>Seleciona um objeto inteiro</td></tr>
+<tr><td><code>d</code> <code>y</code> <code>c</code> <code>p</code></td><td>Apaga, copia, troca, cola por cima</td></tr>
+<tr><td><code>&gt;</code> <code>&lt;</code> <code>J</code></td><td>Indenta, desindenta, junta</td></tr>
+<tr><td><code>U</code> <code>u</code> <code>~</code> <code>r</code></td><td>Maiúsculas, minúsculas, inverte, troca cada caractere</td></tr>
+<tr><td><code>:</code></td><td>Comando Ex na faixa <code>'&lt;,'&gt;</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Linhas inteiras</h3>
+<p>Qual tecla começa uma seleção de linhas inteiras?</p>
+<div class="ex-code"><input data-answer="V" aria-label="tecla"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Palavra inteira</h3>
+<p>Complete para selecionar a palavra sob o cursor e apagá-la:</p>
+<div class="ex-code">v<input data-answer="iw|aw" aria-label="objeto">d</div>
+</div>
+
+<div class="exercise">
+<h3>3. De novo</h3>
+<p>Quais teclas refazem a última seleção?</p>
+<div class="ex-code"><input data-answer="gv" aria-label="teclas"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">4. Com uma seleção ativa, você aperta <code>:</code>. O que aparece no rodapé?</p>
+<label><input type="radio" name="q4"> <code>:%</code></label>
+<label><input type="radio" name="q4"> Nada, só o <code>:</code></label>
+<label><input type="radio" name="q4"> <code>:'&lt;,'&gt;</code></label>
+<label><input type="radio" name="q4"> <code>-- VISUAL --</code></label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">5. O que <code>U</code> faz no modo visual?</p>
+<label><input type="radio" name="q5"> Passa a seleção para maiúsculas.</label>
+<label><input type="radio" name="q5"> Desfaz a última alteração.</label>
+<label><input type="radio" name="q5"> Copia a seleção.</label>
+<label><input type="radio" name="q5"> Sai do modo visual sem fazer nada.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>v</code> seleciona caracteres, <code>V</code> linhas e <kbd>Ctrl</kbd>+<kbd>v</kbd> blocos.</li>
+  <li>Qualquer movimento aumenta a seleção; <code>o</code> troca de ponta.</li>
+  <li>Depois da seleção, o verbo: <code>d</code>, <code>y</code>, <code>c</code>, <code>&gt;</code>, <code>U</code>, <code>J</code>, <code>r</code>…</li>
+  <li><code>viw</code>, <code>vi(</code> e <code>vip</code> selecionam objetos inteiros.</li>
+  <li><code>gv</code> reseleciona; <code>:</code> com seleção vira <code>:'&lt;,'&gt;</code>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

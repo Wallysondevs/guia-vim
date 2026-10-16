@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — copiar e colar com y e p | Guia Vim</title>
+<meta name="description" content="Copiar e colar no Vim: yy, yw, yiw, y$, p, P, gp, gP, colar várias vezes, ddp e xp para trocar linhas e letras, e a diferença entre colar linhas e pedaços de texto.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Copiar e Colar (y, p)</span></h1>
+
+<p class="intro">No Vim, copiar é <code>y</code> e colar é <code>p</code>. Não existe <kbd>Ctrl</kbd>+<kbd>C</kbd>/<kbd>Ctrl</kbd>+<kbd>V</kbd> no modo normal: você diz <strong>o que</strong> copiar com a mesma gramática do <code>d</code>, e escolhe <strong>onde</strong> colar com <code>p</code> ou <code>P</code>. O detalhe que mais confunde iniciantes é que colar uma linha inteira é diferente de colar um pedaço de texto.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Copiar com <code>yy</code>, <code>yw</code>, <code>yiw</code> e <code>y$</code>.</li>
+  <li>Colar depois (<code>p</code>) ou antes (<code>P</code>) do cursor, e onde o cursor fica (<code>gp</code>, <code>gP</code>).</li>
+  <li>Colar várias vezes com <code>3p</code>.</li>
+  <li>Os truques <code>ddp</code> e <code>xp</code>.</li>
+  <li>Por que, às vezes, o <code>p</code> cola outra coisa.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Você precisa da gramática verbo + movimento (<a href="gramatica.html">Verbo + Movimento</a>) e dos objetos de texto (<a href="objetos.html">Objetos de Texto</a>). Para copiar <strong>entre o Vim e outros programas</strong>, veja <a href="area-transferencia.html">Área de Transferência do Sistema</a>.</p>
+</div>
+
+<hr>
+
+<h2>y: copiar</h2>
+<p><code>y</code> vem de <em>yank</em>, "puxar". Ele é um operador como o <code>d</code>: espera um movimento ou objeto, copia o trecho e não altera nada no texto.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Copia</th></tr>
+<tr><td><code>yy</code> ou <code>Y</code></td><td>A linha inteira</td></tr>
+<tr><td><code>3yy</code></td><td>3 linhas a partir da atual</td></tr>
+<tr><td><code>yw</code></td><td>Do cursor até a próxima palavra (com o espaço)</td></tr>
+<tr><td><code>yiw</code></td><td>A palavra sob o cursor, de qualquer ponto dela</td></tr>
+<tr><td><code>y$</code></td><td>Do cursor até o fim da linha</td></tr>
+<tr><td><code>yi"</code></td><td>O texto entre aspas</td></tr>
+<tr><td><code>yap</code></td><td>O parágrafo</td></tr>
+</table>
+</div>
+
+<p>Como nada muda na tela, é difícil ver que a cópia aconteceu. Quando você copia mais de 2 linhas, o Vim avisa no rodapé, por exemplo <code>3 linhas copiadas</code>.</p>
+
+<hr>
+
+<h2>p e P: colar depois ou antes</h2>
+
+<dl class="anatomy">
+  <dt>p</dt><dd>Cola <strong>depois</strong> do cursor (de <em>put</em>, "colocar").</dd>
+  <dt>P</dt><dd>Cola <strong>antes</strong> do cursor (maiúsculo = "antes", como em <code>O</code> e <code>I</code>).</dd>
+</dl>
+
+<p>"Depois" e "antes" dependem do que foi copiado. Esta é a regra mais importante da aula:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Você copiou</th><th><code>p</code> cola</th><th><code>P</code> cola</th></tr>
+<tr><td>Linhas inteiras (<code>yy</code>, <code>yj</code>, <code>yap</code>)</td><td>Numa linha nova <strong>abaixo</strong> da atual</td><td>Numa linha nova <strong>acima</strong> da atual</td></tr>
+<tr><td>Um pedaço (<code>yw</code>, <code>yiw</code>, <code>y$</code>)</td><td>Depois do caractere do cursor, na mesma linha</td><td>Antes do caractere do cursor</td></tr>
+</table>
+</div>
+
+<h3>Colando linhas</h3>
+<p>Copiar a linha e colar logo abaixo, para duplicá-la:</p>
+
+<div class="vimdemo" data-file="lista.txt" data-col="5" data-keys="yyp">
+<pre class="vim-inicial">linha A
+linha B
+linha C</pre>
+</div>
+
+<p>O cursor estava no meio da linha, mas a cópia entrou numa linha nova <strong>inteira</strong> embaixo, e o cursor foi para o começo dela. Não importa em que coluna você estava: linhas sempre entram como linhas.</p>
+
+<h3>Colando pedaços</h3>
+<p>Copiar uma palavra e colar no fim da linha:</p>
+
+<dl class="anatomy">
+  <dt>yiw</dt><dd>Copia a palavra sob o cursor ("dois").</dd>
+  <dt>$</dt><dd>Vai para o último caractere da linha.</dd>
+  <dt>p</dt><dd>Cola depois dele.</dd>
+</dl>
+
+<div class="vimdemo" data-file="frase.txt" data-col="5" data-keys="yiw$p">
+<pre class="vim-inicial">um dois tres</pre>
+</div>
+
+<p>"dois" entrou grudado em "tres", porque o <code>yiw</code> não pega espaços. Para colar com espaço, copie com <code>yaw</code> ou digite o espaço antes de colar.</p>
+
+<div class="vimtry" data-file="nomes.txt">
+<pre class="vim-inicial">Ana
+Bruno</pre>
+<pre class="vim-meta">Ana
+Bruno
+Ana</pre>
+<p class="try-task"><strong>Missão:</strong> copie a linha "Ana" e cole no fim do arquivo. Dica: <code>yy</code>, depois <code>G</code> para ir à última linha, depois <code>p</code>.</p>
+</div>
+
+<hr>
+
+<h2>Colar várias vezes</h2>
+<p>Um número antes do <code>p</code> cola várias cópias de uma vez:</p>
+
+<div class="vimdemo" data-file="tabela.csv" data-keys="yy3p">
+<pre class="vim-inicial">0,0,0
+fim</pre>
+</div>
+
+<p>Três cópias da linha entraram, e o rodapé confirma com <code>3 linhas a mais</code>.</p>
+
+<hr>
+
+<h2>gp e gP: colar e pular para depois</h2>
+<p>Depois de um <code>p</code>, o cursor fica no começo do que foi colado. Com <code>gp</code> e <code>gP</code>, ele vai para <strong>depois</strong> do texto colado, pronto para colar de novo ou continuar escrevendo:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Cola</th><th>O cursor fica</th></tr>
+<tr><td><code>p</code></td><td>Depois</td><td>No começo do texto colado</td></tr>
+<tr><td><code>gp</code></td><td>Depois</td><td>Logo depois do texto colado</td></tr>
+<tr><td><code>P</code></td><td>Antes</td><td>No começo do texto colado</td></tr>
+<tr><td><code>gP</code></td><td>Antes</td><td>Logo depois do texto colado</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="lista.txt" data-keys="yygp">
+<pre class="vim-inicial">linha A
+linha B
+linha C</pre>
+</div>
+
+<p>Com <code>gp</code>, o cursor terminou na linha 3, a seguinte à colada, e não na cópia.</p>
+
+<hr>
+
+<h2>Dois truques clássicos: ddp e xp</h2>
+<p>Como apagar também guarda o texto (veja <a href="apagar.html">Apagar</a>), recortar e colar é só <code>d</code> + <code>p</code>.</p>
+
+<h3>ddp: trocar uma linha com a de baixo</h3>
+<dl class="anatomy">
+  <dt>dd</dt><dd>Recorta a linha atual. A linha de baixo sobe e fica sob o cursor.</dd>
+  <dt>p</dt><dd>Cola a linha recortada embaixo dela.</dd>
+</dl>
+
+<div class="vimdemo" data-file="passos.txt" data-keys="ddp">
+<pre class="vim-inicial">2. Ligar o computador
+1. Apertar o botão
+3. Entrar com a senha</pre>
+</div>
+
+<p>Para trocar com a linha de <strong>cima</strong>, use <code>ddkP</code>: recorta, sobe uma linha e cola acima dela.</p>
+
+<h3>xp: trocar duas letras</h3>
+<dl class="anatomy">
+  <dt>x</dt><dd>Recorta a letra sob o cursor. A letra seguinte vem para o lugar dela.</dd>
+  <dt>p</dt><dd>Cola a letra recortada depois dessa.</dd>
+</dl>
+
+<div class="vimdemo" data-file="nome.txt" data-col="3" data-keys="xp">
+<pre class="vim-inicial">Ubnutu</pre>
+</div>
+
+<div class="vimtry" data-file="ordem.txt">
+<pre class="vim-inicial">segundo
+primeiro
+terceiro
+Lniux</pre>
+<pre class="vim-meta">primeiro
+segundo
+terceiro
+Linux</pre>
+<p class="try-task"><strong>Missão:</strong> ponha "primeiro" antes de "segundo" com <code>ddp</code> e conserte "Lniux" com <code>xp</code> (o cursor precisa estar no "n").</p>
+</div>
+
+<hr>
+
+<h2>Para onde vai o que você copia</h2>
+<p>Tudo que <code>y</code>, <code>d</code>, <code>c</code> e <code>x</code> pegam vai para o <strong>registrador sem nome</strong>, que se escreve <code>"</code> (aspas). O <code>p</code> cola o conteúdo dele. Como copiar e apagar escrevem no mesmo lugar, este é o problema mais comum:</p>
+
+<ol class="passo">
+  <li>Você copia uma palavra com <code>yiw</code>. O registrador <code>"</code> guarda "nome".</li>
+  <li>Você vai até outro lugar e apaga uma palavra com <code>diw</code>, para colar a cópia ali. Agora o registrador <code>"</code> guarda a palavra apagada.</li>
+  <li>Você aperta <code>p</code>, e volta a palavra apagada, não a que você copiou.</li>
+</ol>
+
+<div class="vimdemo" data-file="codigo.py" data-keys="yiwjwwdiwP">
+<pre class="vim-inicial">total = 0
+x = antigo + 1</pre>
+</div>
+
+<p>A palavra "total" deveria ter entrado no lugar de "antigo", mas o <code>P</code> colou de volta o próprio "antigo". Há duas soluções, ambas explicadas em <a href="registradores.html">Registradores</a>:</p>
+<ul>
+  <li><code>"0P</code>: o registrador <code>0</code> guarda sempre a <strong>última cópia</strong> feita com <code>y</code>, e apagar não mexe nele.</li>
+  <li>Selecionar e colar por cima: <code>viwp</code> troca a palavra selecionada pelo que foi copiado (veja <a href="visual.html">Modo Visual</a>).</li>
+</ul>
+
+<div class="vimtry" data-file="codigo.py">
+<pre class="vim-inicial">total = 0
+x = antigo + 1</pre>
+<pre class="vim-meta">total = 0
+x = total + 1</pre>
+<p class="try-task"><strong>Missão:</strong> copie "total" com <code>yiw</code>, vá até "antigo" (<code>j</code> e <code>ww</code>) e troque uma palavra pela outra. Experimente as duas formas: <code>diw</code> seguido de <code>"0P</code>, ou só <code>viwp</code>. Use <strong>Reiniciar</strong> entre uma e outra.</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de duplicar uma linha</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Como funciona</th><th>Quando usar</th></tr>
+<tr><td><code>yyp</code></td><td>Copia e cola abaixo</td><td>O jeito mais comum.</td></tr>
+<tr><td><code>Yp</code></td><td>Mesmo que <code>yyp</code> (no Vim, <code>Y</code> = <code>yy</code>)</td><td>Uma tecla a menos de pensar.</td></tr>
+<tr><td><code>yyP</code></td><td>Copia e cola acima; o cursor fica na cópia de cima</td><td>Quando você quer editar a versão de cima.</td></tr>
+<tr><td><code>:t.</code></td><td>Comando Ex: copia a linha atual para depois de si mesma</td><td>Não mexe no registrador (veja <a href="ex-avancado.html">Comandos Ex</a>).</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>O p colou outra coisa</strong>
+<p><strong>O que aconteceu:</strong> entre copiar e colar você apagou algo com <code>d</code>, <code>c</code> ou <code>x</code>, e isso sobrescreveu o registrador <code>"</code>.</p>
+<p><strong>Como resolver:</strong> <code>u</code> para desfazer a colagem errada e <code>"0p</code> para colar a última cópia. Para ver o conteúdo de todos os registradores, use <code>:reg</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Copiei uma linha e ela entrou no meio de outra</strong>
+<p><strong>O que aconteceu:</strong> você não copiou a linha inteira, e sim um pedaço dela (por exemplo com <code>y$</code> a partir do começo da linha). Pedaços entram no meio da linha atual.</p>
+<p><strong>Como resolver:</strong> <code>u</code> e copie com <code>yy</code>, que marca o texto como "linha inteira".</p>
+</div>
+
+<div class="cenario">
+<strong>Ctrl+V não colou, e apareceu um bloco selecionado</strong>
+<p><strong>O que aconteceu:</strong> no modo normal do Vim, <kbd>Ctrl</kbd>+<kbd>V</kbd> inicia o <a href="bloco.html">modo visual de bloco</a>.</p>
+<p><strong>Como resolver:</strong> <kbd>Esc</kbd>. Para colar o que está na área de transferência do sistema, use <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> no terminal (estando no modo de inserção) ou o registrador <code>"+p</code>. Veja <a href="area-transferencia.html">Área de Transferência do Sistema</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>Copiei no Vim e não consigo colar no navegador</strong>
+<p><strong>O que aconteceu:</strong> o <code>y</code> copia para um registrador interno do Vim, não para a área de transferência do sistema.</p>
+<p><strong>Como resolver:</strong> copie com <code>"+y</code> (por exemplo <code>"+yy</code>), num Vim com suporte a área de transferência.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Faz</th></tr>
+<tr><td><code>yy</code> / <code>Y</code></td><td>Copia a linha</td></tr>
+<tr><td><code>y{movimento}</code></td><td>Copia o trecho: <code>yw</code>, <code>y$</code>, <code>yG</code></td></tr>
+<tr><td><code>y{objeto}</code></td><td>Copia o objeto: <code>yiw</code>, <code>yi"</code>, <code>yap</code></td></tr>
+<tr><td><code>p</code> / <code>P</code></td><td>Cola depois / antes</td></tr>
+<tr><td><code>3p</code></td><td>Cola 3 vezes</td></tr>
+<tr><td><code>gp</code> / <code>gP</code></td><td>Cola e deixa o cursor depois do texto colado</td></tr>
+<tr><td><code>ddp</code></td><td>Troca a linha com a de baixo</td></tr>
+<tr><td><code>xp</code></td><td>Troca duas letras</td></tr>
+<tr><td><code>"0p</code></td><td>Cola a última cópia feita com <code>y</code></td></tr>
+<tr><td><code>"+y</code> / <code>"+p</code></td><td>Copia para / cola da área de transferência do sistema</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Duplicar</h3>
+<p>Quais teclas duplicam a linha atual, colando a cópia embaixo?</p>
+<div class="ex-code"><input data-answer="yyp|Yp" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Colar a cópia</h3>
+<p>Você copiou com <code>yiw</code> e depois apagou outra coisa com <code>dd</code>. Complete para colar a palavra copiada:</p>
+<div class="ex-code"><input data-answer="&quot;0p|&quot;0P" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. Você copiou uma linha com <code>yy</code>. O cursor está no meio de outra linha. Onde o <code>p</code> cola?</p>
+<label><input type="radio" name="q3"> Depois do cursor, no meio da linha.</label>
+<label><input type="radio" name="q3"> No fim da linha atual.</label>
+<label><input type="radio" name="q3"> Numa linha nova, abaixo da atual.</label>
+<label><input type="radio" name="q3"> No fim do arquivo.</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">4. Qual a diferença entre <code>p</code> e <code>gp</code>?</p>
+<label><input type="radio" name="q4"> Os dois colam no mesmo lugar; com <code>gp</code> o cursor vai para depois do texto colado.</label>
+<label><input type="radio" name="q4"> <code>gp</code> cola da área de transferência do sistema.</label>
+<label><input type="radio" name="q4"> <code>gp</code> cola antes do cursor.</label>
+<label><input type="radio" name="q4"> <code>gp</code> cola em todas as linhas.</label>
+</div>
+
+<div class="vimtry" data-file="servidores.txt">
+<pre class="vim-inicial">[web]
+host = 10.0.0.1
+[banco]</pre>
+<pre class="vim-meta">[web]
+host = 10.0.0.1
+[banco]
+host = 10.0.0.1</pre>
+<p class="try-task"><strong>Missão final:</strong> o servidor de banco usa o mesmo host. Copie a linha <code>host = …</code> e cole embaixo de <code>[banco]</code>.</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>y</code> copia com a mesma gramática do <code>d</code>: <code>yy</code>, <code>yw</code>, <code>yiw</code>, <code>y$</code>.</li>
+  <li><code>p</code> cola depois, <code>P</code> antes; linhas inteiras sempre entram como linhas novas.</li>
+  <li><code>3p</code> cola três vezes; <code>gp</code>/<code>gP</code> deixam o cursor depois do texto colado.</li>
+  <li><code>ddp</code> troca linhas e <code>xp</code> troca letras.</li>
+  <li>Apagar sobrescreve o registrador; <code>"0p</code> cola a última cópia feita com <code>y</code>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

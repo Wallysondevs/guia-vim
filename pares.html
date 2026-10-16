@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — parênteses e blocos com % , di( e da{ | Guia Vim</title>
+<meta name="description" content="Aprenda a pular entre parênteses, colchetes e chaves com % no Vim, apagar e copiar blocos inteiros com d% e y%, editar o conteúdo com di( e ci{, e ativar o matchit para if/endif e tags HTML.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Parênteses e Blocos (%)</span></h1>
+
+<p class="intro">Em código, quase tudo vem entre pares: parênteses de funções, colchetes de listas, chaves de blocos. Achar onde um bloco fecha, num arquivo com dezenas deles, é uma tarefa comum e chata. No Vim, a tecla <code>%</code> pula de um lado do par para o outro. Combinada com verbos e objetos de texto, ela apaga, copia e troca blocos inteiros.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Pular entre <code>( )</code>, <code>[ ]</code> e <code>{ }</code> com <code>%</code>.</li>
+  <li>Apagar ou copiar um bloco inteiro, com os delimitadores: <code>d%</code> e <code>y%</code>.</li>
+  <li>Mexer só no conteúdo, com o cursor em qualquer lugar dentro: <code>di(</code>, <code>ci(</code>, <code>di{</code>.</li>
+  <li>A diferença entre <code>i(</code> (dentro) e <code>a(</code> (com os parênteses).</li>
+  <li>Ativar o matchit para pular entre <code>if</code>/<code>endif</code> e tags HTML.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Ajuda conhecer <a href="gramatica.html">Verbo + Movimento</a> e <a href="objetos.html">Objetos de Texto</a>. Tudo aqui é do modo normal.</p>
+</div>
+
+<hr>
+
+<h2>%: pular para o par</h2>
+<p>Com o cursor sobre um <code>(</code>, <code>%</code> leva ao <code>)</code> que fecha esse mesmo parêntese, pulando os que estão aninhados no meio. Apertando <code>%</code> de novo, você volta para o <code>(</code>.</p>
+
+<dl class="anatomy">
+  <dt>%</dt><dd>Pula para o caractere que faz par com o que está sob o cursor: <code>(</code> ↔ <code>)</code>, <code>[</code> ↔ <code>]</code>, <code>{</code> ↔ <code>}</code>.</dd>
+</dl>
+
+<div class="vimdemo" data-file="codigo.js" data-keys="f(%">
+<pre class="vim-inicial">if (a &amp;&amp; (b || c)) {
+    soma(x[1], y[2]);
+}</pre>
+</div>
+
+<p>O <code>f(</code> levou o cursor ao primeiro parêntese (coluna 4). O <code>%</code> pulou para o <code>)</code> da coluna 18, que fecha esse parêntese, e não para o da coluna 17, que fecha o <code>(b || c)</code> de dentro.</p>
+
+<h3>Não precisa estar em cima do parêntese</h3>
+<p>Se o cursor não estiver sobre um par, o <code>%</code> procura o próximo à direita, na mesma linha, e pula para o par dele. Aqui o cursor está no começo da linha 3, sobre o <code>}</code>, e o <code>%</code> leva à chave que abre o bloco, no fim da linha 1:</p>
+
+<div class="vimdemo" data-file="codigo.js" data-line="3" data-keys="%">
+<pre class="vim-inicial">if (a &amp;&amp; (b || c)) {
+    soma(x[1], y[2]);
+}</pre>
+</div>
+
+<div class="tip">
+<strong>Uso típico</strong>
+<p>Quando o compilador reclamar de "parêntese não fechado", ponha o cursor num <code>(</code> suspeito e aperte <code>%</code>. Se ele pular para um lugar estranho, o problema está ali.</p>
+</div>
+
+<hr>
+
+<h2>d% e y%: o bloco inteiro</h2>
+<p><code>%</code> é um movimento, então funciona com verbos. Com o cursor sobre um delimitador, <code>d%</code> apaga dele até o par, <strong>incluindo os dois</strong>.</p>
+
+<dl class="anatomy">
+  <dt>d</dt><dd>Verbo: apagar.</dd>
+  <dt>%</dt><dd>Movimento: até o par do delimitador sob o cursor, incluído.</dd>
+</dl>
+
+<div class="vimdemo" data-file="codigo.js" data-keys="f(d%">
+<pre class="vim-inicial">if (a &amp;&amp; (b || c)) {
+    soma(x[1], y[2]);
+}</pre>
+</div>
+
+<p>Toda a condição <code>(a &amp;&amp; (b || c))</code> saiu, com os parênteses. O <code>y%</code> copia o mesmo trecho; aqui ele é copiado e colado logo antes com <code>P</code>:</p>
+
+<div class="vimdemo" data-file="codigo.js" data-keys="f(y%P">
+<pre class="vim-inicial">if (a &amp;&amp; (b || c)) {
+    soma(x[1], y[2]);
+}</pre>
+</div>
+
+<p>Também funciona de trás para frente: com o cursor no <code>}</code> da última linha, <code>d%</code> apaga do <code>{</code> até ele, levando o bloco inteiro.</p>
+
+<div class="vimdemo" data-file="codigo.js" data-line="3" data-keys="d%">
+<pre class="vim-inicial">if (a &amp;&amp; (b || c)) {
+    soma(x[1], y[2]);
+}</pre>
+</div>
+
+<hr>
+
+<h2>Dentro dos pares: i( e a(</h2>
+<p>Com <code>%</code>, o cursor precisa estar no delimitador. Os <strong>objetos de texto</strong> são mais práticos: funcionam com o cursor em <strong>qualquer lugar dentro</strong> do par.</p>
+
+<dl class="anatomy">
+  <dt>d</dt><dd>Verbo: apagar.</dd>
+  <dt>i</dt><dd>"Dentro" (<em>inner</em>): só o conteúdo, sem os parênteses.</dd>
+  <dt>(</dt><dd>O par: parênteses. <code>b</code> (de <em>block</em>) é um apelido para ele.</dd>
+</dl>
+
+<div class="vimdemo" data-file="codigo.js" data-col="11" data-keys="di(">
+<pre class="vim-inicial">if (a &amp;&amp; (b || c)) {
+    soma(x[1], y[2]);
+}</pre>
+</div>
+
+<p>O cursor estava no "b", dentro de <code>(b || c)</code>. O <code>di(</code> apagou o conteúdo desses parênteses, os mais próximos que envolvem o cursor, e deixou o <code>()</code>.</p>
+
+<p>Com <code>a</code> (de <em>around</em>, "em volta"), os parênteses vão junto:</p>
+
+<div class="vimdemo" data-file="codigo.js" data-col="11" data-keys="da(">
+<pre class="vim-inicial">if (a &amp;&amp; (b || c)) {
+    soma(x[1], y[2]);
+}</pre>
+</div>
+
+<h3>Os objetos de par</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Objeto</th><th>Par</th><th>Com <code>i</code> (dentro)</th><th>Com <code>a</code> (em volta)</th></tr>
+<tr><td><code>(</code> <code>)</code> <code>b</code></td><td>Parênteses</td><td><code>di(</code> apaga o conteúdo</td><td><code>da(</code> apaga com os parênteses</td></tr>
+<tr><td><code>[</code> <code>]</code></td><td>Colchetes</td><td><code>di[</code></td><td><code>da[</code></td></tr>
+<tr><td><code>{</code> <code>}</code> <code>B</code></td><td>Chaves</td><td><code>di{</code></td><td><code>da{</code></td></tr>
+<tr><td><code>&lt;</code> <code>&gt;</code></td><td>Sinais de menor/maior</td><td><code>di&lt;</code></td><td><code>da&lt;</code></td></tr>
+<tr><td><code>"</code> <code>'</code> <code>`</code></td><td>Aspas</td><td><code>di"</code></td><td><code>da"</code></td></tr>
+<tr><td><code>t</code></td><td>Tag HTML/XML</td><td><code>dit</code> (o conteúdo da tag)</td><td><code>dat</code> (a tag inteira)</td></tr>
+</table>
+</div>
+
+<h3>Trocar os argumentos de uma função: ci(</h3>
+<p>Com <code>c</code> no lugar do <code>d</code>, o conteúdo é apagado e você já fica no modo de inserção para digitar o novo:</p>
+
+<div class="vimdemo" data-file="codigo.js" data-line="2" data-keys="ci(&lt;Esc&gt;">
+<pre class="vim-inicial">if (a &amp;&amp; (b || c)) {
+    soma(x[1], y[2]);
+}</pre>
+</div>
+
+<p>Repare: o cursor estava no começo da linha 2, <strong>fora</strong> dos parênteses. Mesmo assim o <code>ci(</code> funcionou: quando o cursor não está dentro de um par, o Vim procura o próximo na mesma linha.</p>
+
+<h3>Esvaziar um bloco de chaves: di{</h3>
+<div class="vimdemo" data-file="codigo.js" data-line="2" data-keys="di{">
+<pre class="vim-inicial">if (a &amp;&amp; (b || c)) {
+    soma(x[1], y[2]);
+}</pre>
+</div>
+
+<p>Quando as chaves estão em linhas próprias, o <code>di{</code> apaga as linhas de dentro inteiras e mantém as linhas do <code>{</code> e do <code>}</code>.</p>
+
+<div class="vimtry" data-file="funcao.py">
+<pre class="vim-inicial">resultado = calcular(preco, quantidade, desconto, imposto)</pre>
+<pre class="vim-meta">resultado = calcular(total)</pre>
+<p class="try-task"><strong>Missão:</strong> troque todos os argumentos de <code>calcular(...)</code> por apenas <code>total</code>. Use <code>ci(</code> com o cursor em qualquer lugar da linha, digite <code>total</code> e aperte <kbd>Esc</kbd>.</p>
+</div>
+
+<div class="vimtry" data-file="config.js">
+<pre class="vim-inicial">const config = {
+    debug: true,
+    porta: 8080
+};
+iniciar(config);</pre>
+<pre class="vim-meta">const config = {
+};
+iniciar(config);</pre>
+<p class="try-task"><strong>Missão:</strong> esvazie o objeto <code>config</code>, apagando as linhas de dentro das chaves. Ponha o cursor dentro do bloco (por exemplo, <code>j</code>) e use <code>di{</code>.</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de apagar um bloco</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O cursor precisa estar</th><th>Apaga</th></tr>
+<tr><td><code>d%</code></td><td>Sobre um delimitador</td><td>Do delimitador até o par, com os dois</td></tr>
+<tr><td><code>da(</code></td><td>Em qualquer lugar dentro</td><td>O par inteiro, com os parênteses</td></tr>
+<tr><td><code>di(</code></td><td>Em qualquer lugar dentro</td><td>Só o conteúdo</td></tr>
+<tr><td><code>dt)</code></td><td>Onde o apagamento deve começar</td><td>Até antes do próximo <code>)</code>, sem respeitar aninhamento</td></tr>
+<tr><td><code>vi(</code> + <code>d</code></td><td>Em qualquer lugar dentro</td><td>O conteúdo, mostrando antes o que vai sair</td></tr>
+</table>
+</div>
+<p>Prefira <code>di(</code> e <code>da(</code>: eles entendem parênteses aninhados e não exigem posicionar o cursor com precisão. O <code>dt)</code>, de <a href="f-t.html">f e t</a>, para no primeiro <code>)</code> que encontrar, mesmo que ele feche outro par.</p>
+
+<hr>
+
+<h2>matchit: if/endif, tags e mais</h2>
+<p>Sozinho, o <code>%</code> conhece só <code>( )</code>, <code>[ ]</code> e <code>{ }</code> (e comentários <code>/* */</code> em C). O plugin <strong>matchit</strong>, que já vem com o Vim, ensina o <code>%</code> a pular entre pares de palavras: <code>if</code>/<code>else</code>/<code>endif</code> em shell e Vimscript, <code>&lt;div&gt;</code>/<code>&lt;/div&gt;</code> em HTML, <code>begin</code>/<code>end</code> em outras linguagens.</p>
+<p>Para ativá-lo, coloque esta linha no seu <a href="vimrc.html">.vimrc</a>:</p>
+
+<pre class="file" data-file="~/.vimrc">" Ensina o % a pular entre if/endif, tags HTML e afins
+packadd! matchit</pre>
+
+<p>O <code>packadd!</code> carrega um dos <a href="plugins.html">pacotes</a> que acompanham o Vim. No Neovim, o matchit já vem ligado. O simulador desta página não tem o matchit.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Apertei % e nada aconteceu</strong>
+<p><strong>O que aconteceu:</strong> não há nenhum <code>( ) [ ] { }</code> do cursor até o fim da linha. O <code>%</code> só procura à direita, na linha atual.</p>
+<p><strong>Como resolver:</strong> leve o cursor até o delimitador (com <code>f(</code>, por exemplo) e aperte <code>%</code> de novo.</p>
+</div>
+
+<div class="cenario">
+<strong>O % pulou para o lugar errado</strong>
+<p><strong>O que aconteceu:</strong> provavelmente o código tem um par sem fechamento, ou um parêntese dentro de uma string, como <code>")"</code>, que o Vim também conta.</p>
+<p><strong>Como resolver:</strong> use isso para achar o erro: o lugar onde o <code>%</code> parou mostra qual par o Vim acha que fecha ali.</p>
+</div>
+
+<div class="cenario">
+<strong>di( apagou o conteúdo do parêntese de fora</strong>
+<p><strong>O que aconteceu:</strong> o objeto pega os parênteses mais próximos que <strong>envolvem</strong> o cursor. Se o cursor estava fora do par de dentro, o de fora é o mais próximo.</p>
+<p><strong>Como resolver:</strong> <code>u</code>, entre no par desejado (por exemplo com <code>f(</code> e <code>l</code>) e repita. Para subir um nível, use uma contagem: <code>d2i(</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>% não pula entre &lt;div&gt; e &lt;/div&gt;</strong>
+<p><strong>O que aconteceu:</strong> sem o matchit, o <code>%</code> não conhece tags.</p>
+<p><strong>Como resolver:</strong> ative com <code>packadd! matchit</code>, ou use os objetos <code>it</code> e <code>at</code>, que funcionam sem plugin.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>%</code></td><td>Pula para o par do delimitador sob o cursor (ou do próximo na linha)</td></tr>
+<tr><td><code>d%</code> / <code>y%</code> / <code>c%</code></td><td>Apaga / copia / troca até o par, incluindo os dois</td></tr>
+<tr><td><code>di(</code> / <code>ci(</code> / <code>yi(</code></td><td>Apaga / troca / copia o conteúdo dos parênteses</td></tr>
+<tr><td><code>da(</code> / <code>ya(</code></td><td>Apaga / copia o par inteiro</td></tr>
+<tr><td><code>di[</code> <code>di{</code> <code>di&lt;</code> <code>di"</code> <code>dit</code></td><td>O mesmo para colchetes, chaves, sinais, aspas e tags</td></tr>
+<tr><td><code>vi(</code> / <code>va{</code></td><td>Seleciona o conteúdo / o bloco inteiro</td></tr>
+<tr><td><code>packadd! matchit</code></td><td>No .vimrc: <code>%</code> passa a entender if/endif e tags</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Pular para o par</h3>
+<p>Com o cursor num <code>{</code>, qual tecla leva à <code>}</code> correspondente?</p>
+<div class="ex-code"><input data-answer="%" aria-label="tecla"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Só o conteúdo</h3>
+<p>Complete para trocar o que está dentro dos colchetes:</p>
+<div class="ex-code">c<input data-answer="i[|i]" aria-label="objeto"></div>
+</div>
+
+<div class="exercise">
+<h3>3. O par inteiro</h3>
+<p>Com o cursor dentro de um bloco de chaves, quais teclas apagam o bloco com as chaves?</p>
+<div class="ex-code"><input data-answer="da{|da}|daB" aria-label="teclas"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Na linha <code>f(a, g(b))</code>, o cursor está no "b". O que <code>di(</code> deixa?</p>
+<label><input type="radio" name="q4"> <code>f()</code></label>
+<label><input type="radio" name="q4"> <code>f(a, g())</code></label>
+<label><input type="radio" name="q4"> <code>f(a, g)</code></label>
+<label><input type="radio" name="q4"> <code>(a, g(b))</code></label>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">5. Qual a diferença entre <code>d%</code> e <code>di(</code>?</p>
+<label><input type="radio" name="q5"> Nenhuma.</label>
+<label><input type="radio" name="q5"> <code>d%</code> só funciona em chaves.</label>
+<label><input type="radio" name="q5"> <code>d%</code> exige o cursor no delimitador e leva os parênteses; <code>di(</code> funciona de dentro e os mantém.</label>
+<label><input type="radio" name="q5"> <code>di(</code> apaga a linha inteira.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>%</code> pula entre <code>( )</code>, <code>[ ]</code> e <code>{ }</code>, respeitando os pares aninhados.</li>
+  <li><code>d%</code> e <code>y%</code> agem do delimitador até o par, incluídos.</li>
+  <li><code>di(</code> e <code>ci(</code> mexem no conteúdo com o cursor em qualquer lugar dentro; <code>da(</code> leva os parênteses.</li>
+  <li>Funciona com <code>[</code>, <code>{</code>, <code>&lt;</code>, aspas e tags (<code>it</code>, <code>at</code>).</li>
+  <li><code>packadd! matchit</code> ensina o <code>%</code> a pular entre if/endif e tags.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — buscar texto com /, ?, n e * | Guia Vim</title>
+<meta name="description" content="Aprenda a buscar no Vim: / e ?, n e N, * e #, maiúsculas e minúsculas, destaque das ocorrências, histórico e a busca como movimento (d/padrão), com Vim simulado para praticar.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Buscar (/ ? n *)</span></h1>
+
+<p class="intro">Num arquivo de 500 linhas, ninguém desce com <kbd>j</kbd> até achar o que procura. No Vim você digita <code>/</code>, escreve o que quer e aperta <kbd>Enter</kbd>: o cursor pula direto para lá. Depois, <code>n</code> leva à próxima ocorrência. É o jeito mais rápido de se mover num arquivo.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Buscar para frente com <code>/</code> e para trás com <code>?</code>.</li>
+  <li>Ir para a próxima (<code>n</code>) e a anterior (<code>N</code>) ocorrência.</li>
+  <li>Buscar a palavra sob o cursor com <code>*</code> e <code>#</code>, sem digitá-la.</li>
+  <li>Controlar maiúsculas e minúsculas e destacar todas as ocorrências.</li>
+  <li>Usar a busca como movimento: <code>d/padrão</code> apaga até o que você buscou.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>A busca começa no <strong>modo normal</strong>. Se o rodapé mostrar <code>-- INSERÇÃO --</code>, aperte <kbd>Esc</kbd> antes de digitar <code>/</code>; senão a barra vira texto no arquivo. Reveja em <a href="modos.html">Os Modos do Vim</a>.</p>
+</div>
+
+<hr>
+
+<h2>/ : buscar para frente</h2>
+<p>Quando você aperta <code>/</code>, o cursor desce para o rodapé e o Vim espera o texto a procurar, chamado de <strong>padrão</strong>. Ao apertar <kbd>Enter</kbd>, ele salta para a primeira ocorrência <strong>depois</strong> do cursor.</p>
+
+<dl class="anatomy">
+  <dt>/</dt><dd>Abre a linha de busca no rodapé, buscando para frente (para baixo).</dd>
+  <dt>ERRO</dt><dd>O padrão: o texto que você quer achar.</dd>
+  <dt>Enter</dt><dd>Executa a busca. <kbd>Esc</kbd> no lugar dele desiste.</dd>
+</dl>
+
+<p>Neste log, o cursor começa na linha 1. Veja a busca acontecer tecla por tecla:</p>
+
+<div class="vimdemo" data-file="servidor.log" data-keys="/ERRO&lt;CR&gt;">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+</div>
+
+<p>Enquanto você digita, o padrão aparece no rodapé (<code>/ERRO</code>). Depois do <kbd>Enter</kbd>, o cursor está na linha 2, coluna 1, sobre o <code>E</code> de "ERRO". O rodapé continua mostrando <code>/ERRO</code> para lembrar qual foi a última busca.</p>
+
+<hr>
+
+<h2>n e N: próxima e anterior</h2>
+<p>Depois de uma busca, você não precisa digitar o padrão de novo. O Vim lembra dele:</p>
+
+<dl class="anatomy">
+  <dt>n</dt><dd>Vai para a próxima ocorrência, na mesma direção da última busca (de <em>next</em>, "próxima").</dd>
+  <dt>N</dt><dd>Vai para a ocorrência anterior, na direção contrária.</dd>
+</dl>
+
+<div class="vimdemo" data-file="servidor.log" data-keys="/ERRO&lt;CR&gt;nn">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+</div>
+
+<p>Acompanhe: a busca leva à linha 2, o primeiro <code>n</code> leva à linha 4 e o segundo <code>n</code> não tem mais nada para baixo. Então o Vim <strong>volta para o começo</strong> do arquivo, para na linha 2 de novo e avisa no rodapé:</p>
+
+<pre class="term" data-title="rodapé do Vim">busca atingiu FIM; continuando do TOPO</pre>
+
+<p>Isso <strong>não é um erro</strong>, só um aviso de que a busca deu a volta. No Vim em inglês a mensagem é <code>search hit BOTTOM, continuing at TOP</code>. Ao contrário, quando <code>N</code> passa do começo, aparece <code>busca atingiu TOPO; continuando do FIM</code>.</p>
+
+<div class="tip">
+<strong>Dica: contagem</strong>
+<p>Como quase todo comando do Vim, <code>n</code> aceita um número: <code>3n</code> pula direto para a terceira ocorrência seguinte.</p>
+</div>
+
+<hr>
+
+<h2>? : buscar para trás</h2>
+<p>O <code>?</code> funciona igual ao <code>/</code>, mas procura <strong>para cima</strong>. Depois de um <code>?</code>, os papéis de <code>n</code> e <code>N</code> se invertem: <code>n</code> continua subindo e <code>N</code> desce.</p>
+
+<div class="vimdemo" data-file="servidor.log" data-keys="?INFO&lt;CR&gt;">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+</div>
+
+<p>O cursor estava na linha 1, então não havia nada acima. O <code>?</code> deu a volta pelo fim do arquivo e parou no "INFO" da linha 5, com o aviso <code>busca atingiu TOPO; continuando do FIM</code>.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Última busca</th><th><code>n</code> vai</th><th><code>N</code> vai</th></tr>
+<tr><td><code>/padrão</code></td><td>Para baixo</td><td>Para cima</td></tr>
+<tr><td><code>?padrão</code></td><td>Para cima</td><td>Para baixo</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="servidor.log">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+DEBUG valor de x = 42
+ERRO falha no login
+DEBUG fim do teste
+INFO desligando</pre>
+<pre class="vim-meta">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+<p class="try-task"><strong>Missão:</strong> apague as duas linhas que começam com "DEBUG". Use <code>/DEBUG</code> e <kbd>Enter</kbd> para chegar na primeira, <code>dd</code> para apagar, <code>n</code> para ir à próxima e <code>dd</code> de novo (ou <code>.</code>, que repete o último comando).</p>
+</div>
+
+<hr>
+
+<h2>Quando a busca não encontra: E486</h2>
+<p>Se o padrão não existir no arquivo, o cursor não sai do lugar e o rodapé mostra um erro:</p>
+
+<div class="vimdemo" data-file="servidor.log" data-keys="/erro&lt;CR&gt;">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+</div>
+
+<p>A mensagem é <code>E486: Padrão não encontrado: erro</code> (em inglês, <code>E486: Pattern not found: erro</code>). Mas o arquivo tem "ERRO"… Por que não achou? Porque a busca do Vim <strong>diferencia maiúsculas de minúsculas</strong>: "erro" e "ERRO" são padrões diferentes.</p>
+
+<hr>
+
+<h2>Maiúsculas e minúsculas</h2>
+<p>Há três formas de buscar ignorando a diferença entre maiúsculas e minúsculas:</p>
+
+<h3>\c dentro do padrão (só nesta busca)</h3>
+<p>Coloque <code>\c</code> em qualquer lugar do padrão. Vale só para essa busca.</p>
+
+<dl class="anatomy">
+  <dt>/</dt><dd>Abre a busca.</dd>
+  <dt>\c</dt><dd>"Ignore maiúsculas nesta busca" (de <em>case</em>). O <code>\C</code> maiúsculo faz o contrário: obriga a respeitar.</dd>
+  <dt>erro</dt><dd>O padrão, agora encontrando "erro", "Erro" e "ERRO".</dd>
+</dl>
+
+<div class="vimdemo" data-file="servidor.log" data-keys="/\cerro&lt;CR&gt;">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+</div>
+
+<h3>:set ignorecase (para todas as buscas)</h3>
+<p>A opção <code>ignorecase</code> (abreviada <code>ic</code>) faz <strong>todas</strong> as buscas ignorarem maiúsculas. Ela vale até você fechar o Vim, ou para sempre se você colocá-la no <a href="vimrc.html">.vimrc</a>.</p>
+
+<div class="vimdemo" data-file="servidor.log" data-keys=":set ic&lt;CR&gt;/erro&lt;CR&gt;">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+</div>
+
+<h3>:set smartcase (o melhor dos dois)</h3>
+<p>Com <code>ignorecase</code> e <code>smartcase</code> (<code>scs</code>) ligados juntos, o Vim decide sozinho: se o padrão é todo minúsculo, ignora maiúsculas; se você digitou alguma letra maiúscula, ele passa a respeitá-las. É a configuração preferida da maioria das pessoas.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Com <code>:set ic scs</code></th><th>Encontra</th></tr>
+<tr><td><code>/erro</code></td><td>erro, Erro, ERRO</td></tr>
+<tr><td><code>/Erro</code></td><td>Só "Erro", exatamente assim</td></tr>
+<tr><td><code>/erro\C</code></td><td>Só "erro", exatamente assim</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="servidor.log" data-keys=":set ic scs&lt;CR&gt;/Erro&lt;CR&gt;">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+</div>
+
+<p>Como "Erro" tem uma letra maiúscula, o <code>smartcase</code> passou a respeitar as maiúsculas, e o arquivo não tem "Erro" escrito assim. Por isso o E486 aparece de novo.</p>
+
+<hr>
+
+<h2>* e #: buscar a palavra sob o cursor</h2>
+<p>Às vezes a palavra que você quer achar já está na tela. Em vez de digitá-la, ponha o cursor sobre ela e aperte <code>*</code>.</p>
+
+<dl class="anatomy">
+  <dt>*</dt><dd>Busca para frente a palavra inteira sob o cursor.</dd>
+  <dt>#</dt><dd>O mesmo, mas para trás.</dd>
+</dl>
+
+<div class="vimdemo" data-file="servidor.log" data-keys="*">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+</div>
+
+<p>Repare no rodapé: o Vim montou sozinho a busca <code>/\&lt;INFO\&gt;</code>. Os <code>\&lt;</code> e <code>\&gt;</code> significam "começo de palavra" e "fim de palavra". Assim o <code>*</code> sobre "INFO" não para em "INFORMAÇÃO". Depois do <code>*</code>, os comandos <code>n</code> e <code>N</code> funcionam normalmente. Saiba mais em <a href="regex.html">Expressões Regulares do Vim</a>.</p>
+
+<div class="tip">
+<strong>Uso típico</strong>
+<p>Programando, ponha o cursor no nome de uma variável e aperte <code>*</code> várias vezes para ver cada lugar onde ela é usada.</p>
+</div>
+
+<hr>
+
+<h2>Destacar todas as ocorrências: hlsearch</h2>
+<p>Por padrão, o Vim só move o cursor. Com <code>:set hlsearch</code> (<code>hls</code>, de <em>highlight search</em>), todas as ocorrências ficam pintadas de amarelo:</p>
+
+<div class="vimdemo" data-file="servidor.log" data-set="hlsearch" data-keys="/ERRO&lt;CR&gt;">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+</div>
+
+<p>O destaque fica na tela até a próxima busca. Para apagá-lo agora, sem desligar a opção, use <code>:noh</code> (de <em>no highlight</em>). Ele volta sozinho na próxima vez que você buscar.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Efeito</th></tr>
+<tr><td><code>:set hlsearch</code></td><td>Liga o destaque das ocorrências</td></tr>
+<tr><td><code>:noh</code></td><td>Apaga o destaque atual (até a próxima busca)</td></tr>
+<tr><td><code>:set nohlsearch</code></td><td>Desliga o destaque de vez</td></tr>
+<tr><td><code>:set incsearch</code></td><td>Mostra a ocorrência enquanto você digita (já vem ligado no Vim moderno)</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Histórico de buscas</h2>
+<p>O Vim guarda as buscas que você fez. Depois de apertar <code>/</code>, use a seta <kbd>↑</kbd> para ver a anterior e <kbd>↓</kbd> para voltar. Se você digitar o começo do padrão antes da seta, ele mostra só as buscas que começam assim.</p>
+<p>E um atalho: <code>/</code> seguido de <kbd>Enter</kbd>, sem padrão nenhum, repete a última busca.</p>
+
+<div class="vimtry" data-file="servidor.log">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+<p class="try-task"><strong>Treino livre:</strong> faça <code>/ERRO</code>, depois <code>/INFO</code>. Agora aperte <code>/</code> e use <kbd>↑</kbd> duas vezes para trazer de volta a busca por "ERRO".</p>
+</div>
+
+<hr>
+
+<h2>A busca como movimento: d/padrão</h2>
+<p>A busca é um <strong>movimento</strong>, como <code>w</code> ou <code>$</code>. Por isso ela pode vir depois de um verbo: <code>d/ERRO</code> apaga do cursor até a próxima ocorrência de "ERRO", sem incluí-la.</p>
+
+<dl class="anatomy">
+  <dt>d</dt><dd>Verbo: apagar.</dd>
+  <dt>/ERRO</dt><dd>Movimento: até a próxima ocorrência de "ERRO".</dd>
+  <dt>Enter</dt><dd>Confirma a busca e executa o apagamento.</dd>
+</dl>
+
+<div class="vimdemo" data-file="servidor.log" data-keys="d/ERRO&lt;CR&gt;">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+</div>
+
+<p>A primeira linha sumiu inteira. O apagamento foi do cursor (início da linha 1) até logo antes do "ERRO" (início da linha 2). O mesmo vale para <code>y/padrão</code> (copiar até lá) e <code>c/padrão</code> (trocar até lá). Veja mais em <a href="gramatica.html">Verbo + Movimento</a>.</p>
+
+<h3>Parar no fim da ocorrência: /padrão/e</h3>
+<p>Depois do padrão, uma segunda <code>/</code> permite um <strong>deslocamento</strong>. O mais útil é o <code>e</code> (de <em>end</em>): <code>/disco/e</code> deixa o cursor na <strong>última</strong> letra de "disco", e não na primeira. Outros deslocamentos: <code>/padrão/+1</code> vai para a linha seguinte à ocorrência; <code>/padrão/s+2</code> para 2 caracteres depois do começo.</p>
+
+<hr>
+
+<h2>Formas diferentes de chegar a um lugar</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th><th>Quando usar</th></tr>
+<tr><td><code>/texto</code> <kbd>Enter</kbd></td><td>Busca no arquivo inteiro, para frente</td><td>O alvo está longe ou você não sabe onde está.</td></tr>
+<tr><td><code>*</code></td><td>Busca a palavra sob o cursor</td><td>A palavra já está na tela.</td></tr>
+<tr><td><code>f</code> + letra</td><td>Pula para uma letra na mesma linha</td><td>O alvo está na linha atual (veja <a href="f-t.html">f e t</a>).</td></tr>
+<tr><td><code>42G</code></td><td>Vai direto para a linha 42</td><td>Você sabe o número da linha (por exemplo, de uma mensagem de erro).</td></tr>
+<tr><td><code>%</code></td><td>Pula para o parêntese que fecha/abre</td><td>Navegar em código (veja <a href="pares.html">Parênteses e Blocos</a>).</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="servidor.log">
+<pre class="vim-inicial">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO falha no login
+INFO desligando</pre>
+<pre class="vim-meta">INFO iniciando servidor
+ERRO disco cheio
+INFO conexão aceita
+ERRO senha errada no login
+INFO desligando</pre>
+<p class="try-task"><strong>Missão:</strong> troque "falha" por "senha errada". Chegue lá com uma busca (<code>/falha</code> e <kbd>Enter</kbd>) e troque a palavra com <code>cw</code> (de <em>change word</em>), digite o texto novo e aperte <kbd>Esc</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>E486: Padrão não encontrado, mas o texto está lá</strong>
+<p><strong>O que aconteceu:</strong> quase sempre é diferença de maiúsculas ("erro" × "ERRO") ou de acento ("conexao" × "conexão").</p>
+<p><strong>Como resolver:</strong> tente <code>/\cerro</code> ou ligue <code>:set ignorecase smartcase</code>. Para acentos, digite o padrão exatamente como no arquivo.</p>
+</div>
+
+<div class="cenario">
+<strong>Busquei "1.5" e ele parou em "125"</strong>
+<p><strong>O que aconteceu:</strong> na busca, o ponto <code>.</code> significa "qualquer caractere". Então <code>1.5</code> casa com "1.5", "125", "1x5"…</p>
+<p><strong>Como resolver:</strong> coloque uma barra invertida antes: <code>/1\.5</code>. O mesmo vale para <code>*</code>, <code>[</code>, <code>~</code>, <code>^</code> e <code>$</code>. Veja <a href="regex.html">Expressões Regulares do Vim</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>Quero buscar uma barra, como em "/home/ana"</strong>
+<p><strong>O que aconteceu:</strong> numa busca com <code>/</code>, a barra marca o fim do padrão (e o começo do deslocamento).</p>
+<p><strong>Como resolver:</strong> escape cada barra: <code>/\/home\/ana</code>. Ou busque para trás com <code>?/home/ana</code>, onde a barra não é especial.</p>
+</div>
+
+<div class="cenario">
+<strong>Digitei /ERRO e apareceu "/ERRO" no meio do texto</strong>
+<p><strong>O que aconteceu:</strong> você estava no modo de inserção, e tudo virou texto.</p>
+<p><strong>Como resolver:</strong> <kbd>Esc</kbd>, depois <code>u</code> para desfazer, e só então <code>/ERRO</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>O texto inteiro ficou pintado de amarelo e não sai</strong>
+<p><strong>O que aconteceu:</strong> o <code>hlsearch</code> está ligado e marca todas as ocorrências da última busca.</p>
+<p><strong>Como resolver:</strong> <code>:noh</code> limpa o destaque. Se não quiser mais o recurso, <code>:set nohls</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>/padrão</code> <kbd>Enter</kbd></td><td>Busca para frente</td></tr>
+<tr><td><code>?padrão</code> <kbd>Enter</kbd></td><td>Busca para trás</td></tr>
+<tr><td><code>n</code> / <code>N</code></td><td>Próxima / anterior ocorrência</td></tr>
+<tr><td><code>*</code> / <code>#</code></td><td>Busca a palavra sob o cursor para frente / para trás</td></tr>
+<tr><td><code>/</code> <kbd>Enter</kbd></td><td>Repete a última busca</td></tr>
+<tr><td><code>/</code> <kbd>↑</kbd></td><td>Busca anterior do histórico</td></tr>
+<tr><td><code>/padrão/e</code></td><td>Para no fim da ocorrência</td></tr>
+<tr><td><code>\c</code> / <code>\C</code></td><td>No padrão: ignora / respeita maiúsculas</td></tr>
+<tr><td><code>:set ic scs</code></td><td>Ignora maiúsculas, a menos que o padrão tenha alguma</td></tr>
+<tr><td><code>:set hls</code> / <code>:noh</code></td><td>Destaca ocorrências / limpa o destaque</td></tr>
+<tr><td><code>d/padrão</code></td><td>Apaga até a próxima ocorrência</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Próxima ocorrência</h3>
+<p>Você buscou <code>/senha</code>. Qual tecla leva à próxima ocorrência?</p>
+<div class="ex-code"><input data-answer="n" aria-label="tecla"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Sem diferença de maiúsculas</h3>
+<p>Complete a busca para achar "Erro", "erro" e "ERRO" de uma vez:</p>
+<div class="ex-code">/<input data-answer="\cerro|erro\c|\cErro|\cERRO" aria-label="padrão"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Apagar até a palavra</h3>
+<p>Quais teclas apagam do cursor até a próxima ocorrência de "fim"? (escreva sem o Enter)</p>
+<div class="ex-code"><input data-answer="d/fim" aria-label="teclas"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Apareceu "busca atingiu FIM; continuando do TOPO". O que isso quer dizer?</p>
+<label><input type="radio" name="q4"> O padrão não existe no arquivo.</label>
+<label><input type="radio" name="q4"> A busca passou do fim e continuou do começo do arquivo.</label>
+<label><input type="radio" name="q4"> O arquivo foi salvo.</label>
+<label><input type="radio" name="q4"> O Vim travou e precisa ser reiniciado.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">5. Com <code>:set ignorecase smartcase</code>, o que <code>/Ana</code> encontra?</p>
+<label><input type="radio" name="q5"> "ana", "Ana" e "ANA".</label>
+<label><input type="radio" name="q5"> Só "ana".</label>
+<label><input type="radio" name="q5"> Nada, porque smartcase desliga a busca.</label>
+<label><input type="radio" name="q5"> Só "Ana", porque o padrão tem uma maiúscula.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>/padrão</code> busca para frente; <code>?padrão</code>, para trás.</li>
+  <li><code>n</code> repete na mesma direção; <code>N</code>, na contrária.</li>
+  <li><code>*</code> busca a palavra sob o cursor, sem digitar.</li>
+  <li>A busca diferencia maiúsculas; use <code>\c</code> ou <code>:set ic scs</code>.</li>
+  <li>"busca atingiu FIM" é só um aviso; E486 quer dizer que não achou.</li>
+  <li>A busca é um movimento: <code>d/padrão</code>, <code>y/padrão</code>, <code>c/padrão</code>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — Vim como IDE com LSP | Guia Vim</title>
+<meta name="description" content="O que é LSP e como ter ir-para-definição, autocompletar inteligente, renomear e diagnósticos no Vim: vim-lsp com vim-lsp-settings, coc.nvim, ALE, e o que muda no Neovim.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Vim como IDE (LSP)</span></h1>
+
+<p class="intro">Editores como o VS Code mostram erros enquanto você digita, completam métodos sabendo o tipo de cada variável e renomeiam uma função em todos os arquivos. Quase tudo isso vem de um padrão aberto chamado <strong>LSP</strong>, e o Vim também pode usá-lo, por meio de plugins. Esta aula mostra os caminhos e uma configuração mínima que funciona.</p>
+
+<div class="warning">
+<strong>Avançado e opcional</strong>
+<p>Você <strong>não precisa</strong> de LSP para usar bem o Vim. <a href="completar.html">Autocompletar</a>, <a href="tags.html">ctags</a> e a <a href="busca.html">busca</a> resolvem muita coisa. LSP traz dependências externas (servidores, às vezes Node.js) e mais coisas que podem quebrar. Comece por ele só quando sentir falta dos recursos de uma IDE.</p>
+</div>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>O que é LSP e o que é um "servidor de linguagem".</li>
+  <li>As três opções populares no Vim: vim-lsp, coc.nvim e ALE, e quando escolher cada uma.</li>
+  <li>Uma configuração mínima comentada com vim-lsp, que instala os servidores para você.</li>
+  <li>Os atalhos do dia a dia: definição, referências, documentação, renomear, diagnósticos.</li>
+  <li>O que muda no Neovim, que já traz o LSP embutido.</li>
+</ul>
+</div>
+
+<div class="note">
+<strong>Sobre o simulador</strong>
+<p>O Vim simulado não roda plugins. Esta aula usa arquivos de configuração e telas do Vim real.</p>
+</div>
+
+<hr>
+
+<h2>O que é LSP</h2>
+<p>LSP (<em>Language Server Protocol</em>, "protocolo de servidor de linguagem") foi criado pela Microsoft em 2016. A ideia é separar duas coisas:</p>
+
+<dl class="anatomy">
+  <dt>servidor de linguagem</dt><dd>Um programa que entende <strong>uma</strong> linguagem: lê o seu projeto, sabe os tipos, onde cada função foi definida, o que está errado. Exemplos: <code>pyright</code> (Python), <code>clangd</code> (C/C++), <code>gopls</code> (Go).</dd>
+  <dt>cliente</dt><dd>O editor. Ele só pergunta ("o que existe neste ponto?", "onde isto foi definido?") e mostra as respostas. No Vim, o cliente é um plugin.</dd>
+</dl>
+
+<p>Como todos falam o mesmo protocolo, o mesmo servidor serve ao VS Code, ao Vim, ao Neovim e a outros editores.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Linguagem</th><th>Servidores comuns</th></tr>
+<tr><td>Python</td><td><code>pyright</code>, <code>python-lsp-server</code> (pylsp)</td></tr>
+<tr><td>JavaScript / TypeScript</td><td><code>typescript-language-server</code></td></tr>
+<tr><td>C / C++</td><td><code>clangd</code></td></tr>
+<tr><td>Go</td><td><code>gopls</code></td></tr>
+<tr><td>Rust</td><td><code>rust-analyzer</code></td></tr>
+<tr><td>Shell (bash)</td><td><code>bash-language-server</code></td></tr>
+<tr><td>HTML / CSS / JSON</td><td><code>vscode-langservers-extracted</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Os caminhos no Vim</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Opção</th><th>Como é</th><th>Precisa de</th><th>Escolha se…</th></tr>
+<tr><td><strong>vim-lsp</strong> + vim-lsp-settings</td><td>Cliente LSP escrito em Vimscript; o vim-lsp-settings instala servidores com um comando</td><td>Vim 8.2+ (com <code>+job</code> e <code>+channel</code>)</td><td>Quer algo leve, sem Node.js</td></tr>
+<tr><td><strong>coc.nvim</strong></td><td>Experiência parecida com o VS Code, extensões próprias (<code>coc-pyright</code>, <code>coc-tsserver</code>…)</td><td>Node.js instalado</td><td>Quer o máximo de recursos prontos e já usa Node</td></tr>
+<tr><td><strong>ALE</strong></td><td>Focado em verificar código (lint) e formatar ao salvar; também fala LSP</td><td>Os programas de lint de cada linguagem</td><td>Quer principalmente ver erros e formatar código</td></tr>
+<tr><td><strong>yegappan/lsp</strong></td><td>Cliente LSP escrito em Vim9script</td><td>Vim 9</td><td>Usa só Vim 9 e quer algo moderno e enxuto</td></tr>
+</table>
+</div>
+
+<p>Todos são plugins: você precisa de um gerenciador. Os exemplos abaixo usam o <strong>vim-plug</strong>; veja como instalá-lo em <a href="plugins.html">Plugins</a>.</p>
+
+<hr>
+
+<h2>Configuração mínima com vim-lsp</h2>
+<p>Esta configuração liga o cliente LSP, um menu de autocompletar automático e os atalhos principais. Ela segue a documentação oficial do vim-lsp.</p>
+
+<pre class="file" data-file="~/.vimrc">" ---------- plugins (vim-plug) ----------
+call plug#begin()
+Plug 'prabirshrestha/vim-lsp'              " o cliente LSP
+Plug 'mattn/vim-lsp-settings'              " instala e configura servidores
+Plug 'prabirshrestha/asyncomplete.vim'     " menu de autocompletar automático
+Plug 'prabirshrestha/asyncomplete-lsp.vim' " liga o menu ao LSP
+call plug#end()
+
+" ---------- atalhos que valem só em arquivos com LSP ativo ----------
+function! s:ao_ligar_lsp() abort
+  setlocal omnifunc=lsp#complete           " Ctrl-x Ctrl-o usa o LSP
+  setlocal signcolumn=yes                  " coluna à esquerda para os avisos
+  nmap &lt;buffer&gt; gd &lt;plug&gt;(lsp-definition)
+  nmap &lt;buffer&gt; gr &lt;plug&gt;(lsp-references)
+  nmap &lt;buffer&gt; K  &lt;plug&gt;(lsp-hover)
+  nmap &lt;buffer&gt; &lt;leader&gt;rn &lt;plug&gt;(lsp-rename)
+  nmap &lt;buffer&gt; [g &lt;plug&gt;(lsp-previous-diagnostic)
+  nmap &lt;buffer&gt; ]g &lt;plug&gt;(lsp-next-diagnostic)
+endfunction
+
+augroup lsp_instalado
+  autocmd!
+  autocmd User lsp_buffer_registered call s:ao_ligar_lsp()
+augroup END</pre>
+
+<dl class="anatomy">
+  <dt>call plug#begin() … plug#end()</dt><dd>A lista de plugins do vim-plug.</dd>
+  <dt>function! s:ao_ligar_lsp()</dt><dd>Uma função com os atalhos. O <code>s:</code> deixa o nome visível só neste arquivo.</dd>
+  <dt>nmap &lt;buffer&gt;</dt><dd>Atalho do modo normal que vale só no arquivo atual (veja <a href="mapeamentos.html">Mapeamentos</a>).</dd>
+  <dt>&lt;plug&gt;(lsp-definition)</dt><dd>Uma ação que o plugin oferece; o atalho só aponta para ela.</dd>
+  <dt>autocmd User lsp_buffer_registered</dt><dd>Roda a função quando o LSP fica pronto num arquivo (veja <a href="autocmd.html">Autocomandos</a>).</dd>
+</dl>
+
+<p>Repare que <code>gd</code> deixa de ser a busca simples do Vim (veja <a href="tags.html">ctags</a>) e passa a usar o LSP, que sabe exatamente onde está a definição.</p>
+
+<h3>Passo a passo</h3>
+<ol class="passo">
+  <li><strong>Instale os plugins.</strong> Salve o <code>.vimrc</code>, reabra o Vim e rode <code>:PlugInstall</code>.</li>
+  <li><strong>Abra um arquivo da linguagem.</strong> Por exemplo, <code>vim app.py</code>. O vim-lsp-settings percebe que não há servidor para Python e avisa no rodapé.</li>
+  <li><strong>Instale o servidor.</strong> Rode <code>:LspInstallServer</code>. Ele baixa o servidor recomendado para a linguagem do arquivo aberto (para Python, um dos servidores suportados) e o guarda numa pasta do próprio plugin.</li>
+  <li><strong>Reabra o arquivo</strong> e confira com <code>:LspStatus</code>: o servidor deve aparecer como <code>running</code>.</li>
+</ol>
+
+<pre class="term" data-title="app.py — VIM">:LspStatus
+pylsp-all: running</pre>
+<p>O nome do servidor depende da linguagem e da escolha do vim-lsp-settings; a saída acima é ilustrativa.</p>
+
+<div class="note">
+<strong>O LspInstallServer precisa de ferramentas</strong>
+<p>Para instalar servidores, o vim-lsp-settings usa programas do sistema, como <code>curl</code>, <code>unzip</code>, <code>git</code> e, conforme a linguagem, <code>python3 -m venv</code>, <code>npm</code> ou <code>go</code>. Se a instalação falhar, a mensagem diz o que falta.</p>
+</div>
+
+<hr>
+
+<h2>O dia a dia com LSP</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Atalho (da configuração acima)</th><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>gd</code></td><td><code>:LspDefinition</code></td><td>Vai para a definição, mesmo em outro arquivo</td></tr>
+<tr><td><code>gr</code></td><td><code>:LspReferences</code></td><td>Lista todos os lugares que usam o nome</td></tr>
+<tr><td><code>K</code></td><td><code>:LspHover</code></td><td>Mostra a documentação e o tipo numa janela flutuante</td></tr>
+<tr><td><code>\rn</code></td><td><code>:LspRename</code></td><td>Renomeia em todo o projeto</td></tr>
+<tr><td><code>]g</code> / <code>[g</code></td><td><code>:LspNextDiagnostic</code></td><td>Próximo / anterior erro ou aviso</td></tr>
+<tr><td>—</td><td><code>:LspDocumentDiagnostics</code></td><td>Lista todos os erros do arquivo</td></tr>
+<tr><td>—</td><td><code>:LspDocumentFormat</code></td><td>Formata o arquivo (se o servidor suportar)</td></tr>
+</table>
+</div>
+
+<p>O <code>\rn</code> usa a tecla <em>leader</em>, que por padrão é a barra invertida (<kbd>\</kbd>). Os erros aparecem na coluna da esquerda e, conforme a configuração, como texto ao lado da linha:</p>
+
+<pre class="term" data-title="app.py — VIM">  1 import os
+E 2 print(nome_errado)          « Undefined name `nome_errado`
+  3 os.getcwd()</pre>
+<p>O texto exato do aviso vem do servidor, normalmente em inglês.</p>
+
+<hr>
+
+<h2>Alternativa: coc.nvim</h2>
+<p>Apesar do nome, o coc.nvim funciona no Vim e no Neovim. Ele exige <strong>Node.js</strong> instalado e numa versão recente (confira a versão mínima no README do projeto).</p>
+
+<pre class="file" data-file="~/.vimrc">call plug#begin()
+" a branch 'release' já vem compilada; sem ela o coc não funciona
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+call plug#end()
+
+nmap &lt;silent&gt; gd &lt;Plug&gt;(coc-definition)
+nmap &lt;silent&gt; gr &lt;Plug&gt;(coc-references)
+nmap &lt;leader&gt;rn &lt;Plug&gt;(coc-rename)</pre>
+
+<pre class="term" data-title="app.py — VIM">:CocInstall coc-pyright coc-tsserver coc-json</pre>
+
+<p>Cada <code>coc-…</code> é uma extensão para uma linguagem. <code>:CocInfo</code> mostra a versão do Node em uso e os erros, se houver.</p>
+
+<hr>
+
+<h2>Alternativa: ALE para lint e formatação</h2>
+<p>O ALE (<em>Asynchronous Lint Engine</em>) roda verificadores (linters) e formatadores enquanto você edita. Ele usa os programas que já estão instalados no sistema, como <code>flake8</code>, <code>shellcheck</code> ou <code>prettier</code>.</p>
+
+<pre class="file" data-file="~/.vimrc">call plug#begin()
+Plug 'dense-analysis/ale'
+call plug#end()
+
+" quais verificadores usar em cada linguagem
+let g:ale_linters = {'python': ['flake8'], 'sh': ['shellcheck']}
+" quais formatadores usar
+let g:ale_fixers = {'python': ['black'], '*': ['trim_whitespace']}
+" formata ao salvar
+let g:ale_fix_on_save = 1</pre>
+
+<p>Dá para combinar: ALE para verificar e formatar, vim-lsp ou coc.nvim para navegação e autocompletar. Nesse caso, desligue o LSP do ALE com <code>let g:ale_disable_lsp = 1</code> para os dois não mostrarem os mesmos erros.</p>
+
+<hr>
+
+<h2>E no Neovim?</h2>
+<p>O <a href="neovim.html">Neovim</a> já traz um cliente LSP embutido, configurado em Lua. A partir do Neovim 0.11 basta descrever o servidor e ativá-lo; plugins como <code>nvim-lspconfig</code> trazem as configurações prontas e o <code>mason.nvim</code> instala os servidores.</p>
+
+<pre class="file" data-file="~/.config/nvim/init.lua">-- Neovim 0.11 ou mais novo, com o plugin nvim-lspconfig instalado
+vim.lsp.enable('pyright')
+
+-- atalhos: no Neovim 0.11, K, grn (renomear) e grr (referências) já vêm prontos
+vim.keymap.set('n', 'gd', vim.lsp.buf.definition)</pre>
+
+<p>Se o seu objetivo principal é ter LSP com o mínimo de esforço, o Neovim é o caminho mais direto. Os comandos de edição são os mesmos do Vim.</p>
+
+<hr>
+
+<h2>Formas diferentes de navegar em código</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Recurso</th><th>Sem plugins</th><th>Com LSP</th></tr>
+<tr><td>Ir para a definição</td><td><a href="tags.html">ctags</a> + <kbd>Ctrl</kbd>+<kbd>]</kbd></td><td><code>gd</code> exato, mesmo com nomes repetidos</td></tr>
+<tr><td>Autocompletar</td><td><kbd>Ctrl</kbd>+<kbd>N</kbd>, omni</td><td>Por tipo, com documentação</td></tr>
+<tr><td>Achar usos</td><td><code>:vimgrep</code>, <code>*</code></td><td><code>gr</code> (referências reais)</td></tr>
+<tr><td>Renomear</td><td><code>:%s</code> com cuidado, arquivo por arquivo</td><td><code>:LspRename</code> no projeto todo</td></tr>
+<tr><td>Ver erros</td><td>Compilar/rodar no terminal</td><td>Enquanto digita</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"Função desconhecida: plug#begin"</strong>
+<pre class="term" data-title="VIM">Erro detectado ao processar /home/ana/.vimrc:
+linha    2:
+E117: Função desconhecida: plug#begin</pre>
+<p><strong>O que aconteceu:</strong> o vim-plug não está instalado.</p>
+<p><strong>Como resolver:</strong> instale o vim-plug (veja <a href="plugins.html">Plugins</a>) e rode <code>:PlugInstall</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>:LspInstallServer não existe</strong>
+<pre class="term" data-title="app.py — VIM">E492: Não é um comando do editor: LspInstallServer</pre>
+<p><strong>O que aconteceu:</strong> o plugin <code>mattn/vim-lsp-settings</code> não foi instalado, ou você ainda não rodou <code>:PlugInstall</code> depois de editar o <code>.vimrc</code>.</p>
+<p><strong>Como resolver:</strong> <code>:PlugInstall</code>, feche e abra o Vim de novo.</p>
+</div>
+
+<div class="cenario">
+<strong>Nada acontece: sem erros, sem autocompletar</strong>
+<p><strong>O que aconteceu:</strong> o servidor não está rodando para este tipo de arquivo.</p>
+<p><strong>Como resolver:</strong> confira o tipo com <code>:set filetype?</code> (deve ser, por exemplo, <code>python</code>) e o servidor com <code>:LspStatus</code> (vim-lsp) ou <code>:CocInfo</code> (coc.nvim). Os registros do vim-lsp ficam num arquivo definido por <code>let g:lsp_log_file = expand('~/vim-lsp.log')</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>coc.nvim reclama do Node</strong>
+<p><strong>O que aconteceu:</strong> o Node.js não está instalado ou é antigo demais.</p>
+<p><strong>Como resolver:</strong> instale uma versão recente do Node e confira com <code>node --version</code> no terminal. Se preferir não depender do Node, use vim-lsp.</p>
+</div>
+
+<div class="cenario">
+<strong>O Vim ficou lento depois do LSP</strong>
+<p><strong>O que aconteceu:</strong> servidores de linguagem analisam o projeto inteiro, o que pesa em projetos grandes ou em máquinas modestas.</p>
+<p><strong>Como resolver:</strong> abra o Vim na pasta do projeto (não na pasta pessoal inteira), desative o que não usa e considere ALE, que é mais leve, só para lint.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Plugin</th><th>O que faz</th></tr>
+<tr><td><code>:PlugInstall</code></td><td>vim-plug</td><td>Instala os plugins listados no <code>.vimrc</code></td></tr>
+<tr><td><code>:LspInstallServer</code></td><td>vim-lsp-settings</td><td>Instala o servidor da linguagem do arquivo aberto</td></tr>
+<tr><td><code>:LspStatus</code></td><td>vim-lsp</td><td>Mostra os servidores e o estado</td></tr>
+<tr><td><code>:LspDefinition</code> / <code>:LspReferences</code></td><td>vim-lsp</td><td>Definição / usos</td></tr>
+<tr><td><code>:LspHover</code> / <code>:LspRename</code></td><td>vim-lsp</td><td>Documentação / renomear</td></tr>
+<tr><td><code>:CocInstall coc-…</code></td><td>coc.nvim</td><td>Instala a extensão de uma linguagem</td></tr>
+<tr><td><code>:CocInfo</code></td><td>coc.nvim</td><td>Diagnóstico do próprio coc</td></tr>
+<tr><td><code>:ALEFix</code> / <code>:ALEInfo</code></td><td>ALE</td><td>Formata / mostra a configuração ativa</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Instalar o servidor</h3>
+<p>Com o vim-lsp-settings, qual comando instala o servidor da linguagem do arquivo aberto?</p>
+<div class="ex-code">:<input data-answer="LspInstallServer" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">2. Qual opção exige Node.js instalado?</p>
+<label><input type="radio" name="q2"> vim-lsp</label>
+<label><input type="radio" name="q2"> coc.nvim</label>
+<label><input type="radio" name="q2"> ALE</label>
+<label><input type="radio" name="q2"> ctags</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">3. O que faz um servidor de linguagem?</p>
+<label><input type="radio" name="q3"> Entende o código de uma linguagem e responde às perguntas do editor.</label>
+<label><input type="radio" name="q3"> Hospeda o site do projeto.</label>
+<label><input type="radio" name="q3"> Traduz as mensagens do Vim.</label>
+<label><input type="radio" name="q3"> Substitui o Vim por outro editor.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. Você só quer ver erros de <code>shellcheck</code> e formatar Python com <code>black</code> ao salvar. Qual plugin é o mais direto?</p>
+<label><input type="radio" name="q4"> coc.nvim</label>
+<label><input type="radio" name="q4"> vim-lsp-settings</label>
+<label><input type="radio" name="q4"> asyncomplete</label>
+<label><input type="radio" name="q4"> ALE</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>LSP separa o editor (cliente) de quem entende a linguagem (servidor).</li>
+  <li>No Vim, o cliente é um plugin: vim-lsp (leve), coc.nvim (completo, com Node) ou ALE (lint e formatação).</li>
+  <li>Com vim-lsp-settings, <code>:LspInstallServer</code> baixa o servidor certo para você.</li>
+  <li>Os atalhos clássicos: <code>gd</code> definição, <code>gr</code> referências, <code>K</code> documentação, renomear e <code>]g</code> erros.</li>
+  <li>É opcional: comece sem LSP e adicione quando sentir falta.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

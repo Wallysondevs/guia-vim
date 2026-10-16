@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — solução de problemas comuns | Guia Vim</title>
+<meta name="description" content="Os problemas mais comuns no Vim e como resolver: não consigo sair, tela congelada, gravando @q, E37, E45, E212, arquivo de troca E325, colar bagunçado, setas que viram letras, acentos, área de transferência e mais.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Solução de Problemas</span></h1>
+
+<p class="intro">Quase todo susto no Vim tem uma causa simples: você está num modo diferente do que pensa, o terminal fez algo por conta própria, ou falta um recurso na sua versão do Vim. Cada problema abaixo tem o sintoma (com a mensagem em português e em inglês), a causa e a solução.</p>
+
+<div class="warning">
+<strong>Primeiros socorros, para qualquer situação</strong>
+<p>Aperte <kbd>Esc</kbd> duas vezes, digite <code>:q!</code> e <kbd>Enter</kbd>. Você sai do Vim sem salvar nada e pode recomeçar com calma. Se nem isso funcionar, veja <a href="#congelou">A tela congelou</a>.</p>
+</div>
+
+<div class="note">
+<strong>Ache o seu problema</strong>
+<ul>
+  <li>Sair e travar: <a href="#sair">não consigo sair</a> · <a href="#congelou">a tela congelou</a> · <a href="#gravando">"gravando @q"</a> · <a href="#modo-ex">modo Ex</a> · <a href="#suspenso">o Vim sumiu</a></li>
+  <li>Salvar: <a href="#e37">E37</a> · <a href="#e45">E45</a> · <a href="#e212">E212</a> · <a href="#e325">E325 (arquivo de troca)</a> · <a href="#e32">E32</a></li>
+  <li>Digitar: <a href="#virou-texto">comandos viram texto</a> · <a href="#caps">Caps Lock</a> · <a href="#colar">colar bagunça o recuo</a> · <a href="#setas">setas viram ABCD</a> · <a href="#backspace">Backspace não apaga</a> · <a href="#tabs">tabs x espaços</a></li>
+  <li>Texto e tela: <a href="#acentos">acentos errados</a> · <a href="#cores">cores estranhas</a> · <a href="#e492">E492</a> · <a href="#busca">a busca não acha</a> · <a href="#e486">E486 no :s</a></li>
+  <li>Desfazer: <a href="#apaguei">apaguei e quero de volta</a> · <a href="#u-demais">desfiz demais</a></li>
+  <li>Configuração: <a href="#vimrc">erro ao abrir (.vimrc)</a> · <a href="#plugin">plugin não carrega</a> · <a href="#clipboard">área de transferência</a> · <a href="#tiny">vim-tiny limitado</a> · <a href="#e319">E319</a></li>
+</ul>
+</div>
+
+<hr>
+
+<h2>Sair e travar</h2>
+
+<div class="cenario" id="sair">
+<strong>Não consigo sair do Vim</strong>
+<p><strong>Sintoma:</strong> você digita <code>exit</code>, <code>quit</code> ou <kbd>Ctrl</kbd>+<kbd>C</kbd> e nada acontece, ou as palavras aparecem no meio do texto. O <kbd>Ctrl</kbd>+<kbd>C</kbd> mostra:</p>
+<pre class="term">Digite  :qa!  e aperte &lt;Enter&gt; para abandonar as alterações e sair do Vim
+(inglês: Type  :qa!  and press &lt;Enter&gt; to abandon all changes and exit Vim)</pre>
+<p><strong>Causa:</strong> no Vim, sair é um comando da linha de comando, e só funciona a partir do modo normal.</p>
+<p><strong>Solução:</strong> <kbd>Esc</kbd> e depois <code>:q</code> <kbd>Enter</kbd>. Se houver alterações, <code>:wq</code> salva e sai; <code>:q!</code> sai sem salvar. Veja <a href="abrir-sair.html">Abrir e Sair</a>.</p>
+</div>
+
+<div class="cenario" id="congelou">
+<strong>A tela congelou: nada que eu digito aparece</strong>
+<p><strong>Sintoma:</strong> o Vim parece morto. Nenhuma tecla responde.</p>
+<p><strong>Causa:</strong> você apertou <kbd>Ctrl</kbd>+<kbd>S</kbd> (o "salvar" de outros editores). No terminal, essa tecla <strong>pausa a tela</strong>. O Vim continua recebendo o que você digita, só não mostra.</p>
+<p><strong>Solução:</strong> aperte <kbd>Ctrl</kbd>+<kbd>Q</kbd> para despausar. Tudo o que você digitou durante a pausa aparece de uma vez; se algo estranho acontecer, use <code>u</code> para desfazer. Para salvar, use <code>:w</code>. Veja <a href="socorro.html">Estou Preso no Vim!</a>.</p>
+</div>
+
+<div class="cenario" id="gravando">
+<strong>Apareceu "gravando @q" no rodapé</strong>
+<pre class="term">gravando @q
+(inglês: recording @q)</pre>
+<p><strong>Causa:</strong> você apertou <code>q</code> e outra tecla, o que inicia a gravação de uma macro. Tudo o que você digitar fica gravado.</p>
+<p><strong>Solução:</strong> aperte <code>q</code> de novo (no modo normal) para parar. Nada foi estragado; a gravação só guarda teclas. Para que serve isso, veja <a href="macros.html">Macros</a>.</p>
+</div>
+
+<div class="cenario" id="modo-ex">
+<strong>O Vim virou uma linha de comando com ":" e não mostra mais o arquivo</strong>
+<pre class="term">Entrando no modo Ex.  Digite "visual" para ir para o modo Normal.
+:
+(inglês: Entering Ex mode.  Type "visual" to go to Normal mode.)</pre>
+<p><strong>Causa:</strong> você apertou <code>Q</code> (maiúsculo) ou <code>gQ</code>, que entra no modo Ex, o editor de linha antigo.</p>
+<p><strong>Solução:</strong> digite <code>vi</code> (ou <code>visual</code>) e <kbd>Enter</kbd>. Volta tudo ao normal. Veja <a href="socorro.html">Estou Preso no Vim!</a>.</p>
+</div>
+
+<div class="cenario" id="suspenso">
+<strong>O Vim sumiu e voltei para o terminal, com a mensagem "Parado"</strong>
+<pre class="term">$ vim notas.txt
+[1]+  Parado                  vim notas.txt</pre>
+<p><strong>Causa:</strong> <kbd>Ctrl</kbd>+<kbd>Z</kbd> suspende o programa e devolve o terminal. O Vim continua aberto, em segundo plano, com suas alterações.</p>
+<p><strong>Solução:</strong> digite <code>fg</code> e <kbd>Enter</kbd> no terminal para voltar ao Vim. Veja <a href="shell.html">Integração com o Shell</a>.</p>
+</div>
+
+<hr>
+
+<h2>Salvar</h2>
+
+<div class="cenario" id="e37">
+<strong>E37 ao tentar sair</strong>
+<pre class="term">E37: Alterações não foram gravadas (adicione ! para forçar)
+(inglês: E37: No write since last change (add ! to override))</pre>
+<p><strong>Causa:</strong> o arquivo tem alterações não salvas, e o <code>:q</code> se recusa a jogá-las fora.</p>
+<p><strong>Solução:</strong> <code>:wq</code> para salvar e sair, ou <code>:q!</code> para sair descartando. O <code>!</code> é o "tenho certeza". Veja <a href="salvar.html">Salvar e Sair</a>.</p>
+</div>
+
+<div class="cenario" id="e45">
+<strong>E45 ao salvar</strong>
+<pre class="term">E45: opção 'readonly' está definida (adicione ! para forçar)
+(inglês: E45: 'readonly' option is set (add ! to override))</pre>
+<p><strong>Causa:</strong> o arquivo foi aberto só para leitura: com <code>view</code>, <code>vim -R</code>, ou ao escolher "Abrir somente-leitura" no aviso de arquivo de troca.</p>
+<p><strong>Solução:</strong> se você tem permissão de escrita, <code>:w!</code> grava mesmo assim. Se o arquivo é de outro usuário, veja o próximo problema.</p>
+</div>
+
+<div class="cenario" id="e212">
+<strong>E212 ao salvar um arquivo do sistema</strong>
+<pre class="term">"/etc/hosts" E212: Impossível abrir arquivo para escrita
+(inglês: E212: Can't open file for writing)</pre>
+<p><strong>Causa:</strong> você editou um arquivo do root (como <code>/etc/hosts</code>) sem <code>sudo</code>. Seu usuário não pode gravá-lo.</p>
+<p><strong>Solução:</strong> sem perder o que digitou, rode:</p>
+<pre class="term">:w !sudo tee % &gt; /dev/null</pre>
+<p>O <code>:w !</code> manda o texto para um comando, o <code>sudo tee</code> grava com permissão de root e <code>%</code> é o nome do arquivo atual. Depois, <code>:q!</code>. Da próxima vez, abra com <code>sudoedit /etc/hosts</code>. Veja <a href="salvar.html">Salvar e Sair</a>.</p>
+</div>
+
+<div class="cenario" id="e325">
+<strong>E325: ATENÇÃO ao abrir um arquivo</strong>
+<pre class="term">E325: ATENÇÃO
+Foi encontrado um arquivo de troca de nome ".notas.txt.swp"
+…
+Ao abrir o arquivo "notas.txt"
+…
+[A]brir somente-leitura, (E)ditar mesmo assim, (R)ecuperar, E(x)cluí-lo, (S)air, (C)ancelar:
+(inglês: E325: ATTENTION / Found a swap file by the name ".notas.txt.swp")</pre>
+<p><strong>Causa:</strong> existe um arquivo <code>.swp</code> do mesmo arquivo. Ou o Vim fechou de forma inesperada (queda de energia, terminal fechado), ou o arquivo já está aberto em outro terminal.</p>
+<p><strong>Solução:</strong></p>
+<ol class="passo">
+  <li>Se o arquivo está aberto em outro terminal: aperte <code>S</code> (sair) e use o outro.</li>
+  <li>Se o Vim caiu e você quer o trabalho de volta: <code>R</code> (recuperar), confira o texto, salve com <code>:w</code> e depois apague o <code>.swp</code> (o próximo aviso oferece <code>x</code> para excluí-lo).</li>
+  <li>Se não há nada a recuperar: <code>x</code> (excluí-lo) e siga normalmente.</li>
+</ol>
+<p>Veja <a href="socorro.html">Estou Preso no Vim!</a>.</p>
+</div>
+
+<div class="cenario" id="e32">
+<strong>E32 ao salvar</strong>
+<pre class="term">E32: Nenhum nome de arquivo
+(inglês: E32: No file name)</pre>
+<p><strong>Causa:</strong> você abriu o Vim sem nome de arquivo (só <code>vim</code>) e tentou <code>:w</code>.</p>
+<p><strong>Solução:</strong> dê um nome: <code>:w notas.txt</code>.</p>
+</div>
+
+<hr>
+
+<h2>Digitar</h2>
+
+<div class="cenario" id="virou-texto">
+<strong>Digitei comandos e eles viraram texto</strong>
+<p><strong>Sintoma:</strong> você digitou <code>dd</code> e apareceu "dd" no arquivo. O rodapé mostra <code>-- INSERÇÃO --</code> (inglês: <code>-- INSERT --</code>).</p>
+<p><strong>Causa:</strong> você estava no modo de inserção, em que toda tecla vira texto.</p>
+<p><strong>Solução:</strong> <kbd>Esc</kbd> para voltar ao modo normal e <code>u</code> para desfazer o texto digitado por engano. Veja <a href="modos.html">Os Modos do Vim</a>.</p>
+</div>
+
+<div class="cenario" id="caps">
+<strong>Os comandos fazem coisas estranhas: j junta linhas, u desfaz demais</strong>
+<p><strong>Causa:</strong> o <kbd>Caps Lock</kbd> está ligado. No Vim, maiúscula é outro comando: <code>J</code> junta linhas, <code>U</code> desfaz a linha, <code>D</code> apaga até o fim, <code>K</code> abre a página de manual.</p>
+<p><strong>Solução:</strong> desligue o <kbd>Caps Lock</kbd> e use <code>u</code> até voltar ao estado certo. Se o <code>K</code> abriu um manual, saia dele com <code>q</code>.</p>
+</div>
+
+<div class="vimtry" data-file="caps.txt" data-line="1">
+<pre class="vim-inicial">Primeira linha. Segunda linha.
+terceira linha</pre>
+<pre class="vim-meta">Primeira linha.
+Segunda linha.
+terceira linha</pre>
+<p class="try-task"><strong>Missão:</strong> alguém apertou <code>J</code> com o Caps Lock ligado e juntou duas linhas. Separe-as de novo: leve o cursor ao espaço antes de "Segunda" e troque esse espaço por uma quebra de linha.</p>
+<details><summary>Ver uma solução</summary>
+<p><code>f.</code> leva ao primeiro ponto; <code>l</code> anda até o espaço; <code>r</code> + <kbd>Enter</kbd> troca o espaço por uma quebra de linha.</p>
+</details>
+</div>
+
+<div class="cenario" id="colar">
+<strong>Colar texto no terminal bagunça o recuo (cada linha vai mais para a direita)</strong>
+<p><strong>Causa:</strong> ao colar no terminal com <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd>, o Vim recebe o texto como se você digitasse muito rápido, e o recuo automático soma recuo a cada linha. Vims recentes reconhecem a colagem ("bracketed paste") e evitam isso, mas terminais antigos ou SSH podem não avisar.</p>
+<p><strong>Solução:</strong> antes de colar, <code>:set paste</code>; depois, <code>:set nopaste</code>. Melhor ainda: se o Vim tem <code>+clipboard</code>, cole com <code>"+p</code> no modo normal. Veja <a href="area-transferencia.html">Área de Transferência</a> e <a href="inserir.html">Inserir Texto</a>.</p>
+</div>
+
+<div class="cenario" id="setas">
+<strong>As setas escrevem A, B, C, D no modo de inserção</strong>
+<p><strong>Causa:</strong> o Vim está em modo compatível com o vi antigo (<code>compatible</code>), que não entende os códigos que o terminal manda para as setas. Acontece com o <code>vim-tiny</code> sem <code>.vimrc</code> ou quando o Vim abre com <code>-u NONE</code>.</p>
+<p><strong>Solução:</strong> crie um <code>~/.vimrc</code> (mesmo vazio, ele liga <code>nocompatible</code>) ou digite <code>:set nocompatible</code>. Instalar o pacote <code>vim</code> completo também resolve. Veja <a href="vimrc.html">.vimrc Básico</a>.</p>
+</div>
+
+<div class="cenario" id="backspace">
+<strong>O Backspace não apaga o que já estava escrito</strong>
+<p><strong>Causa:</strong> a opção <code>backspace</code> está vazia (comportamento do vi antigo): ele só apaga o que você digitou desde que entrou no modo de inserção, e não passa para a linha de cima.</p>
+<p><strong>Solução:</strong> no <code>.vimrc</code>, <code>set backspace=indent,eol,start</code>. O <code>defaults.vim</code> já faz isso quando você não tem <code>.vimrc</code>. Veja <a href="opcoes.html">Opções Úteis</a>.</p>
+</div>
+
+<div class="cenario" id="tabs">
+<strong>O Tab insere 8 espaços (ou um tab de verdade) e meu código usa 4</strong>
+<p><strong>Causa:</strong> os padrões do Vim são <code>tabstop=8</code>, <code>shiftwidth=8</code> e <code>noexpandtab</code>.</p>
+<p><strong>Solução:</strong> no <code>.vimrc</code>: <code>set expandtab shiftwidth=4 tabstop=4 softtabstop=4</code>. Para ver tabs e espaços no fim das linhas, <code>:set list</code>. Para converter um arquivo inteiro, <code>:retab</code>. Veja <a href="opcoes.html">Opções Úteis</a>.</p>
+</div>
+
+<hr>
+
+<h2>Texto e tela</h2>
+
+<div class="cenario" id="acentos">
+<strong>Acentos aparecem como "Ã§" ou "&lt;e7&gt;"</strong>
+<p><strong>Causa:</strong> o arquivo está numa codificação (como Latin-1, comum em arquivos antigos do Windows) e o Vim leu como UTF-8, ou o terminal não está em UTF-8.</p>
+<p><strong>Solução:</strong> reabra informando a codificação: <code>:e ++enc=latin1</code>. Para converter e salvar em UTF-8: <code>:set fileencoding=utf-8</code> e <code>:w</code>. Confira o terminal com <code>locale</code> no shell (deve mostrar <code>UTF-8</code>). Ao gravar, o Vim pode avisar <code>[ERRO DE CONVERSÃO na linha N]</code> (inglês: <code>[CONVERSION ERROR in line N]</code>).</p>
+</div>
+
+<div class="cenario" id="cores">
+<strong>Cores estranhas, texto ilegível ou sem cor nenhuma</strong>
+<p><strong>Causa:</strong> o tema de cores não combina com o fundo do terminal, ou o realce de sintaxe está desligado, ou seu Vim é o <code>vim-tiny</code>, que não tem cores.</p>
+<p><strong>Solução:</strong> <code>:set background=dark</code> (ou <code>light</code>) ajusta as cores ao fundo; <code>:syntax on</code> liga o realce; <code>:colorscheme</code> + espaço + <kbd>Tab</kbd> mostra os temas instalados. Um tema inexistente dá <code>E185: Esquema de cores 'x' não encontrado</code>. Veja <a href="vimrc.html">.vimrc Básico</a>.</p>
+</div>
+
+<div class="cenario" id="e492">
+<strong>E492 ao digitar um comando</strong>
+<pre class="term">E492: Não é um comando do editor: wq1
+(inglês: E492: Not an editor command)</pre>
+<p><strong>Causa:</strong> erro de digitação depois do <code>:</code>, ou um comando de plugin que não está instalado.</p>
+<p><strong>Solução:</strong> digite <code>:</code> e use a seta <kbd>↑</kbd> para ver e corrigir o comando anterior. Veja <a href="mensagens.html">Mensagens e Erros Comuns</a>.</p>
+</div>
+
+<div class="cenario" id="busca">
+<strong>A busca não acha "1+1" nem "(texto)"</strong>
+<p><strong>Causa:</strong> nas expressões regulares do Vim, alguns caracteres têm sentido especial e outros só têm com barra. <code>.</code>, <code>*</code>, <code>[</code>, <code>^</code> e <code>$</code> são especiais; <code>+</code> e <code>(</code> são literais, e viram especiais com <code>\</code> na frente.</p>
+<p><strong>Solução:</strong> para achar um ponto literal, use <code>\.</code>; para um <code>*</code> literal, <code>\*</code>. Para buscar sem nenhum caractere especial, use <code>\V</code> no começo: <code>/\V1+1</code>. Veja <a href="regex.html">Expressões Regulares do Vim</a>.</p>
+</div>
+
+<div class="cenario" id="e486">
+<strong>O :s diz que não achou, mas o texto está ali</strong>
+<pre class="term">E486: Padrão não encontrado: a.b
+(inglês: E486: Pattern not found: a.b)</pre>
+<p><strong>Causa:</strong> uma diferença de maiúsculas, um caractere especial (veja o problema anterior) ou a faixa errada: <code>:s</code> sem <code>%</code> só olha a linha atual.</p>
+<p><strong>Solução:</strong> use <code>:%s</code> para o arquivo inteiro; <code>\c</code> no padrão ignora maiúsculas; teste antes com <code>/padrão</code> para ver o que casa. Para não ver o erro em macros e scripts, a flag <code>e</code>: <code>:%s/x/y/ge</code>. Veja <a href="substituir.html">Substituir</a>.</p>
+</div>
+
+<hr>
+
+<h2>Desfazer</h2>
+
+<div class="cenario" id="apaguei">
+<strong>Apaguei um trecho, depois apaguei outra coisa, e quero o primeiro de volta</strong>
+<p><strong>Causa:</strong> o <code>p</code> cola só o último apagado. Mas o Vim guarda os nove últimos trechos de linhas apagados nos registradores <code>"1</code> a <code>"9</code>.</p>
+<p><strong>Solução:</strong> <code>"1p</code> cola o último; se não for o que você queria, <code>u</code> e <code>.</code> (o ponto troca para o <code>"2</code>, depois o <code>"3</code>…). <code>:reg</code> mostra todos. E <code>u</code> sempre desfaz o apagamento. Veja <a href="registradores.html">Registradores</a>.</p>
+</div>
+
+<div class="vimtry" data-file="apagados.txt" data-line="1">
+<pre class="vim-inicial">linha importante
+lixo 1
+lixo 2
+fim</pre>
+<pre class="vim-meta">lixo 1
+lixo 2
+fim
+linha importante</pre>
+<p class="try-task"><strong>Missão:</strong> apague a "linha importante" com <code>dd</code>, depois apague "lixo 1" e "lixo 2" com mais dois <code>dd</code>. Agora recupere a linha importante e cole-a depois de "fim", sem usar <code>u</code>.</p>
+<details><summary>Ver uma solução</summary>
+<ol class="passo">
+  <li><code>dd</code> três vezes apaga as três primeiras linhas; o cursor fica em "fim". Os registradores agora guardam: <code>"1</code> = "lixo 2", <code>"2</code> = "lixo 1", <code>"3</code> = "linha importante" (o mais antigo vai ficando para trás).</li>
+  <li><code>"3p</code> cola a "linha importante" abaixo de "fim".</li>
+  <li><code>gg</code> volta ao topo; <code>"1P</code> cola "lixo 2" acima; <code>"2P</code> cola "lixo 1" acima dele.</li>
+</ol>
+</details>
+</div>
+
+<div class="cenario" id="u-demais">
+<strong>Desfiz demais com u</strong>
+<p><strong>Solução:</strong> <kbd>Ctrl</kbd>+<kbd>r</kbd> refaz. Se você desfez, mudou algo e quer uma versão antiga, <code>:earlier 5m</code> volta o arquivo a como estava 5 minutos atrás. A mensagem do desfazer mostra quanto você voltou: <code>1 alteração; antes de #4  12 segundos atrás</code>. Veja <a href="desfazer.html">Desfazer e Refazer</a>.</p>
+</div>
+
+<hr>
+
+<h2>Configuração e versão</h2>
+
+<div class="cenario" id="vimrc">
+<strong>Erro ao abrir o Vim, mostrando uma linha do .vimrc</strong>
+<pre class="term">Erro detectado ao processar /home/ana/.vimrc:
+linha   12:
+E518: Opção desconhecida: shitwidth=4
+Aperte ENTER ou digite um comando para continuar
+(inglês: Error detected while processing /home/ana/.vimrc: / E518: Unknown option)</pre>
+<p><strong>Causa:</strong> erro de digitação ou comando que sua versão não tem, na linha indicada do <code>.vimrc</code>.</p>
+<p><strong>Solução:</strong> <kbd>Enter</kbd> para continuar, <code>:e $MYVIMRC</code> para abrir o arquivo, <code>:12</code> para ir à linha e corrigir. Para testar sem configuração: <code>vim --clean</code>. Veja <a href="vimrc.html">.vimrc Básico</a>.</p>
+</div>
+
+<div class="cenario" id="plugin">
+<strong>Instalei um plugin e o comando dele não existe</strong>
+<pre class="term">E492: Não é um comando do editor: NERDTree</pre>
+<p><strong>Causa:</strong> a pasta do plugin está no lugar errado, o gerenciador não rodou a instalação, ou o plugin está em <code>opt/</code> e não foi carregado.</p>
+<p><strong>Solução:</strong> confira o caminho (<code>~/.vim/pack/plugins/start/nome-do-plugin/plugin/…</code>); com vim-plug, rode <code>:PlugInstall</code>; com <code>opt/</code>, <code>:packadd nome</code>; veja o que o Vim carregou com <code>:scriptnames</code>. Veja <a href="plugins.html">Plugins</a>.</p>
+</div>
+
+<div class="cenario" id="clipboard">
+<strong>"+y não copia para o resto do sistema</strong>
+<p><strong>Causa:</strong> seu Vim foi compilado sem área de transferência. Confira:</p>
+<pre class="term">$ vim --version | grep clipboard
+-clipboard         +jumplist          +popupwin          +user_commands
+-xterm_clipboard</pre>
+<p>O <code>-</code> antes de <code>clipboard</code> quer dizer "não tem".</p>
+<p><strong>Solução:</strong> no Debian e no Ubuntu, instale <code>vim-gtk3</code> (tem <code>+clipboard</code> mesmo usado no terminal); no Fedora, <code>vim-X11</code>; no macOS, o Vim do Homebrew. Veja <a href="area-transferencia.html">Área de Transferência do Sistema</a>.</p>
+</div>
+
+<div class="cenario" id="tiny">
+<strong>Meu Vim não tem cores nem ajuda, e o u desfaz e refaz a mesma coisa</strong>
+<p><strong>Causa:</strong> você está usando o <code>vim-tiny</code>, a versão mínima que vem instalada em muitas distribuições (no Debian e no Ubuntu, o comando <code>vi</code> aponta para ele). Ele não tem realce de sintaxe, ajuda completa, Vimscript nem tradução para o português, e costuma rodar no modo compatível com o vi antigo, em que o <code>u</code> só alterna entre desfazer e refazer a última alteração.</p>
+<p><strong>Solução:</strong> instale o Vim completo (no Debian/Ubuntu, <code>sudo apt install vim</code>; no Debian sem sudo, <code>su -c "apt install vim"</code>) e use o comando <code>vim</code>. Confira com <code>vim --version | head -3</code>: a versão completa diz "Huge version" ou "Normal version". Veja <a href="instalar.html">Instalar em Qualquer Sistema</a>.</p>
+</div>
+
+<div class="cenario" id="e319">
+<strong>E319: o comando não existe nesta versão</strong>
+<pre class="term">E319: Desculpe, esse comando não está disponível nesta versão
+(inglês: E319: Sorry, the command is not available in this version)</pre>
+<p><strong>Causa:</strong> o recurso não foi compilado no seu Vim (é o caso de <code>:let</code>, <code>:syntax</code> e <code>:function</code> no <code>vim-tiny</code>).</p>
+<p><strong>Solução:</strong> instale o Vim completo, como no problema anterior.</p>
+</div>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

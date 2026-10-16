@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — pular palavras com w, b, e | Guia Vim</title>
+<meta name="description" content="Aprenda a pular de palavra em palavra no Vim com w, b, e, ge e as versões maiúsculas W, B, E: a diferença entre palavra e PALAVRA, com demonstrações e um Vim simulado.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Pular Palavras (w, b, e)</span></h1>
+
+<p class="intro">Andar letra por letra com <code>l</code> é lento. Num texto, você pensa em <strong>palavras</strong>: "quero ir para aquela palavra ali". O Vim tem movimentos exatamente para isso: <code>w</code> vai para a próxima palavra, <code>b</code> volta uma e <code>e</code> vai para o fim da palavra.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Pular para a próxima palavra com <code>w</code> e voltar com <code>b</code>.</li>
+  <li>Ir para o fim de uma palavra com <code>e</code>, e para o fim da anterior com <code>ge</code>.</li>
+  <li>O que o Vim considera uma "palavra" (e por que <code>w</code> para no ponto de "arquivo.txt").</li>
+  <li>As versões maiúsculas <code>W B E</code>, que pulam por blocos separados por espaço.</li>
+  <li>Combinar com números: <code>3w</code>.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Estes são movimentos do <strong>modo normal</strong>, como o <code>h j k l</code> da aula <a href="mover.html">Mover o Cursor</a>. Se o rodapé mostrar <code>-- INSERÇÃO --</code>, aperte <kbd>Esc</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>w: próxima palavra</h2>
+<p>O <code>w</code> (de <em>word</em>, "palavra") leva o cursor ao <strong>começo da próxima palavra</strong>.</p>
+
+<dl class="anatomy">
+  <dt>w</dt><dd>Vai para a primeira letra da próxima palavra. Se ela estiver na linha de baixo, ele desce.</dd>
+</dl>
+
+<div class="vimdemo" data-file="frase.txt" data-keys="www">
+<pre class="vim-inicial">O Vim é um editor de texto muito rápido.</pre>
+</div>
+
+<p>Três <code>w</code> levaram o cursor de "O" para "Vim", "é" e "um". Repare que letras com acento, como o "é", contam como letra normal.</p>
+
+<h3>Atravessando linhas</h3>
+<p>Quando a linha acaba, o <code>w</code> continua na próxima:</p>
+
+<div class="vimdemo" data-file="gato.txt" data-keys="www">
+<pre class="vim-inicial">o gato preto
+dormiu no sofá</pre>
+</div>
+
+<hr>
+
+<h2>b: palavra anterior</h2>
+<p>O <code>b</code> (de <em>back</em>, "para trás") faz o caminho inverso: volta para o <strong>começo da palavra</strong>. Se o cursor estiver no meio de uma palavra, o primeiro <code>b</code> vai para o começo dela mesma.</p>
+
+<div class="vimdemo" data-file="frase.txt" data-keys="$bbb">
+<pre class="vim-inicial">O Vim é um editor de texto muito rápido.</pre>
+</div>
+
+<p>A demonstração começa com <code>$</code>, que leva ao fim da linha (no ponto final). Daí o primeiro <code>b</code> volta para "rápido", o segundo para "muito" e o terceiro para "texto". Por que o primeiro <code>b</code> não parou no próprio ponto? Porque o ponto já é o começo de uma "palavra" de um caractere só, como você vai ver logo abaixo.</p>
+
+<hr>
+
+<h2>e e ge: fim da palavra</h2>
+<p>O <code>e</code> (de <em>end</em>, "fim") leva à <strong>última letra</strong> da palavra. Se o cursor já está na última letra, ele vai para o fim da próxima. O <code>ge</code> faz o contrário: vai para o fim da palavra anterior.</p>
+
+<dl class="anatomy">
+  <dt>e</dt><dd>Vai para a última letra da palavra atual ou da próxima.</dd>
+  <dt>ge</dt><dd>O prefixo <code>g</code> mais <code>e</code>: vai para a última letra da palavra anterior.</dd>
+</dl>
+
+<div class="vimdemo" data-file="frase.txt" data-keys="eeege">
+<pre class="vim-inicial">O Vim é um editor de texto muito rápido.</pre>
+</div>
+
+<p>O primeiro <code>e</code> não ficou parado no "O": como ele já é a última letra da palavra "O", foi para o fim de "Vim". Os seguintes pararam em "é" e no "m" de "um". O <code>ge</code> voltou para o "é".</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Vai para</th><th>Direção</th></tr>
+<tr><td><code>w</code></td><td>Começo da próxima palavra</td><td>→</td></tr>
+<tr><td><code>b</code></td><td>Começo da palavra (atual ou anterior)</td><td>←</td></tr>
+<tr><td><code>e</code></td><td>Fim da palavra (atual ou próxima)</td><td>→</td></tr>
+<tr><td><code>ge</code></td><td>Fim da palavra anterior</td><td>←</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="frase.txt">
+<pre class="vim-inicial">O Vim é um eeditor muito rrápido.</pre>
+<pre class="vim-meta">O Vim é um editor muito rápido.</pre>
+<p class="try-task"><strong>Missão:</strong> duas palavras começam com uma letra repetida. Pule até elas com <code>w</code> (ou <code>4w</code>) e apague a letra sobrando com <code>x</code>.</p>
+</div>
+
+<hr>
+
+<h2>O que é uma "palavra" para o Vim</h2>
+<p>Para o Vim existem dois tipos de "palavra", e é por isso que às vezes o <code>w</code> para em lugares inesperados:</p>
+<ul>
+  <li><strong>palavra</strong> (minúscula): uma sequência de letras, números e <code>_</code>, <strong>ou</strong> uma sequência de outros símbolos (pontuação). Cada troca entre letra e símbolo começa uma nova palavra.</li>
+  <li><strong>PALAVRA</strong> (maiúscula): qualquer sequência de caracteres sem espaço. Só o espaço separa.</li>
+</ul>
+
+<p>Veja como o Vim enxerga <code>arquivo.txt e ana@email.com</code>:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Texto</th><th>palavras (para <code>w b e</code>)</th><th>PALAVRAS (para <code>W B E</code>)</th></tr>
+<tr><td><code>arquivo.txt</code></td><td><code>arquivo</code> · <code>.</code> · <code>txt</code> (3)</td><td><code>arquivo.txt</code> (1)</td></tr>
+<tr><td><code>ana@email.com</code></td><td><code>ana</code> · <code>@</code> · <code>email</code> · <code>.</code> · <code>com</code> (5)</td><td><code>ana@email.com</code> (1)</td></tr>
+<tr><td><code>soma(a, b)</code></td><td><code>soma</code> · <code>(</code> · <code>a</code> · <code>,</code> · <code>b</code> · <code>)</code> (6)</td><td><code>soma(a,</code> · <code>b)</code> (2)</td></tr>
+</table>
+</div>
+
+<h3>W, B e E: pular por PALAVRAS</h3>
+<p>As versões maiúsculas fazem o mesmo que as minúsculas, mas por PALAVRAS. Compare o mesmo texto com <code>w</code> e com <code>W</code>:</p>
+
+<div class="vimdemo" data-file="contato.txt" data-keys="wwww">
+<pre class="vim-inicial">arquivo.txt e ana@email.com fim</pre>
+</div>
+
+<div class="vimdemo" data-file="contato.txt" data-keys="WWW">
+<pre class="vim-inicial">arquivo.txt e ana@email.com fim</pre>
+</div>
+
+<p>Com <code>w</code>, o cursor parou no ponto, em "txt", em "e" e em "ana". Com <code>W</code>, ele foi direto para "e", "ana@email.com" e "fim". Em textos com e-mails, endereços, caminhos de arquivo (<code>/etc/ssh/sshd_config</code>) ou código, as maiúsculas economizam muitas teclas.</p>
+
+<div class="vimtry" data-file="contato.txt" data-max-keys="5">
+<pre class="vim-inicial">contato: xana@email.com e xbia@email.com</pre>
+<pre class="vim-meta">contato: ana@email.com e bia@email.com</pre>
+<p class="try-task"><strong>Missão:</strong> os dois e-mails começam com um <code>x</code> que não deveria estar lá. Apague os dois com no máximo 5 teclas. Dica: use <code>W</code>.</p>
+</div>
+
+<hr>
+
+<h2>Com números: 3w, 2e</h2>
+<p>Como todo movimento, estes aceitam uma contagem. <code>3w</code> pula 3 palavras; <code>2b</code> volta 2.</p>
+
+<dl class="anatomy">
+  <dt>3</dt><dd>Contagem: repetir 3 vezes.</dd>
+  <dt>w</dt><dd>Movimento: próxima palavra.</dd>
+</dl>
+
+<div class="vimdemo" data-file="frase.txt" data-keys="5w2b">
+<pre class="vim-inicial">O Vim é um editor de texto muito rápido.</pre>
+</div>
+
+<p>O <code>5w</code> chegou em "de" e o <code>2b</code> voltou para "um".</p>
+
+<hr>
+
+<h2>Formas diferentes de chegar a uma palavra</h2>
+<p>Objetivo: levar o cursor do começo da linha até "muito" em <code>O Vim é um editor de texto muito rápido.</code></p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Quantas</th><th>Quando usar</th></tr>
+<tr><td><code>llllllllll…</code></td><td>27</td><td>Nunca. É para isso que existe o <code>w</code>.</td></tr>
+<tr><td><code>wwwwwww</code></td><td>7</td><td>Para palavras próximas (2 ou 3).</td></tr>
+<tr><td><code>7w</code></td><td>2</td><td>Quando você consegue contar as palavras.</td></tr>
+<tr><td><code>fm</code></td><td>2</td><td>Pula para a próxima letra "m" da linha (veja <a href="f-t.html">f e t</a>).</td></tr>
+<tr><td><code>/muito</code> + <kbd>Enter</kbd></td><td>7</td><td>Quando a palavra está longe, em outra linha (veja <a href="busca.html">Buscar</a>).</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="tempo.txt">
+<pre class="vim-inicial">O tempoo passa voandoo</pre>
+<pre class="vim-meta">O tempo passa voando</pre>
+<p class="try-task"><strong>Missão:</strong> duas palavras têm um "o" sobrando no fim. Vá até a última letra delas com <code>e</code> e apague com <code>x</code>.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>O w parou no ponto, na vírgula ou no parêntese</strong>
+<p><strong>O que aconteceu:</strong> para o <code>w</code>, a pontuação é uma "palavra" separada.</p>
+<p><strong>Como resolver:</strong> use <code>W</code>, que só para depois de espaços.</p>
+</div>
+
+<div class="cenario">
+<strong>O e não ficou na palavra em que eu estava</strong>
+<p><strong>O que aconteceu:</strong> o cursor já estava na última letra. Nesse caso o <code>e</code> vai para o fim da próxima palavra.</p>
+<p><strong>Como resolver:</strong> é o comportamento normal. Para ficar onde está, simplesmente não mova.</p>
+</div>
+
+<div class="cenario">
+<strong>O b na primeira palavra subiu para a linha de cima</strong>
+<p><strong>O que aconteceu:</strong> <code>w</code>, <code>b</code>, <code>e</code> e <code>ge</code> atravessam linhas.</p>
+<p><strong>Como resolver:</strong> para ir ao começo da linha atual, use <code>0</code> ou <code>^</code> (veja <a href="linhas.html">Início, Fim e Linhas</a>).</p>
+</div>
+
+<div class="cenario">
+<strong>No meu Vim, letras acentuadas quebram a palavra</strong>
+<p><strong>O que aconteceu:</strong> o que conta como "letra de palavra" vem da opção <code>iskeyword</code>. Com o Vim configurado para UTF-8 (o padrão em sistemas modernos), "ação" e "rápido" são uma palavra só. Se não forem, o seu terminal ou a opção <code>encoding</code> provavelmente não está em UTF-8.</p>
+<p><strong>Como resolver:</strong> confira com <code>:set encoding?</code>, que deve mostrar <code>encoding=utf-8</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Vai para</th><th>Exemplo</th></tr>
+<tr><td><code>w</code></td><td>Começo da próxima palavra</td><td><code>3w</code></td></tr>
+<tr><td><code>W</code></td><td>Começo da próxima PALAVRA (só espaço separa)</td><td><code>2W</code></td></tr>
+<tr><td><code>b</code></td><td>Começo da palavra atual ou anterior</td><td><code>2b</code></td></tr>
+<tr><td><code>B</code></td><td>Começo da PALAVRA atual ou anterior</td><td>—</td></tr>
+<tr><td><code>e</code></td><td>Fim da palavra atual ou próxima</td><td><code>2e</code></td></tr>
+<tr><td><code>E</code></td><td>Fim da PALAVRA atual ou próxima</td><td>—</td></tr>
+<tr><td><code>ge</code></td><td>Fim da palavra anterior</td><td>—</td></tr>
+<tr><td><code>gE</code></td><td>Fim da PALAVRA anterior</td><td>—</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Três palavras à frente</h3>
+<p>Qual comando pula 3 palavras para a frente?</p>
+<div class="ex-code"><input data-answer="3w|www" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Voltar</h3>
+<p>Qual tecla volta para o começo da palavra anterior?</p>
+<div class="ex-code"><input data-answer="b" aria-label="tecla"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. O cursor está no "a" de <code>ana@email.com</code>. Quantas vezes você aperta <code>w</code> para chegar em "com"?</p>
+<label><input type="radio" name="q3"> 1</label>
+<label><input type="radio" name="q3"> 2</label>
+<label><input type="radio" name="q3"> 4</label>
+<label><input type="radio" name="q3"> 5</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">4. Você quer pular o caminho <code>/home/ana/projeto/app.py</code> inteiro de uma vez. Qual movimento usar?</p>
+<label><input type="radio" name="q4"> <code>W</code></label>
+<label><input type="radio" name="q4"> <code>w</code></label>
+<label><input type="radio" name="q4"> <code>e</code></label>
+<label><input type="radio" name="q4"> <code>l</code></label>
+</div>
+
+<div class="vimtry" data-file="config.txt" data-max-keys="6">
+<pre class="vim-inicial">servidor = xexemplo.com
+porta = 8080
+usuario = xadmin</pre>
+<pre class="vim-meta">servidor = exemplo.com
+porta = 8080
+usuario = admin</pre>
+<p class="try-task"><strong>Missão final:</strong> apague os dois <code>x</code> no começo dos valores com no máximo 6 teclas. Dica: o <code>W</code> atravessa linhas.</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>w</code> próxima palavra, <code>b</code> volta, <code>e</code> fim da palavra, <code>ge</code> fim da anterior.</li>
+  <li>Para o Vim, pontuação é uma palavra separada: <code>w</code> para em pontos e arrobas.</li>
+  <li><code>W B E</code> pulam por PALAVRAS, separadas só por espaço: ótimas para e-mails, caminhos e código.</li>
+  <li>Todos aceitam contagem e atravessam linhas.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

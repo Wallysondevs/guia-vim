@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — mapeamentos: criar seus próprios atalhos | Guia Vim</title>
+<meta name="description" content="Crie atalhos no Vim com nnoremap, inoremap e vnoremap: por que usar sempre a versão nore, a tecla leader, notação de teclas especiais, como listar e remover mapeamentos e como não estragar comandos importantes.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Mapeamentos (map)</span></h1>
+
+<p class="intro">Um <strong>mapeamento</strong> é um atalho seu: "quando eu apertar estas teclas, faça aquilo". Com ele, um comando longo que você usa toda hora vira duas teclas. É também o jeito de adaptar o Vim às suas mãos, sem plugin nenhum.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Ler e escrever um mapeamento: <code>nnoremap &lt;leader&gt;w :w&lt;CR&gt;</code>.</li>
+  <li>Por que usar sempre as versões com <code>nore</code> (não recursivas).</li>
+  <li>Criar atalhos para cada modo: normal, inserção, visual.</li>
+  <li>Usar a tecla <strong>leader</strong> para não colidir com comandos do Vim.</li>
+  <li>Listar, investigar e remover mapeamentos.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Mapeamentos permanentes ficam no arquivo de configuração. Se ainda não tem um, veja <a href="vimrc.html">.vimrc Básico</a>. Você também pode testar qualquer mapeamento digitando-o na linha de comando (com <code>:</code>); ele vale até você fechar o Vim.</p>
+</div>
+
+<div class="warning">
+<strong>Esta aula é para o Vim real</strong>
+<p>O Vim simulado deste guia não aceita mapeamentos. Os exemplos foram conferidos no Vim 9.1 de verdade.</p>
+</div>
+
+<hr>
+
+<h2>Anatomia de um mapeamento</h2>
+
+<dl class="anatomy">
+  <dt>n</dt><dd>Em qual <strong>modo</strong> o atalho vale: <code>n</code> = normal.</dd>
+  <dt>nore</dt><dd><em>No re</em>-map: o lado direito usa os comandos originais do Vim, e não outros atalhos. Explicado mais abaixo.</dd>
+  <dt>map</dt><dd>O comando que cria o mapeamento.</dd>
+  <dt>&lt;leader&gt;w</dt><dd>As teclas que você vai apertar (o "lado esquerdo").</dd>
+  <dt>:w&lt;CR&gt;</dt><dd>O que o Vim faz no lugar delas (o "lado direito"): digita <code>:w</code> e <kbd>Enter</kbd>, ou seja, salva.</dd>
+</dl>
+
+<pre class="file" data-file="~/.vimrc">" Espaço + w salva o arquivo
+let mapleader = " "
+nnoremap &lt;leader&gt;w :w&lt;CR&gt;</pre>
+
+<p>O lado direito é uma sequência de teclas, digitada como se fosse você. Por isso o <code>&lt;CR&gt;</code> no fim é necessário: sem ele, o Vim escreveria <code>:w</code> na linha de comando e ficaria esperando o <kbd>Enter</kbd>.</p>
+
+<hr>
+
+<h2>Um comando para cada modo</h2>
+<p>O mesmo atalho pode fazer coisas diferentes em cada modo. A primeira letra do comando escolhe onde ele vale:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Vale no modo…</th><th>Exemplo</th></tr>
+<tr><td><code>nnoremap</code></td><td>Normal</td><td><code>nnoremap &lt;leader&gt;q :q&lt;CR&gt;</code></td></tr>
+<tr><td><code>inoremap</code></td><td>Inserção</td><td><code>inoremap jk &lt;Esc&gt;</code></td></tr>
+<tr><td><code>xnoremap</code></td><td>Visual (só visual)</td><td><code>xnoremap &lt; &lt;gv</code></td></tr>
+<tr><td><code>vnoremap</code></td><td>Visual e seleção</td><td><code>vnoremap &lt;leader&gt;y "+y</code></td></tr>
+<tr><td><code>onoremap</code></td><td>Esperando movimento (depois de <code>d</code>, <code>c</code>, <code>y</code>…)</td><td><code>onoremap p i(</code></td></tr>
+<tr><td><code>cnoremap</code></td><td>Linha de comando</td><td><code>cnoremap &lt;C-a&gt; &lt;Home&gt;</code></td></tr>
+<tr><td><code>noremap</code></td><td>Normal, visual e esperando movimento</td><td><code>noremap H ^</code></td></tr>
+</table>
+</div>
+
+<p>Prefira <code>xnoremap</code> a <code>vnoremap</code> para atalhos de seleção: o modo de seleção (usado por alguns plugins) se comporta como um editor comum, e mapear letras nele atrapalha a digitação.</p>
+
+<hr>
+
+<h2>Por que sempre "nore"</h2>
+<p>Existe também <code>nmap</code>, sem o <code>nore</code>. A diferença: o lado direito de um <code>nmap</code> pode <strong>disparar outros mapeamentos</strong>. Parece útil, mas costuma causar surpresas. Veja o que acontece com estes dois atalhos:</p>
+
+<pre class="file" data-file="teste (conferido no Vim 9.1)">" x passa a apagar a linha inteira
+nmap x dd
+" j deveria apagar um caractere…
+nmap j x</pre>
+
+<p>Ao apertar <code>j</code>, o Vim troca por <code>x</code>; como <code>x</code> também está mapeado, troca de novo por <code>dd</code>, e a <strong>linha inteira</strong> some. Com <code>nnoremap j x</code>, o <code>x</code> do lado direito é o <code>x</code> original do Vim, e só um caractere sai.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Mapeamentos</th><th>Apertar <code>j</code> faz…</th></tr>
+<tr><td><code>nmap x dd</code> e <code>nmap j x</code></td><td>Apaga a linha (encadeou <code>j</code> → <code>x</code> → <code>dd</code>)</td></tr>
+<tr><td><code>nmap x dd</code> e <code>nnoremap j x</code></td><td>Apaga um caractere (o <code>x</code> original)</td></tr>
+</table>
+</div>
+
+<p>E se dois mapeamentos recursivos apontam um para o outro (<code>nmap a b</code> e <code>nmap b a</code>), o Vim desiste com <code>E223: associação recursiva</code>. A regra prática é simples: <strong>use sempre a versão com nore</strong>. O <code>nmap</code> só é necessário para acionar atalhos de plugins (os <code>&lt;Plug&gt;</code>).</p>
+
+<hr>
+
+<h2>Teclas especiais</h2>
+<p>Dentro de um mapeamento, teclas que não são letras se escrevem entre <code>&lt; &gt;</code>:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Notação</th><th>Tecla</th></tr>
+<tr><td><code>&lt;CR&gt;</code></td><td><kbd>Enter</kbd> (<em>carriage return</em>)</td></tr>
+<tr><td><code>&lt;Esc&gt;</code></td><td><kbd>Esc</kbd></td></tr>
+<tr><td><code>&lt;Space&gt;</code>, <code>&lt;Tab&gt;</code>, <code>&lt;BS&gt;</code></td><td>Espaço, Tab, Backspace</td></tr>
+<tr><td><code>&lt;C-s&gt;</code></td><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td></tr>
+<tr><td><code>&lt;S-Tab&gt;</code></td><td><kbd>Shift</kbd>+<kbd>Tab</kbd></td></tr>
+<tr><td><code>&lt;F5&gt;</code></td><td>Tecla F5</td></tr>
+<tr><td><code>&lt;Up&gt;</code>, <code>&lt;Down&gt;</code>, <code>&lt;Left&gt;</code>, <code>&lt;Right&gt;</code></td><td>Setas</td></tr>
+<tr><td><code>&lt;leader&gt;</code></td><td>A tecla leader (veja abaixo)</td></tr>
+<tr><td><code>&lt;lt&gt;</code>, <code>&lt;Bar&gt;</code></td><td>Os caracteres <code>&lt;</code> e <code>|</code></td></tr>
+</table>
+</div>
+
+<h3>Modificadores do mapeamento</h3>
+<p>Logo depois de <code>nnoremap</code> podem vir opções entre <code>&lt; &gt;</code>:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Opção</th><th>Efeito</th></tr>
+<tr><td><code>&lt;silent&gt;</code></td><td>Não mostra o comando no rodapé enquanto ele roda</td></tr>
+<tr><td><code>&lt;buffer&gt;</code></td><td>Vale só para o arquivo atual (usado em <a href="autocmd.html">autocomandos</a>)</td></tr>
+<tr><td><code>&lt;nowait&gt;</code></td><td>Não espera para ver se você vai digitar um atalho mais longo</td></tr>
+<tr><td><code>&lt;expr&gt;</code></td><td>O lado direito é uma expressão de <a href="vimscript.html">Vimscript</a> calculada na hora</td></tr>
+</table>
+</div>
+
+<pre class="file" data-file="~/.vimrc">" Espaço + h apaga o destaque da busca, sem mostrar ":nohlsearch" no rodapé
+nnoremap &lt;silent&gt; &lt;leader&gt;h :nohlsearch&lt;CR&gt;</pre>
+
+<hr>
+
+<h2>A tecla leader</h2>
+<p>Quase todas as teclas do teclado já fazem algo no modo normal. Para criar atalhos sem estragar nenhum comando, o Vim reserva uma tecla de prefixo, a <strong>leader</strong> ("líder"). Seus atalhos começam com ela: <code>&lt;leader&gt;w</code>, <code>&lt;leader&gt;q</code>…</p>
+
+<p>A leader padrão é a barra invertida <code>\</code>, difícil de alcançar em muitos teclados. A escolha mais popular é o <strong>espaço</strong>, que no modo normal só anda um caractere para a direita, como o <code>l</code>:</p>
+
+<pre class="file" data-file="~/.vimrc">" Defina a leader ANTES dos mapeamentos que a usam
+let mapleader = " "
+
+nnoremap &lt;leader&gt;w :w&lt;CR&gt;
+nnoremap &lt;leader&gt;q :q&lt;CR&gt;</pre>
+
+<div class="warning">
+<strong>A ordem importa</strong>
+<p>O <code>&lt;leader&gt;</code> é trocado pela tecla no momento em que o mapeamento é criado. Se o <code>let mapleader</code> vier <strong>depois</strong>, os mapeamentos de cima continuam usando a barra invertida.</p>
+</div>
+
+<p>Depois de apertar a leader, o Vim espera um segundo pela tecla seguinte (opção <code>timeoutlen</code>, 1000 milissegundos). O <code>showcmd</code> mostra a tecla pendente no canto do rodapé enquanto isso.</p>
+
+<hr>
+
+<h2>Mapeamentos úteis</h2>
+<p>Uma seleção comentada para começar. Copie para o seu <code>~/.vimrc</code> só os que fizerem sentido para você:</p>
+
+<pre class="file" data-file="~/.vimrc">let mapleader = " "
+
+" Sair do modo de inserção digitando jk rápido (sem esticar a mão até o Esc)
+inoremap jk &lt;Esc&gt;
+
+" Salvar e sair
+nnoremap &lt;leader&gt;w :w&lt;CR&gt;
+nnoremap &lt;leader&gt;q :q&lt;CR&gt;
+
+" Apagar o destaque da última busca
+nnoremap &lt;silent&gt; &lt;leader&gt;h :nohlsearch&lt;CR&gt;
+
+" Em linhas longas que quebram na tela, j e k andam pela linha VISUAL
+nnoremap j gj
+nnoremap k gk
+
+" Recuar com &lt; e &gt; no visual sem perder a seleção
+xnoremap &lt; &lt;gv
+xnoremap &gt; &gt;gv
+
+" Andar entre janelas com Ctrl + h/j/k/l
+nnoremap &lt;C-h&gt; &lt;C-w&gt;h
+nnoremap &lt;C-j&gt; &lt;C-w&gt;j
+nnoremap &lt;C-k&gt; &lt;C-w&gt;k
+nnoremap &lt;C-l&gt; &lt;C-w&gt;l
+
+" Copiar para a área de transferência do sistema (Vim com +clipboard)
+xnoremap &lt;leader&gt;y "+y
+
+" Salvar e rodar o script Python atual
+nnoremap &lt;F5&gt; :w&lt;CR&gt;:!python3 %&lt;CR&gt;</pre>
+
+<p>Repare nos comentários: eles ficam na <strong>linha de cima</strong> de cada mapeamento. Isso é importante, como você vai ver em "Quando não funciona".</p>
+
+<hr>
+
+<h2>Listar, investigar e remover</h2>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:map</code></td><td>Lista os mapeamentos dos modos normal, visual e esperando movimento</td></tr>
+<tr><td><code>:nmap</code>, <code>:imap</code>, <code>:xmap</code></td><td>Lista os de um modo</td></tr>
+<tr><td><code>:nmap &lt;leader&gt;w</code></td><td>Mostra só o mapeamento dessas teclas</td></tr>
+<tr><td><code>:verbose nmap &lt;leader&gt;w</code></td><td>Mostra também em qual arquivo e linha ele foi criado</td></tr>
+<tr><td><code>:nunmap &lt;leader&gt;w</code></td><td>Remove o mapeamento (e <code>:iunmap</code>, <code>:xunmap</code>…)</td></tr>
+<tr><td><code>:nmapclear</code></td><td>Remove todos os mapeamentos do modo normal</td></tr>
+</table>
+</div>
+
+<p>A listagem tem uma coluna para o modo, as teclas, um <code>*</code> quando é não recursivo (nore) e o lado direito. Com a leader no espaço, ele aparece como um espaço mesmo:</p>
+
+<pre class="file" data-file="saída de :map e :imap">n  &lt;Space&gt;w    * :w&lt;CR&gt;
+n  &lt;Space&gt;h    * :nohlsearch&lt;CR&gt;
+i  jk          * &lt;Esc&gt;</pre>
+
+<p>Com <code>:verbose</code>, o Vim diz de onde veio o atalho. É o jeito de descobrir qual plugin roubou uma tecla:</p>
+
+<pre class="file" data-file="saída de :verbose nmap &lt;leader&gt;w (ilustrativa)">n  &lt;Space&gt;w    * :w&lt;CR&gt;
+	Definido pela última vez em ~/.vimrc line 4</pre>
+
+<p>Se as teclas não tiverem mapeamento, a resposta é <code>Nenhuma associação encontrada</code> (no Vim em inglês, <code>No mapping found</code>).</p>
+
+<hr>
+
+<h2>Como não estragar comandos importantes</h2>
+<ul>
+  <li><strong>Antes de mapear uma tecla, veja o que ela faz:</strong> <code>:help</code> seguido da tecla, por exemplo <code>:help Q</code> ou <code>:help CTRL-L</code>. A lista de comandos do modo normal está em <code>:help normal-index</code>.</li>
+  <li><strong>Prefira a leader</strong> para atalhos novos. Teclas como <kbd>F2</kbd>…<kbd>F12</kbd> também costumam estar livres.</li>
+  <li><strong>Não remapeie verbos e movimentos</strong> (<code>d</code>, <code>c</code>, <code>y</code>, <code>w</code>, <code>b</code>…): você perde a <a href="gramatica.html">gramática</a> e estranha qualquer outro Vim.</li>
+  <li><strong>Cuidado com <kbd>Ctrl</kbd>+<kbd>S</kbd>:</strong> em muitos terminais ele pausa a tela (controle de fluxo) e o Vim parece travado. Destrava com <kbd>Ctrl</kbd>+<kbd>Q</kbd>. Para usá-lo num mapeamento, desligue isso no shell com <code>stty -ixon</code>.</li>
+  <li><strong>Teste antes de gravar</strong>: digite o mapeamento com <code>:</code>, use por um tempo, e só então copie para o <code>.vimrc</code>.</li>
+</ul>
+
+<hr>
+
+<h2>Formas diferentes de ter um atalho</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Exemplo</th><th>Quando usar</th></tr>
+<tr><td>Mapeamento</td><td><code>nnoremap &lt;leader&gt;w :w&lt;CR&gt;</code></td><td>Teclas que você aperta muitas vezes por dia.</td></tr>
+<tr><td>Comando próprio</td><td><code>command! Sw w !sudo tee % &gt; /dev/null</code></td><td>Algo que você prefere digitar por nome (<code>:Sw</code>); veja <a href="vimscript.html">Vimscript</a>.</td></tr>
+<tr><td>Macro</td><td><code>qa…q</code> e <code>@a</code></td><td>Uma tarefa repetitiva de agora, que não vale um atalho permanente. Veja <a href="macros.html">Macros</a>.</td></tr>
+<tr><td>Abreviação</td><td><code>iabbrev obg obrigado</code></td><td>Corrigir ou expandir palavras enquanto digita.</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Criei o mapeamento e nada acontece</strong>
+<p><strong>O que aconteceu:</strong> em geral é o modo errado (criou com <code>inoremap</code> e está testando no modo normal), ou o <code>.vimrc</code> ainda não foi relido.</p>
+<p><strong>Como resolver:</strong> confira com <code>:nmap</code> ou <code>:imap</code> se ele existe. Para recarregar a configuração sem fechar o Vim, use <code>:source ~/.vimrc</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>O atalho faz algo estranho com espaços ou aspas a mais</strong>
+<p><strong>O que aconteceu:</strong> tudo o que vem depois das teclas faz parte do lado direito, inclusive <strong>espaços no fim</strong> e comentários na mesma linha. Por exemplo, <code>nnoremap &lt;leader&gt;w :w&lt;CR&gt; " salvar</code> executa <code>:w</code>, aperta Enter e depois digita <code> " salvar</code>.</p>
+<p><strong>Como resolver:</strong> comentários sempre na linha de cima, e apague espaços no fim da linha do mapeamento.</p>
+</div>
+
+<div class="cenario">
+<strong>Meu &lt;leader&gt; usa a barra invertida, não o espaço</strong>
+<p><strong>O que aconteceu:</strong> o <code>let mapleader = " "</code> está depois dos mapeamentos no <code>.vimrc</code>.</p>
+<p><strong>Como resolver:</strong> mova o <code>let mapleader</code> para o topo do arquivo e reinicie o Vim.</p>
+</div>
+
+<div class="cenario">
+<strong>"E223: associação recursiva"</strong>
+<p><strong>O que aconteceu:</strong> mapeamentos recursivos (<code>nmap</code>) que levam um ao outro sem fim.</p>
+<p><strong>Como resolver:</strong> troque por <code>nnoremap</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Um plugin mudou o que minha tecla faz</strong>
+<p><strong>Como confirmar:</strong> <code>:verbose nmap &lt;tecla&gt;</code> mostra quem definiu por último.</p>
+<p><strong>Como resolver:</strong> escolha outra tecla, ou remova o mapeamento do plugin com <code>:nunmap</code> num arquivo que carregue depois dele (por exemplo, <code>~/.vim/after/plugin/meus-atalhos.vim</code>).</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>nnoremap {teclas} {ação}</code></td><td>Atalho no modo normal</td></tr>
+<tr><td><code>inoremap</code>, <code>xnoremap</code>, <code>onoremap</code>, <code>cnoremap</code></td><td>Atalhos nos outros modos</td></tr>
+<tr><td><code>let mapleader = " "</code></td><td>Define a tecla leader</td></tr>
+<tr><td><code>:map</code>, <code>:nmap</code>, <code>:imap</code></td><td>Lista mapeamentos</td></tr>
+<tr><td><code>:verbose nmap {teclas}</code></td><td>Mostra onde o mapeamento foi criado</td></tr>
+<tr><td><code>:nunmap {teclas}</code></td><td>Remove um mapeamento</td></tr>
+<tr><td><code>:normal!</code></td><td>Executa teclas ignorando todos os mapeamentos</td></tr>
+<tr><td><code>:help map-modes</code></td><td>Tabela completa de modos na ajuda do Vim</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Atalho para salvar</h3>
+<p>Complete para que <code>&lt;leader&gt;s</code> salve o arquivo no modo normal:</p>
+<div class="ex-code"><input data-answer="nnoremap" aria-label="comando"> &lt;leader&gt;s :w<input data-answer="&lt;CR&gt;|&lt;cr&gt;" aria-label="tecla"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Sair da inserção com jj</h3>
+<div class="ex-code"><input data-answer="inoremap" aria-label="comando"> jj &lt;Esc&gt;</div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. Com <code>nmap x dd</code> e <code>nnoremap j x</code>, o que acontece ao apertar <code>j</code>?</p>
+<label><input type="radio" name="q3"> Apaga a linha inteira.</label>
+<label><input type="radio" name="q3"> Desce uma linha.</label>
+<label><input type="radio" name="q3"> Apaga um caractere, porque o <code>x</code> do <code>nnoremap</code> é o original.</label>
+<label><input type="radio" name="q3"> Aparece "E223: associação recursiva".</label>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Onde deve ficar o <code>let mapleader = " "</code> no <code>.vimrc</code>?</p>
+<label><input type="radio" name="q4"> No final do arquivo.</label>
+<label><input type="radio" name="q4"> Antes de todos os mapeamentos que usam <code>&lt;leader&gt;</code>.</label>
+<label><input type="radio" name="q4"> Em qualquer lugar; a ordem não importa.</label>
+<label><input type="radio" name="q4"> Num arquivo separado, obrigatoriamente.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">5. Qual comando mostra em qual arquivo o atalho <code>&lt;C-p&gt;</code> foi definido?</p>
+<label><input type="radio" name="q5"> <code>:map &lt;C-p&gt;</code></label>
+<label><input type="radio" name="q5"> <code>:help &lt;C-p&gt;</code></label>
+<label><input type="radio" name="q5"> <code>:nunmap &lt;C-p&gt;</code></label>
+<label><input type="radio" name="q5"> <code>:verbose nmap &lt;C-p&gt;</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Formato: <code>{modo}noremap {teclas} {ação}</code>, por exemplo <code>nnoremap &lt;leader&gt;w :w&lt;CR&gt;</code>.</li>
+  <li>Use sempre <code>nore</code>: o lado direito usa os comandos originais e não dispara outros atalhos.</li>
+  <li>A leader (<code>let mapleader = " "</code>, antes dos mapeamentos) evita colisões.</li>
+  <li><code>:nmap</code> lista, <code>:verbose nmap</code> mostra a origem, <code>:nunmap</code> remove.</li>
+  <li>Comentários na linha de cima, nunca na mesma linha do mapeamento.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

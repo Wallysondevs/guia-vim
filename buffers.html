@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — vários arquivos com buffers | Guia Vim</title>
+<meta name="description" content="Como editar vários arquivos no Vim: o que é um buffer, :e, :ls explicado coluna por coluna, :bn, :bp, :b, :bd, Ctrl-^, :wa, :qa, o erro E37 e a opção hidden.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Vários Arquivos (buffers)</span></h1>
+
+<p class="intro">Você não precisa sair do Vim para abrir outro arquivo. Cada arquivo aberto fica guardado na memória como um <strong>buffer</strong>, e você pula de um para o outro com poucas teclas. É assim que se edita um projeto inteiro numa única janela do Vim.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>O que é um buffer e por que ele não é a mesma coisa que uma janela.</li>
+  <li>Abrir vários arquivos ao mesmo tempo e abrir outro sem sair (<code>:e</code>).</li>
+  <li>Ler a lista de buffers (<code>:ls</code>), coluna por coluna.</li>
+  <li>Trocar de buffer com <code>:bn</code>, <code>:bp</code>, <code>:b</code> e <kbd>Ctrl</kbd>+<kbd>^</kbd>.</li>
+  <li>Entender o erro <code>E37</code> e a opção <code>hidden</code>.</li>
+</ul>
+</div>
+
+<div class="warning">
+<strong>O simulador tem um arquivo só</strong>
+<p>O Vim simulado deste guia trabalha com um buffer. Nesta aula as telas mostram o que aparece num Vim de verdade. Para praticar, abra um terminal e use o Vim instalado no seu sistema (veja <a href="instalar.html">Instalar em Qualquer Sistema</a>).</p>
+</div>
+
+<hr>
+
+<h2>O que é um buffer</h2>
+<p>Quando você abre um arquivo, o Vim lê o conteúdo do disco e coloca uma cópia na memória. Essa cópia é o <strong>buffer</strong> (em inglês, "área temporária"). Você edita o buffer; o arquivo no disco só muda quando você salva com <code>:w</code>.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Termo</th><th>O que é</th><th>Analogia</th></tr>
+<tr><td><strong>Arquivo</strong></td><td>O que está gravado no disco</td><td>O livro na estante</td></tr>
+<tr><td><strong>Buffer</strong></td><td>A cópia do arquivo na memória do Vim</td><td>O livro aberto na mesa</td></tr>
+<tr><td><strong>Janela</strong></td><td>A área da tela que mostra um buffer</td><td>Os seus olhos olhando uma página</td></tr>
+</table>
+</div>
+
+<p>Você pode ter dez buffers abertos e uma janela só, mostrando um deles de cada vez. As janelas têm uma aula própria: <a href="janelas.html">Janelas (split)</a>.</p>
+
+<hr>
+
+<h2>Abrir vários arquivos de uma vez</h2>
+<p>No terminal, passe vários nomes para o <code>vim</code>:</p>
+
+<dl class="anatomy">
+  <dt>vim</dt><dd>O programa.</dd>
+  <dt>a.txt b.txt c.txt</dt><dd>Os arquivos. Cada um vira um buffer; o primeiro aparece na tela.</dd>
+</dl>
+
+<pre class="term">$ vim a.txt b.txt c.txt</pre>
+
+<pre class="term" data-title="a.txt — Vim">linha a1
+linha a2
+~
+~
+"a.txt" 2L, 18B                                   1,1           Tudo</pre>
+
+<p>Só o <code>a.txt</code> aparece, mas os três já estão carregados. A última linha confirma qual arquivo está na tela, com quantas linhas (<code>2L</code>) e bytes (<code>18B</code>).</p>
+
+<p>Também dá para usar curingas do shell: <code>vim *.txt</code> abre todos os <code>.txt</code> da pasta.</p>
+
+<h3>Abrir outro arquivo sem sair: <code>:e</code></h3>
+<p>Já dentro do Vim, <code>:e</code> (de <em>edit</em>, "editar") abre outro arquivo no lugar do atual.</p>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Abre a linha de comando no rodapé.</dd>
+  <dt>e</dt><dd>O comando <strong>edit</strong>.</dd>
+  <dt>notas.txt</dt><dd>O arquivo. Se não existir, o Vim cria um buffer vazio com esse nome; o arquivo só nasce no disco quando você salvar.</dd>
+</dl>
+
+<pre class="term" data-title="notas.txt — Vim">~
+~
+~
+"notas.txt" [Novo]                                 0,0-1         Tudo</pre>
+
+<p>O <code>[Novo]</code> avisa que o arquivo ainda não existe no disco. Aperte <kbd>Tab</kbd> depois de <code>:e </code> para o Vim completar nomes de arquivos, como no terminal.</p>
+
+<hr>
+
+<h2>:ls: a lista de buffers</h2>
+<p>Para saber o que está aberto, use <code>:ls</code> (de <em>list</em>, "listar"). Os comandos <code>:buffers</code> e <code>:files</code> fazem a mesma coisa.</p>
+
+<pre class="term" data-title="b.txt + — Vim">:ls
+  1 #    "a.txt"                        linha 2     « buffer alternativo
+  2 %a + "b.txt"                        linha 1     « o buffer na tela, modificado
+  3      "c.txt"                        linha 0     « carregado na lista, ainda não visitado
+Aperte ENTER ou digite um comando para continuar</pre>
+
+<p>Cada linha é um buffer. Veja as colunas:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Coluna</th><th>Exemplo</th><th>Significado</th></tr>
+<tr><td>Número</td><td><code>2</code></td><td>O número do buffer. Ele nunca muda enquanto o Vim está aberto. Use com <code>:b 2</code>.</td></tr>
+<tr><td>Indicadores</td><td><code>%a +</code></td><td>Estado do buffer (tabela abaixo).</td></tr>
+<tr><td>Nome</td><td><code>"b.txt"</code></td><td>O arquivo.</td></tr>
+<tr><td>Linha</td><td><code>linha 1</code></td><td>Onde o cursor estava da última vez. <code>linha 0</code> quer dizer que você ainda não visitou o buffer.</td></tr>
+</table>
+</div>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Indicador</th><th>Significado</th></tr>
+<tr><td><code>%</code></td><td>O buffer atual, o que está na janela onde você está.</td></tr>
+<tr><td><code>#</code></td><td>O buffer <strong>alternativo</strong>: o último em que você esteve. <kbd>Ctrl</kbd>+<kbd>^</kbd> volta para ele.</td></tr>
+<tr><td><code>a</code></td><td><em>Active</em>: carregado e visível numa janela.</td></tr>
+<tr><td><code>h</code></td><td><em>Hidden</em>: carregado na memória, mas não está em nenhuma janela.</td></tr>
+<tr><td><code>+</code></td><td>Modificado e ainda não salvo.</td></tr>
+<tr><td><code>=</code></td><td>Somente leitura.</td></tr>
+<tr><td><code>-</code></td><td>Não pode ser modificado (<code>'modifiable'</code> desligado).</td></tr>
+<tr><td><code>u</code></td><td><em>Unlisted</em>: fora da lista (só aparece com <code>:ls!</code>), como a janela de ajuda.</td></tr>
+</table>
+</div>
+
+<p>Depois de uma lista longa, o Vim mostra <code>Aperte ENTER ou digite um comando para continuar</code>. Aperte <kbd>Enter</kbd>, ou já digite o próximo comando, como <code>:b 3</code>.</p>
+
+<hr>
+
+<h2>Trocar de buffer</h2>
+
+<h3>Próximo e anterior: <code>:bn</code> e <code>:bp</code></h3>
+
+<dl class="anatomy">
+  <dt>:bn</dt><dd><em>buffer next</em>: vai para o próximo buffer da lista. Do último, volta para o primeiro.</dd>
+  <dt>:bp</dt><dd><em>buffer previous</em>: vai para o anterior.</dd>
+</dl>
+
+<pre class="term" data-title="b.txt — Vim">linha b1
+~
+~
+"b.txt" 1L, 9B                                    1,1           Tudo</pre>
+
+<p>Ao trocar, o Vim mostra no rodapé o nome, as linhas e os bytes do buffer que apareceu. Também existem <code>:bfirst</code> (primeiro) e <code>:blast</code> (último).</p>
+
+<h3>Ir direto: <code>:b</code> com número ou nome</h3>
+
+<dl class="anatomy">
+  <dt>:b</dt><dd><em>buffer</em>: vai para um buffer específico.</dd>
+  <dt>3</dt><dd>Pelo número que aparece no <code>:ls</code>…</dd>
+</dl>
+
+<p>… ou por um pedaço do nome: <code>:b c.t</code> vai para <code>c.txt</code>. Se o pedaço combinar com mais de um buffer, aperte <kbd>Tab</kbd> para escolher. O atalho <code>3</code><kbd>Ctrl</kbd>+<kbd>^</kbd> no modo normal também leva ao buffer 3.</p>
+
+<h3>Ir e voltar: <kbd>Ctrl</kbd>+<kbd>^</kbd></h3>
+<p><kbd>Ctrl</kbd>+<kbd>^</kbd> alterna entre o buffer atual e o alternativo (o <code>#</code> do <code>:ls</code>). É perfeito para quem edita dois arquivos ao mesmo tempo, como um HTML e o CSS dele. Em muitos teclados funciona também com <kbd>Ctrl</kbd>+<kbd>6</kbd>. O comando equivalente é <code>:e #</code>.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Exemplo</th><th>Melhor quando…</th></tr>
+<tr><td>Próximo/anterior</td><td><code>:bn</code> <code>:bp</code></td><td>São poucos buffers e você quer passear por eles.</td></tr>
+<tr><td>Pelo número</td><td><code>:b 3</code></td><td>Você acabou de ver o <code>:ls</code>.</td></tr>
+<tr><td>Pelo nome</td><td><code>:b rot</code> + <kbd>Tab</kbd></td><td>Muitos buffers; você lembra o nome.</td></tr>
+<tr><td>Alternar</td><td><kbd>Ctrl</kbd>+<kbd>^</kbd></td><td>Você vai e volta entre dois arquivos.</td></tr>
+<tr><td>Abrir de novo</td><td><code>:e c.txt</code></td><td>O arquivo ainda não está aberto.</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>O erro E37 e a opção hidden</h2>
+<p>Você alterou <code>b.txt</code>, não salvou e tentou trocar de buffer:</p>
+
+<pre class="term" data-title="b.txt + — Vim">xinha b1
+~
+~
+E37: Alterações não foram gravadas (adicione ! para forçar)</pre>
+
+<p>Por padrão o Vim não deixa um buffer modificado sair da tela, para você não esquecer de salvar. Há três saídas:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:w</code> e depois <code>:bn</code></td><td>Salva e troca. O jeito mais seguro.</td></tr>
+<tr><td><code>:bn!</code></td><td>Troca mesmo assim. As alterações continuam no buffer (ele vira <code>h +</code> no <code>:ls</code>), mas <strong>não</strong> estão no disco.</td></tr>
+<tr><td><code>:set hidden</code></td><td>Permite trocar sem salvar, sempre. Coloque no <a href="vimrc.html">.vimrc</a> se você usa muitos buffers.</td></tr>
+</table>
+</div>
+
+<div class="warning">
+<strong>Atenção com buffers escondidos</strong>
+<p>Com <code>hidden</code> ligado, é fácil esquecer um buffer modificado. Antes de sair, use <code>:wa</code> para salvar todos. Se tentar sair com <code>:qa</code> e houver algo sem salvar, o Vim avisa com <code>E162: Alterações no buffer "b.txt" não foram gravadas</code> e mostra esse buffer.</p>
+</div>
+
+<hr>
+
+<h2>Fechar buffers: <code>:bd</code></h2>
+<p><code>:bd</code> (de <em>buffer delete</em>) tira um buffer da lista. O arquivo no disco não é apagado: só deixa de estar aberto no Vim.</p>
+
+<dl class="anatomy">
+  <dt>:bd</dt><dd>Fecha o buffer atual.</dd>
+  <dt>2</dt><dd>Opcional: o número ou o nome do buffer a fechar. <code>:bd 2 3</code> fecha dois; <code>:1,3bd</code> fecha do 1 ao 3.</dd>
+</dl>
+
+<pre class="term" data-title="a.txt — Vim">:1,3bd
+3 buffers apagados</pre>
+
+<p>"Apagado" aqui quer dizer "tirado da lista", não "apagado do disco". Se o buffer tiver alterações, o <code>:bd</code> recusa com <code>E89: Alterações no buffer 2 não foram gravadas (adicione ! para forçar)</code>; <code>:bd!</code> fecha e descarta.</p>
+
+<hr>
+
+<h2>Salvar e sair com vários buffers</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Origem</th><th>O que faz</th></tr>
+<tr><td><code>:wa</code></td><td><em>write all</em></td><td>Salva todos os buffers modificados.</td></tr>
+<tr><td><code>:qa</code></td><td><em>quit all</em></td><td>Sai do Vim; recusa se algum buffer tiver alterações.</td></tr>
+<tr><td><code>:qa!</code></td><td></td><td>Sai e descarta todas as alterações.</td></tr>
+<tr><td><code>:wqa</code> ou <code>:xa</code></td><td></td><td>Salva tudo e sai.</td></tr>
+</table>
+</div>
+
+<div class="cenario">
+<strong>"E173: Mais 2 arquivos para editar" ao sair</strong>
+<pre class="term" data-title="a.txt — Vim">:q
+E173: Mais 2 arquivos para editar</pre>
+<p><strong>O que aconteceu:</strong> você abriu o Vim com <code>vim a.txt b.txt c.txt</code> e tentou sair sem ter visitado os outros arquivos. O Vim avisa caso você tenha esquecido deles.</p>
+<p><strong>Como resolver:</strong> se quer mesmo sair, aperte <code>:q</code> de novo ou use <code>:qa</code>.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"E86: Buffer 9 não existe"</strong>
+<p><strong>O que aconteceu:</strong> você usou <code>:b 9</code>, mas não há buffer com esse número. Os números não são reaproveitados: depois de fechar o buffer 2, o próximo arquivo aberto vira o 4.</p>
+<p><strong>Como resolver:</strong> confira os números com <code>:ls</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"E94: Nenhum buffer coincide com xyz"</strong>
+<p><strong>O que aconteceu:</strong> nenhum buffer aberto tem "xyz" no nome. O <code>:b</code> só procura entre os buffers abertos; ele não abre arquivos novos.</p>
+<p><strong>Como resolver:</strong> use <code>:e xyz.txt</code> para abrir o arquivo.</p>
+</div>
+
+<div class="cenario">
+<strong>Mudei de buffer e minhas alterações sumiram</strong>
+<p><strong>O que aconteceu:</strong> provavelmente não sumiram. Se você usou <code>:bn!</code> ou tem <code>hidden</code> ligado, elas estão no buffer escondido.</p>
+<p><strong>Como resolver:</strong> rode <code>:ls</code> e procure o <code>+</code>. Volte a ele com <code>:b número</code> e salve com <code>:w</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>vim a b c</code></td><td>Abre vários arquivos como buffers</td></tr>
+<tr><td><code>:e arquivo</code></td><td>Abre um arquivo no lugar do atual</td></tr>
+<tr><td><code>:e!</code></td><td>Recarrega o arquivo do disco, descartando alterações</td></tr>
+<tr><td><code>:ls</code> / <code>:ls!</code></td><td>Lista os buffers (com <code>!</code>, inclui os fora da lista)</td></tr>
+<tr><td><code>:bn</code> / <code>:bp</code></td><td>Próximo / anterior</td></tr>
+<tr><td><code>:bfirst</code> / <code>:blast</code></td><td>Primeiro / último</td></tr>
+<tr><td><code>:b N</code> / <code>:b nome</code></td><td>Vai para o buffer N ou que combine com o nome</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>^</kbd></td><td>Alterna com o buffer alternativo (<code>#</code>)</td></tr>
+<tr><td><code>:bd</code> / <code>:bd!</code></td><td>Fecha o buffer / fecha descartando alterações</td></tr>
+<tr><td><code>:wa</code> / <code>:qa</code> / <code>:xa</code></td><td>Salva todos / sai de todos / salva e sai</td></tr>
+<tr><td><code>:set hidden</code></td><td>Permite trocar de buffer sem salvar</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Listar</h3>
+<p>Qual comando mostra todos os buffers abertos?</p>
+<div class="ex-code">:<input data-answer="ls|buffers|files" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Ir ao buffer 4</h3>
+<p>Complete para ir direto ao buffer número 4:</p>
+<div class="ex-code">:<input data-answer="b 4|b4|buffer 4|buffer4" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Salvar tudo e sair</h3>
+<p>Qual comando salva todos os buffers modificados e sai do Vim?</p>
+<div class="ex-code">:<input data-answer="wqa|xa|wqall|xall" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. No <code>:ls</code> aparece <code>  2 #h + "notas.txt"</code>. O que isso quer dizer?</p>
+<label><input type="radio" name="q4"> O arquivo foi apagado do disco.</label>
+<label><input type="radio" name="q4"> É o buffer alternativo, está escondido e tem alterações não salvas.</label>
+<label><input type="radio" name="q4"> É o buffer na tela e está salvo.</label>
+<label><input type="radio" name="q4"> É somente leitura.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">5. Você digitou <code>:bn</code> e apareceu <code>E37</code>. Qual comando <strong>não</strong> resolve?</p>
+<label><input type="radio" name="q5"> <code>:w</code> e depois <code>:bn</code></label>
+<label><input type="radio" name="q5"> <code>:bn!</code></label>
+<label><input type="radio" name="q5"> <code>:set hidden</code> e depois <code>:bn</code></label>
+<label><input type="radio" name="q5"> <code>:ls</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Buffer é o arquivo carregado na memória; o disco só muda com <code>:w</code>.</li>
+  <li><code>vim a b c</code> e <code>:e arquivo</code> abrem buffers; <code>:ls</code> lista todos.</li>
+  <li><code>%</code> é o atual, <code>#</code> o alternativo, <code>+</code> modificado, <code>h</code> escondido.</li>
+  <li><code>:bn</code>, <code>:bp</code>, <code>:b N</code>, <code>:b nome</code> e <kbd>Ctrl</kbd>+<kbd>^</kbd> trocam de buffer.</li>
+  <li><code>E37</code> protege alterações não salvas; <code>:set hidden</code> desliga essa trava, e <code>:wa</code> salva tudo.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

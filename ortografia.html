@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — verificação ortográfica em português | Guia Vim</title>
+<meta name="description" content="Ligue o corretor ortográfico do Vim em português do Brasil: :set spell spelllang=pt_br, baixar o dicionário, ]s e [s para achar erros, z= para sugestões, zg e zw para ensinar palavras.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Verificação Ortográfica</span></h1>
+
+<p class="intro">O Vim tem um corretor ortográfico embutido, como os editores de texto comuns: ele sublinha palavras erradas, sugere correções e aprende palavras novas. Funciona em português, inglês e dezenas de outros idiomas, inclusive em vários ao mesmo tempo. É muito útil para escrever documentação, e-mails, mensagens de commit e textos em <a href="projeto-markdown.html">Markdown</a>.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Ligar e desligar o corretor com <code>:set spell</code>.</li>
+  <li>Escolher o idioma com <code>spelllang</code> e baixar o dicionário de português.</li>
+  <li>Pular entre erros com <code>]s</code> e <code>[s</code>.</li>
+  <li>Corrigir com <code>z=</code> e ensinar palavras com <code>zg</code> e <code>zw</code>.</li>
+  <li>Ligar o corretor só em alguns tipos de arquivo.</li>
+</ul>
+</div>
+
+<div class="note">
+<strong>Sobre o simulador</strong>
+<p>O Vim simulado não tem corretor, e o <code>vim-tiny</code> também não. Use o Vim completo. As telas desta aula mostram o Vim real.</p>
+</div>
+
+<hr>
+
+<h2>Ligar o corretor</h2>
+<p>São duas opções: <code>spell</code> liga a verificação e <code>spelllang</code> diz o idioma.</p>
+
+<dl class="anatomy">
+  <dt>:set spell</dt><dd>Liga o corretor no arquivo atual.</dd>
+  <dt>spelllang=pt_br</dt><dd>Idioma: português (<code>pt</code>), região Brasil (<code>br</code>). Sem região, <code>pt</code> aceita as grafias do Brasil e de Portugal.</dd>
+</dl>
+
+<pre class="term" data-title="relatorio.txt — VIM">:set spell spelllang=pt_br</pre>
+
+<p>O idioma padrão do Vim é o inglês (<code>en</code>). Para corrigir os dois ao mesmo tempo, separe por vírgula: <code>:set spelllang=pt_br,en</code>. Para desligar, <code>:set nospell</code>.</p>
+
+<hr>
+
+<h2>Baixar o dicionário de português</h2>
+<p>O Vim vem só com o dicionário de inglês. Na primeira vez que você pede <code>pt_br</code>, ele não encontra o arquivo <code>pt.utf-8.spl</code> e se oferece para baixá-lo do site do Vim:</p>
+
+<pre class="term" data-title="relatorio.txt — VIM">Cannot find spell file for "pt" in utf-8
+Do you want me to try downloading it?
+[Y]es, (N)o: y
+Downloading pt.utf-8.spl...
+In which directory do you want to write the file:
+1. /home/ana/.vim/spell
+2. Cancel
+Enter a number: 1</pre>
+
+<ol class="passo">
+  <li><strong>Responda <kbd>y</kbd></strong> para baixar. Essas perguntas vêm de um script do Vim e aparecem em inglês.</li>
+  <li><strong>Escolha a pasta</strong> <code>~/.vim/spell</code> (no Windows, <code>~/vimfiles/spell</code>). Se ela não existir, o Vim pergunta se pode criá-la.</li>
+  <li><strong>Pronto.</strong> O dicionário fica salvo e não será baixado de novo.</li>
+</ol>
+
+<p>As telas acima são ilustrativas: o texto exato varia um pouco entre versões do Vim.</p>
+
+<div class="warning">
+<strong>O download precisa de duas coisas</strong>
+<p>O Vim baixa o arquivo pelo plugin <strong>netrw</strong>, que vem junto com o Vim completo, e por um programa de download do sistema (<code>curl</code> ou <code>wget</code>). Se o download falhar, baixe o arquivo <code>pt.utf-8.spl</code> à mão no site de arquivos do Vim (diretório <code>runtime/spell</code>) e coloque-o em <code>~/.vim/spell/</code>.</p>
+</div>
+
+<h3>Alternativa: gerar a partir do dicionário do sistema</h3>
+<p>Muitas distribuições Linux têm o dicionário do LibreOffice (Hunspell) em português. O Vim converte esse dicionário para o formato dele com <code>:mkspell</code>:</p>
+
+<pre class="term">$ sudo apt install hunspell-pt-br
+$ mkdir -p ~/.vim/spell
+$ vim -c 'mkspell! ~/.vim/spell/pt /usr/share/hunspell/pt_BR' -c q</pre>
+
+<dl class="anatomy">
+  <dt>sudo apt install hunspell-pt-br</dt><dd>Instala o dicionário Hunspell no Debian e no Ubuntu (no Fedora, o pacote é <code>hunspell-pt</code>; em outras distribuições o nome varia).</dd>
+  <dt>mkspell!</dt><dd>Gera o arquivo <code>.spl</code> do Vim; o <code>!</code> sobrescreve se já existir.</dd>
+  <dt>~/.vim/spell/pt</dt><dd>Nome de saída. O Vim cria <code>pt.utf-8.spl</code>.</dd>
+  <dt>/usr/share/hunspell/pt_BR</dt><dd>O dicionário de origem (os arquivos <code>pt_BR.aff</code> e <code>pt_BR.dic</code>).</dd>
+</dl>
+
+<p>A conversão pode levar alguns minutos e mostra mensagens de progresso. Depois disso, use <code>spelllang=pt</code>.</p>
+
+<hr>
+
+<h2>Como os erros aparecem</h2>
+<p>As palavras erradas ficam sublinhadas ou destacadas, conforme o terminal e o esquema de cores. Há quatro tipos:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Destaque</th><th>Grupo</th><th>Significa</th></tr>
+<tr><td>Sublinhado vermelho</td><td><code>SpellBad</code></td><td>Palavra não reconhecida</td></tr>
+<tr><td>Sublinhado azul</td><td><code>SpellCap</code></td><td>Deveria começar com maiúscula (início de frase)</td></tr>
+<tr><td>Sublinhado amarelo/ciano</td><td><code>SpellLocal</code></td><td>Palavra válida em outra região (grafia de Portugal com <code>pt_br</code>)</td></tr>
+<tr><td>Sublinhado roxo</td><td><code>SpellRare</code></td><td>Palavra rara</td></tr>
+</table>
+</div>
+
+<pre class="term" data-title="relatorio.txt — VIM">O relatorio ficou pronto ontem.     « "relatorio" sublinhado: falta acento
+ele sera enviado amanhã.            « "ele" (SpellCap) e "sera" (SpellBad)</pre>
+
+<hr>
+
+<h2>Pular entre erros: ]s e [s</h2>
+
+<dl class="anatomy">
+  <dt>]</dt><dd>"Próximo".</dd>
+  <dt>s</dt><dd><em>spell</em>: palavra com erro de ortografia.</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Vai para</th></tr>
+<tr><td><code>]s</code> / <code>[s</code></td><td>Próximo / anterior erro de qualquer tipo</td></tr>
+<tr><td><code>]S</code> / <code>[S</code></td><td>Próxima / anterior palavra <strong>não reconhecida</strong> (ignora maiúsculas e regiões)</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Corrigir: z=</h2>
+<p>Com o cursor na palavra errada, <code>z=</code> mostra uma lista numerada de sugestões:</p>
+
+<pre class="term" data-title="relatorio.txt — VIM">Alterar "relatorio" para:
+ 1 "relatório"
+ 2 "relatórios"
+ 3 "relator"
+ 4 "repertório"
+Digite um número e &lt;Enter&gt; (deixe em branco para cancelar):</pre>
+
+<p>Digite o número e <kbd>Enter</kbd>. As sugestões acima são ilustrativas: dependem do dicionário instalado.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>z=</code></td><td>Lista sugestões para a palavra sob o cursor</td></tr>
+<tr><td><code>1z=</code></td><td>Aplica direto a primeira sugestão, sem mostrar a lista</td></tr>
+<tr><td><code>:spellrepall</code></td><td>Repete a última correção em todas as ocorrências iguais do arquivo</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>s</kbd></td><td>No modo de inserção: sugestões no menu de completar (veja <a href="completar.html">Autocompletar</a>)</td></tr>
+</table>
+</div>
+
+<div class="tip">
+<strong>Fluxo rápido</strong>
+<p><code>]s</code> para chegar ao erro, <code>1z=</code> se a primeira sugestão costuma acertar, <code>z=</code> quando não. Repita até o fim do arquivo.</p>
+</div>
+
+<hr>
+
+<h2>Ensinar palavras: zg e zw</h2>
+<p>Nomes próprios, siglas e termos técnicos (<code>Kubernetes</code>, <code>nginx</code>) aparecem como erro. Em vez de ignorar toda vez, ensine o Vim:</p>
+
+<dl class="anatomy">
+  <dt>zg</dt><dd><em>good</em>: marca a palavra sob o cursor como correta, para sempre.</dd>
+  <dt>zw</dt><dd><em>wrong</em>: marca a palavra como errada, mesmo que esteja no dicionário.</dd>
+</dl>
+
+<pre class="term" data-title="relatorio.txt — VIM">Palavra 'nginx' adicionada a /home/ana/.vim/spell/pt.utf-8.add</pre>
+
+<p>As palavras ensinadas vão para um arquivo de texto (<code>pt.utf-8.add</code>), uma por linha. Você pode editá-lo e copiá-lo para outros computadores.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>zg</code> / <code>zw</code></td><td>Marca como correta / errada (permanente)</td></tr>
+<tr><td><code>zG</code> / <code>zW</code></td><td>O mesmo, só até fechar o Vim</td></tr>
+<tr><td><code>zug</code> / <code>zuw</code></td><td>Desfaz o <code>zg</code> / <code>zw</code> (remove da lista)</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Corretor só onde faz sentido</h2>
+<p>Em código, o corretor reclama de nomes de variáveis. O melhor é ligá-lo só em arquivos de texto, com um autocomando no <code>.vimrc</code>:</p>
+
+<pre class="file" data-file="~/.vimrc">" corretor em português só em texto, Markdown e mensagens de commit
+augroup corretor
+  autocmd!
+  autocmd FileType text,markdown,gitcommit setlocal spell spelllang=pt_br,en
+augroup END</pre>
+
+<dl class="anatomy">
+  <dt>FileType text,markdown,gitcommit</dt><dd>Quando o tipo de arquivo for um desses.</dd>
+  <dt>setlocal</dt><dd>Liga só no arquivo atual, sem afetar os outros abertos.</dd>
+  <dt>spelllang=pt_br,en</dt><dd>Aceita português do Brasil e inglês, útil para textos técnicos.</dd>
+</dl>
+
+<p>Em arquivos de código com cores de sintaxe, o Vim normalmente verifica só comentários e textos entre aspas, e não o código. Veja mais sobre isso em <a href="autocmd.html">Autocomandos</a>.</p>
+
+<hr>
+
+<h2>Formas diferentes de revisar um texto</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Como</th><th>Quando usar</th></tr>
+<tr><td>Revisão completa</td><td><code>gg</code> e depois <code>]s</code> + <code>z=</code> até o fim</td><td>Antes de publicar um texto</td></tr>
+<tr><td>Correção rápida</td><td><code>]s1z=</code> repetido</td><td>Erros óbvios, como acentos esquecidos</td></tr>
+<tr><td>Mesmo erro várias vezes</td><td><code>z=</code> uma vez e <code>:spellrepall</code></td><td>Uma palavra errada em todo o arquivo</td></tr>
+<tr><td>Durante a digitação</td><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>s</kbd></td><td>Corrigir sem sair do modo de inserção</td></tr>
+<tr><td>Substituir em massa</td><td><code>:%s/relatorio/relatório/g</code></td><td>Você já sabe a correção (veja <a href="substituir.html">Substituir</a>)</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>]s e z= não fazem nada</strong>
+<pre class="term" data-title="relatorio.txt — VIM">E756: A verificação ortográfica não está ativada</pre>
+<p><strong>O que aconteceu:</strong> a opção <code>spell</code> está desligada neste arquivo.</p>
+<p><strong>Como resolver:</strong> <code>:setlocal spell spelllang=pt_br</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"Não encontrada a lista de palavras"</strong>
+<pre class="term" data-title="relatorio.txt — VIM">Aviso: Não encontrada a lista de palavras "pt.utf-8.spl" ou "pt.ascii.spl"</pre>
+<p><strong>O que aconteceu:</strong> o dicionário de português não está instalado, e o download automático não rodou ou falhou.</p>
+<p><strong>Como resolver:</strong> confira se o netrw está disponível (<code>:Explore</code> deve abrir uma lista de arquivos) e se há <code>curl</code> ou <code>wget</code>. Ou gere o dicionário com <code>:mkspell</code>, como mostrado acima.</p>
+</div>
+
+<div class="cenario">
+<strong>Tudo aparece como erro</strong>
+<p><strong>O que aconteceu:</strong> o idioma está errado: o padrão é <code>en</code>, então todo o texto em português fica sublinhado.</p>
+<p><strong>Como resolver:</strong> <code>:set spelllang?</code> para conferir e <code>:set spelllang=pt_br</code> para corrigir.</p>
+</div>
+
+<div class="cenario">
+<strong>Não vejo os sublinhados</strong>
+<p><strong>O que aconteceu:</strong> alguns terminais não mostram sublinhado colorido, e alguns esquemas de cores deixam o destaque discreto demais.</p>
+<p><strong>Como resolver:</strong> teste outro esquema (<code>:colorscheme desert</code>) ou deixe o erro mais visível no <code>.vimrc</code>: <code>highlight SpellBad cterm=underline ctermfg=red</code>. Mesmo sem ver, <code>]s</code> encontra os erros.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:set spell</code> / <code>:set nospell</code></td><td>Liga / desliga o corretor</td></tr>
+<tr><td><code>:set spelllang=pt_br,en</code></td><td>Escolhe os idiomas</td></tr>
+<tr><td><code>]s</code> / <code>[s</code></td><td>Próximo / anterior erro</td></tr>
+<tr><td><code>]S</code> / <code>[S</code></td><td>Próxima / anterior palavra não reconhecida</td></tr>
+<tr><td><code>z=</code> / <code>1z=</code></td><td>Sugestões / aplica a primeira</td></tr>
+<tr><td><code>zg</code> / <code>zw</code></td><td>Marca como correta / errada</td></tr>
+<tr><td><code>zug</code> / <code>zuw</code></td><td>Desfaz o <code>zg</code> / <code>zw</code></td></tr>
+<tr><td><code>:spellrepall</code></td><td>Repete a última correção no arquivo inteiro</td></tr>
+<tr><td><code>:mkspell</code></td><td>Gera um dicionário do Vim a partir de outro formato</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>s</kbd></td><td>Sugestões no modo de inserção</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Ligar em português do Brasil</h3>
+<p>Complete o comando:</p>
+<div class="ex-code">:set spell spelllang=<input data-answer="pt_br|pt_br,en|pt" aria-label="idioma"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Próximo erro</h3>
+<p>Quais teclas levam ao próximo erro de ortografia?</p>
+<div class="ex-code"><input data-answer="]s" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Palavra técnica</h3>
+<p>O Vim marca <code>Kubernetes</code> como erro. Quais teclas o ensinam que a palavra está certa?</p>
+<div class="ex-code"><input data-answer="zg" aria-label="teclas"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Qual a diferença entre <code>spelllang=pt</code> e <code>spelllang=pt_br</code>?</p>
+<label><input type="radio" name="q4"> Nenhuma.</label>
+<label><input type="radio" name="q4"> <code>pt</code> aceita as grafias do Brasil e de Portugal; <code>pt_br</code> marca as de Portugal como de outra região.</label>
+<label><input type="radio" name="q4"> <code>pt_br</code> também corrige inglês.</label>
+<label><input type="radio" name="q4"> <code>pt</code> só funciona no Windows.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>:set spell spelllang=pt_br</code> liga o corretor em português do Brasil.</li>
+  <li>Na primeira vez, o Vim oferece baixar o dicionário; outra opção é gerar com <code>:mkspell</code>.</li>
+  <li><code>]s</code>/<code>[s</code> pulam entre erros; <code>z=</code> sugere; <code>1z=</code> aplica a primeira sugestão.</li>
+  <li><code>zg</code> ensina uma palavra; <code>zw</code> marca como errada.</li>
+  <li>Com um autocomando, o corretor liga só em texto, Markdown e commits.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

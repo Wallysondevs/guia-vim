@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — copiar e colar com a área de transferência do sistema | Guia Vim</title>
+<meta name="description" content="Como copiar do Vim para o navegador e colar de outros programas no Vim: registradores + e *, verificar +clipboard, instalar vim-gtk3 no Linux, Wayland, macOS, Windows, clipboard=unnamedplus e colar pelo terminal.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Área de Transferência do Sistema</span></h1>
+
+<p class="intro">O <code>y</code> e o <code>p</code> do Vim usam registradores <strong>internos</strong>: o que você copia com <code>yy</code> não aparece quando você aperta <kbd>Ctrl</kbd>+<kbd>V</kbd> no navegador. Para trocar texto com outros programas, o Vim tem dois registradores especiais, <code>+</code> e <code>*</code>, ligados à área de transferência do sistema. Eles só funcionam se o seu Vim tiver sido compilado com esse suporte.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Descobrir se o seu Vim tem suporte (<code>+clipboard</code>).</li>
+  <li>Instalar um Vim com suporte no Linux, no macOS e no Windows.</li>
+  <li>Copiar e colar com <code>"+y</code> e <code>"+p</code>, e a diferença entre <code>+</code> e <code>*</code>.</li>
+  <li>Fazer o <code>y</code> e o <code>p</code> normais usarem a área de transferência (<code>clipboard=unnamedplus</code>).</li>
+  <li>O plano B: colar pelo terminal, sem suporte nenhum.</li>
+</ul>
+</div>
+
+<div class="warning">
+<strong>Esta aula não tem Vim simulado</strong>
+<p>O simulador do guia roda dentro da página e não tem acesso à área de transferência do seu computador. Os exemplos abaixo são sessões reais de terminal. Para treinar <code>"+y</code> e <code>"+p</code>, use o Vim do seu sistema.</p>
+</div>
+
+<hr>
+
+<h2>Passo 1: o seu Vim tem suporte?</h2>
+<p>O comando <code>vim --version</code> lista os recursos com que o Vim foi compilado: <code>+</code> = tem, <code>-</code> = não tem. Filtrando pela palavra "clipboard":</p>
+
+<dl class="anatomy">
+  <dt>vim --version</dt><dd>Mostra a versão e a lista de recursos.</dd>
+  <dt>|</dt><dd>Pipe: manda a saída para o próximo comando.</dd>
+  <dt>grep clipboard</dt><dd>Mostra só as linhas com "clipboard".</dd>
+</dl>
+
+<p>No Ubuntu recém-instalado, o comando <code>vim</code> nem existe: vem só o <code>vim.tiny</code>, que atende como <code>vi</code>. Ele não tem suporte:</p>
+
+<pre class="term">$ vi --version | grep clipboard
+-clipboard           +mouse               +terminfo       « sem suporte
+-clipboard_provider  -mouseshape          +termresponse
+-eval                -perl                -wayland_clipboard
++iconv               -signs               -xterm_clipboard</pre>
+
+<p>Depois de instalar o pacote <code>vim-gtk3</code> (passo 2), o mesmo teste mostra:</p>
+
+<pre class="term">$ vim --version | grep clipboard
++clipboard           +mouse               +terminal       « com suporte
++clipboard_provider  +mouseshape          +terminfo
++ex_extra            +persistent_undo     +wayland_clipboard
++insert_expand       +signs               +xterm_clipboard</pre>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Recurso</th><th>Significa</th></tr>
+<tr><td><code>+clipboard</code></td><td>Tem os registradores <code>+</code> e <code>*</code>. É o que importa.</td></tr>
+<tr><td><code>+xterm_clipboard</code></td><td>Consegue usar a área de transferência pelo X11, inclusive rodando dentro de um terminal.</td></tr>
+<tr><td><code>+wayland_clipboard</code></td><td>Consegue usar a área de transferência do Wayland (o padrão do Ubuntu e do Fedora atuais).</td></tr>
+</table>
+</div>
+
+<p>Dentro do Vim, a pergunta equivalente é <code>:echo has('clipboard')</code>: responde <code>1</code> (tem) ou <code>0</code> (não tem). E <code>:echo has('clipboard_working')</code> diz se ela está <strong>funcionando agora</strong>; responde <code>0</code>, por exemplo, numa sessão SSH sem interface gráfica.</p>
+
+<hr>
+
+<h2>Passo 2: instalar um Vim com suporte</h2>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Sistema</th><th>Comando</th><th>Observação</th></tr>
+<tr><td>Ubuntu, Debian, Mint</td><td><code>sudo apt install vim-gtk3</code></td><td>Instala o comando <code>vim</code> completo (que funciona no terminal) e o <code>gvim</code></td></tr>
+<tr><td>Fedora</td><td><code>sudo dnf install vim-X11</code></td><td>O Vim com suporte se chama <code>vimx</code></td></tr>
+<tr><td>Arch, Manjaro</td><td><code>sudo pacman -S gvim</code></td><td>Substitui o pacote <code>vim</code> e traz o <code>vim</code> com suporte</td></tr>
+<tr><td>macOS</td><td><code>brew install vim</code></td><td>O Vim do Homebrew tem suporte; ou use o MacVim</td></tr>
+<tr><td>Windows</td><td>Instalador oficial do Vim (gVim)</td><td>Já vem com suporte; no Windows, <code>+</code> e <code>*</code> são a mesma coisa</td></tr>
+</table>
+</div>
+
+<pre class="term">$ sudo apt install vim-gtk3
+$ vim --version | head -5
+VIM - Vi IMproved 9.1 (2024 Jan 02, compiled Aug 24 2026 22:11:12)
+Correções incluídas: 1-948, 950-2141
+Modificado por team+vim@tracker.debian.org
+Compilado por team+vim@tracker.debian.org
+Versão enorme com interface GTK3.  Recursos incluídos (+) ou não (-):</pre>
+
+<p>Não se preocupe com o "interface GTK3" no nome: o comando <code>vim</code> continua abrindo no terminal, como sempre. A interface gráfica só aparece se você rodar <code>gvim</code>. Repare também que agora o Vim fala português: o <code>vim.tiny</code> foi compilado sem suporte a traduções e mostra tudo em inglês, enquanto o Vim completo usa a tradução do pacote de idioma do sistema.</p>
+
+<hr>
+
+<h2>Passo 3: copiar e colar com "+ e "*</h2>
+<p>Com suporte, use o <code>+</code> como qualquer outro registrador (veja <a href="registradores.html">Registradores</a>):</p>
+
+<dl class="anatomy">
+  <dt>"+</dt><dd>O registrador da área de transferência do sistema (a de <kbd>Ctrl</kbd>+<kbd>C</kbd>/<kbd>Ctrl</kbd>+<kbd>V</kbd>).</dd>
+  <dt>yy</dt><dd>Copie a linha para lá.</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas (modo normal)</th><th>Faz</th></tr>
+<tr><td><code>"+yy</code></td><td>Copia a linha para a área de transferência</td></tr>
+<tr><td><code>"+yiw</code></td><td>Copia a palavra</td></tr>
+<tr><td><code>"+y</code> (no modo visual)</td><td>Copia a seleção</td></tr>
+<tr><td><code>"+p</code> / <code>"+P</code></td><td>Cola da área de transferência, depois / antes do cursor</td></tr>
+<tr><td><code>gg"+yG</code></td><td>Copia o arquivo inteiro</td></tr>
+<tr><td><code>&lt;C-r&gt;+</code> (no modo de inserção)</td><td>Cola enquanto digita</td></tr>
+</table>
+</div>
+
+<h3>A diferença entre + e * no Linux</h3>
+<p>O Linux tem <strong>duas</strong> áreas de transferência:</p>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Registrador</th><th>Área no Linux</th><th>Como você usa fora do Vim</th></tr>
+<tr><td><code>"+</code></td><td>CLIPBOARD</td><td><kbd>Ctrl</kbd>+<kbd>C</kbd> e <kbd>Ctrl</kbd>+<kbd>V</kbd></td></tr>
+<tr><td><code>"*</code></td><td>PRIMARY (seleção)</td><td>Selecionar com o mouse copia; o botão do meio cola</td></tr>
+</table>
+</div>
+<p>No macOS e no Windows existe uma área só, e <code>"+</code> e <code>"*</code> são a mesma coisa. Na dúvida, use <code>"+</code>.</p>
+
+<hr>
+
+<h2>Fazendo o y e o p usarem a área de transferência</h2>
+<p>Se você quer que todo <code>y</code> vá para a área de transferência e todo <code>p</code> venha dela, sem digitar <code>"+</code>, ajuste a opção <code>clipboard</code> no <code>~/.vimrc</code>:</p>
+
+<pre class="file" data-file="~/.vimrc">" y, d e p usam a área de transferência do sistema (Ctrl+C / Ctrl+V)
+set clipboard=unnamedplus
+" no macOS e no Windows, use: set clipboard=unnamed</pre>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Valor</th><th>O registrador sem nome passa a ser</th></tr>
+<tr><td><code>unnamedplus</code></td><td>O <code>+</code> (CLIPBOARD) — Linux</td></tr>
+<tr><td><code>unnamed</code></td><td>O <code>*</code> — no macOS/Windows é a área única; no Linux, a seleção</td></tr>
+<tr><td><code>unnamed,unnamedplus</code></td><td>Os dois ao mesmo tempo</td></tr>
+</table>
+</div>
+
+<div class="warning">
+<strong>O efeito colateral</strong>
+<p>Com <code>unnamedplus</code>, <strong>todo</strong> <code>dd</code> e <code>x</code> também vai para a área de transferência e apaga o que você tinha copiado no navegador. Se isso incomodar, deixe a opção desligada e use <code>"+y</code> só quando precisar.</p>
+</div>
+
+<hr>
+
+<h2>Plano B: sem suporte, pelo terminal</h2>
+<p>Num servidor por SSH ou num Vim sem <code>+clipboard</code>, você ainda pode usar a área de transferência do <strong>terminal</strong>:</p>
+
+<h3>Colar texto de fora no Vim</h3>
+<ol class="passo">
+  <li>Copie o texto no navegador com <kbd>Ctrl</kbd>+<kbd>C</kbd>.</li>
+  <li>No Vim, entre no modo de inserção (<code>i</code> ou <code>o</code>).</li>
+  <li>Cole com o atalho do terminal: <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> no Linux, <kbd>Cmd</kbd>+<kbd>V</kbd> no macOS, clique com o botão direito no Windows Terminal.</li>
+  <li>Aperte <kbd>Esc</kbd>.</li>
+</ol>
+
+<p>O terminal "digita" o texto para o Vim. Nos Vims atuais isso funciona bem, porque o terminal avisa o Vim que é uma colagem (<em>bracketed paste</em>). Em Vims antigos ou terminais simples, a indentação automática pode transformar o código colado numa "escada":</p>
+
+<pre class="syntax">def ola():
+    print("oi")
+        return True
+            # cada linha ganhou mais recuo</pre>
+
+<p>Se acontecer, desfaça com <code>u</code>, ligue o modo de colagem, cole e desligue:</p>
+
+<ol class="passo">
+  <li>No modo normal, digite <code>:set paste</code> e <kbd>Enter</kbd>. O Vim desliga a indentação automática.</li>
+  <li>Entre no modo de inserção com <code>i</code>; o rodapé mostra <code>-- INSERÇÃO (colar) --</code>.</li>
+  <li>Cole com <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> e aperte <kbd>Esc</kbd>.</li>
+  <li>Volte ao normal com <code>:set nopaste</code>.</li>
+</ol>
+
+<h3>Copiar do Vim para fora</h3>
+<p>Selecione o texto com o mouse no terminal e copie com <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd>. Se o Vim estiver com o mouse ligado (<code>set mouse=a</code>) e a seleção virar modo visual do Vim, segure <kbd>Shift</kbd> enquanto arrasta, para a seleção ser do terminal. Desligue os números de linha antes (<code>:set nonumber</code>), senão eles vão junto.</p>
+
+<hr>
+
+<h2>Formas diferentes de levar texto do Vim para o navegador</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Precisa de <code>+clipboard</code>?</th><th>Quando usar</th></tr>
+<tr><td><code>"+yy</code> e <kbd>Ctrl</kbd>+<kbd>V</kbd> no navegador</td><td>Sim</td><td>O jeito "certo", no seu computador.</td></tr>
+<tr><td><code>set clipboard=unnamedplus</code> + <code>yy</code></td><td>Sim</td><td>Você troca texto com outros programas o tempo todo.</td></tr>
+<tr><td>Seleção do terminal + <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd></td><td>Não</td><td>Servidores por SSH e Vims mínimos.</td></tr>
+<tr><td><code>:w !wl-copy</code> (Wayland) ou <code>:w !xclip -sel clip</code> (X11)</td><td>Não</td><td>Mandar o arquivo inteiro para a área de transferência com um programa externo (pacotes <code>wl-clipboard</code> / <code>xclip</code>).</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>W24: Clipboard register not available</strong>
+<pre class="syntax">W24: Clipboard register not available. See :h W24</pre>
+<p><strong>O que aconteceu:</strong> você usou <code>"+</code> ou <code>"*</code> num Vim sem <code>+clipboard</code>, como o <code>vim.tiny</code>. A mensagem aparece em inglês mesmo com o Vim em português.</p>
+<p><strong>Como resolver:</strong> instale o <code>vim-gtk3</code> (Ubuntu/Debian) ou o equivalente do seu sistema, ou use o plano B pelo terminal.</p>
+</div>
+
+<div class="cenario">
+<strong>Tenho +clipboard, mas "+p cola vazio por SSH</strong>
+<p><strong>O que aconteceu:</strong> numa sessão SSH, o <code>"+</code> é a área de transferência do <strong>servidor</strong>, que normalmente nem tem interface gráfica. <code>:echo has('clipboard_working')</code> responde <code>0</code>.</p>
+<p><strong>Como resolver:</strong> use a seleção do terminal (plano B), ou copie o arquivo para a sua máquina com <code>scp</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei Ctrl+V para colar e apareceu -- VISUAL/BLOCO --</strong>
+<p><strong>O que aconteceu:</strong> no modo normal, <kbd>Ctrl</kbd>+<kbd>V</kbd> é o modo visual de bloco do Vim, e não "colar".</p>
+<p><strong>Como resolver:</strong> <kbd>Esc</kbd>. Cole com <code>"+p</code> ou, no modo de inserção, com <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd>.</p>
+</div>
+
+<div class="cenario">
+<strong>O código colado virou uma escada</strong>
+<p><strong>O que aconteceu:</strong> o Vim recebeu a colagem como digitação, e a indentação automática somou recuo em cada linha.</p>
+<p><strong>Como resolver:</strong> <code>u</code>, depois <code>:set paste</code>, cole, e <code>:set nopaste</code>. Melhor ainda: use <code>"+p</code>, que cola sem passar pela digitação.</p>
+</div>
+
+<div class="cenario">
+<strong>Fedora: instalei o vim-X11 e o vim continua sem suporte</strong>
+<p><strong>O que aconteceu:</strong> no Fedora, o Vim com suporte é outro comando: <code>vimx</code>.</p>
+<p><strong>Como resolver:</strong> abra com <code>vimx</code>, ou crie um apelido no <code>~/.bashrc</code>: <code>alias vim='vimx'</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Faz</th></tr>
+<tr><td><code>vim --version | grep clipboard</code></td><td>Mostra se há suporte (<code>+clipboard</code>)</td></tr>
+<tr><td><code>:echo has('clipboard')</code></td><td>1 = tem suporte, 0 = não tem</td></tr>
+<tr><td><code>:echo has('clipboard_working')</code></td><td>1 = funcionando nesta sessão</td></tr>
+<tr><td><code>"+y{movimento}</code> / <code>"+yy</code></td><td>Copia para a área de transferência</td></tr>
+<tr><td><code>"+p</code> / <code>"+P</code></td><td>Cola dela</td></tr>
+<tr><td><code>"*y</code> / <code>"*p</code></td><td>Usa a seleção (PRIMARY) no Linux</td></tr>
+<tr><td><code>:set clipboard=unnamedplus</code></td><td><code>y</code> e <code>p</code> normais usam a área de transferência</td></tr>
+<tr><td><code>:set paste</code> / <code>:set nopaste</code></td><td>Liga / desliga o modo de colagem pelo terminal</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Copiar para fora</h3>
+<p>Complete para copiar a linha atual para a área de transferência do sistema:</p>
+<div class="ex-code"><input data-answer="&quot;+yy|&quot;+Y" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Instalar no Ubuntu</h3>
+<p>Complete o comando que instala um Vim com suporte à área de transferência:</p>
+<div class="ex-code">sudo apt install <input data-answer="vim-gtk3" aria-label="pacote"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. <code>vim --version | grep clipboard</code> mostra <code>-clipboard</code>. O que isso quer dizer?</p>
+<label><input type="radio" name="q3"> A área de transferência está vazia.</label>
+<label><input type="radio" name="q3"> Este Vim foi compilado sem suporte; <code>"+</code> não vai funcionar.</label>
+<label><input type="radio" name="q3"> O suporte está desligado e liga com <code>:set clipboard</code>.</label>
+<label><input type="radio" name="q3"> O Vim está no modo somente leitura.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. No Linux, qual registrador corresponde ao texto que você seleciona com o mouse e cola com o botão do meio?</p>
+<label><input type="radio" name="q4"> <code>"0</code></label>
+<label><input type="radio" name="q4"> <code>"+</code></label>
+<label><input type="radio" name="q4"> <code>""</code></label>
+<label><input type="radio" name="q4"> <code>"*</code></label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">5. Você está num servidor por SSH, sem interface gráfica. Qual o jeito mais simples de levar um trecho do Vim para o navegador do seu computador?</p>
+<label><input type="radio" name="q5"> Selecionar com o mouse no terminal e copiar com <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd>.</label>
+<label><input type="radio" name="q5"> <code>"+yy</code> no servidor.</label>
+<label><input type="radio" name="q5"> <code>yy</code> e <kbd>Ctrl</kbd>+<kbd>V</kbd> no navegador.</label>
+<label><input type="radio" name="q5"> Não há como.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>O <code>y</code>/<code>p</code> normal usa registradores internos; a área de transferência do sistema é o <code>"+</code> (e o <code>"*</code>, a seleção no Linux).</li>
+  <li>Só funciona com <code>+clipboard</code>: confira com <code>vim --version | grep clipboard</code>.</li>
+  <li>No Ubuntu/Debian, instale <code>vim-gtk3</code>; no Fedora use <code>vimx</code>; no Arch, <code>gvim</code>; no macOS, <code>brew install vim</code>.</li>
+  <li><code>set clipboard=unnamedplus</code> faz o <code>y</code>/<code>p</code> usarem a área de transferência, com o efeito colateral de todo <code>dd</code> ir para lá.</li>
+  <li>Sem suporte: cole no modo de inserção com <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> e copie com a seleção do terminal.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

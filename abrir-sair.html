@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — abrir e sair (sem pânico) | Guia Vim</title>
+<meta name="description" content="Como abrir arquivos no Vim e como sair dele: :q, :q!, :wq, :x, ZZ e ZQ explicados, o erro E37, arquivos novos, abrir numa linha específica e o que fazer quando nada funciona.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Abrir e Sair (sem pânico)</span></h1>
+
+<p class="intro">"Como eu saio do Vim?" é uma das perguntas mais vistas da história da internet: só a do Stack Overflow passou de milhões de visualizações. A resposta é curta, e depois desta aula você nunca mais vai ficar preso.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Abrir um arquivo, um arquivo novo e um arquivo direto numa linha.</li>
+  <li>As seis formas de sair: <code>:q</code>, <code>:q!</code>, <code>:wq</code>, <code>:x</code>, <code>ZZ</code> e <code>ZQ</code>.</li>
+  <li>Por que o Vim às vezes "não deixa sair" (o erro E37).</li>
+  <li>O que fazer quando o arquivo não pode ser salvo.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>Abrir um arquivo</h2>
+<p>No terminal, digite <code>vim</code> e o nome do arquivo:</p>
+
+<dl class="anatomy">
+  <dt>vim</dt><dd>O programa.</dd>
+  <dt>notas.txt</dt><dd>O arquivo a abrir. Pode ser um caminho, como <code>~/Documentos/notas.txt</code>.</dd>
+</dl>
+
+<pre class="term">$ vim notas.txt</pre>
+
+<p>O terminal inteiro vira o Vim. Na última linha aparece uma mensagem com o nome do arquivo, quantas linhas (<code>L</code>) e quantos bytes (<code>B</code>) ele tem:</p>
+
+<div class="vimtry" data-file="notas.txt">
+<pre class="vim-inicial">Comprar pão
+Pagar a conta de luz
+Ligar para o João</pre>
+<p class="try-task"><strong>Olhe o rodapé:</strong> <code>"notas.txt" 3L, 53B</code> quer dizer 3 linhas e 53 bytes. As letras com acento, como "ã", ocupam 2 bytes cada. Ainda não aperte nada: só observe.</p>
+</div>
+
+<h3>Arquivo que ainda não existe</h3>
+<p>Se o arquivo não existe, o Vim abre uma tela vazia e avisa com <code>[Novo]</code>. O arquivo só passa a existir no disco quando você salvar.</p>
+
+<pre class="term">$ vim lista-nova.txt
+~
+~
+"lista-nova.txt" [Novo]                       « ainda não existe no disco</pre>
+
+<p>Isso também quer dizer que um erro de digitação no nome abre um arquivo vazio em vez do que você queria. Viu <code>[Novo]</code> sem esperar? Saia com <code>:q</code> e confira o nome.</p>
+
+<h3>Abrir direto numa linha</h3>
+<p>Mensagens de erro de programas costumam dizer a linha do problema. O Vim abre já posicionado nela:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Abre o arquivo e…</th></tr>
+<tr><td><code>vim +42 app.py</code></td><td>Vai para a linha 42.</td></tr>
+<tr><td><code>vim + app.py</code></td><td>Vai para a última linha.</td></tr>
+<tr><td><code>vim +/erro log.txt</code></td><td>Vai para a primeira ocorrência de "erro".</td></tr>
+<tr><td><code>vim -R config.conf</code></td><td>Abre só para leitura (o comando <code>view</code> faz o mesmo).</td></tr>
+<tr><td><code>vim a.txt b.txt</code></td><td>Abre os dois; você vê o primeiro e passa ao próximo com <code>:n</code>.</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Sair: o essencial</h2>
+<p>Todos os comandos de sair começam com <code>:</code> (dois-pontos). Ao apertar <kbd>:</kbd> no modo normal, o cursor pula para o rodapé e espera um comando. Você digita e confirma com <kbd>Enter</kbd>.</p>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Abre a linha de comando no rodapé.</dd>
+  <dt>q</dt><dd>O comando <em>quit</em>, sair.</dd>
+  <dt>Enter</dt><dd>Executa.</dd>
+</dl>
+
+<p>Se você não mudou nada, <code>:q</code> sai na hora. Se mudou, o Vim se recusa e mostra um erro em vermelho:</p>
+
+<div class="vimdemo" data-file="notas.txt" data-keys="x:q&lt;CR&gt;">
+<pre class="vim-inicial">Comprar pão
+Pagar a conta de luz</pre>
+</div>
+
+<p>O <code>x</code> apagou o "C" e depois o <code>:q</code> foi recusado com <code>E37: Alterações não foram gravadas (adicione ! para forçar)</code>. Em inglês: <code>E37: No write since last change (add ! to override)</code>. O Vim está te protegendo: sair agora perderia a alteração. Você tem duas escolhas.</p>
+
+<h3>Escolha 1: salvar e sair com :wq</h3>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Linha de comando.</dd>
+  <dt>w</dt><dd><em>write</em>: grava o arquivo no disco.</dd>
+  <dt>q</dt><dd><em>quit</em>: sai.</dd>
+</dl>
+
+<div class="vimdemo" data-file="notas.txt" data-keys="A!&lt;Esc&gt;:w&lt;CR&gt;">
+<pre class="vim-inicial">Comprar pão</pre>
+</div>
+
+<p>Aqui separamos as duas partes para você ver a mensagem do <code>:w</code>: <code>"notas.txt" 1L, 14B gravado(s)</code>. Com <code>:wq</code> o Vim grava e fecha de uma vez.</p>
+
+<h3>Escolha 2: descartar e sair com :q!</h3>
+<p>A <kbd>!</kbd> no fim quer dizer "eu sei o que estou fazendo". O <code>:q!</code> sai jogando fora tudo o que não foi salvo. O arquivo no disco continua como estava da última vez que você salvou.</p>
+
+<div class="warning">
+<strong>Atenção</strong>
+<p><code>:q!</code> não pergunta nada e não tem como desfazer depois. Use quando tiver certeza de que não quer as alterações, por exemplo depois de apertar teclas sem querer.</p>
+</div>
+
+<div class="vimtry" data-file="lista.txt" data-col="17" data-save="1">
+<pre class="vim-inicial">Lista de comprass</pre>
+<pre class="vim-meta">Lista de compras</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está no <code>s</code> sobrando. Apague-o com <kbd>x</kbd>, depois salve e saia com <code>:wq</code> e <kbd>Enter</kbd>. Repare que, antes do <code>:wq</code>, o título da janela mostra um <code>+</code>: é o sinal de "alterado e não salvo".</p>
+</div>
+
+<hr>
+
+<h2>As seis formas de sair</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Salva?</th><th>Sai?</th><th>Quando usar</th></tr>
+<tr><td><code>:q</code></td><td>Não</td><td>Só se não houver alteração</td><td>Você só leu o arquivo.</td></tr>
+<tr><td><code>:q!</code></td><td>Não, descarta</td><td>Sim, sempre</td><td>Você quer jogar fora as alterações.</td></tr>
+<tr><td><code>:wq</code></td><td>Sim</td><td>Sim</td><td>Terminou de editar.</td></tr>
+<tr><td><code>:x</code></td><td>Só se houve alteração</td><td>Sim</td><td>Igual ao <code>:wq</code>, mas não regrava um arquivo que não mudou.</td></tr>
+<tr><td><code>ZZ</code></td><td>Só se houve alteração</td><td>Sim</td><td>O mesmo que <code>:x</code>, sem precisar do <kbd>:</kbd> nem do <kbd>Enter</kbd>.</td></tr>
+<tr><td><code>ZQ</code></td><td>Não, descarta</td><td>Sim</td><td>O mesmo que <code>:q!</code>.</td></tr>
+</table>
+</div>
+
+<p>Com vários arquivos abertos, acrescente <code>a</code> (de <em>all</em>, "todos"): <code>:qa</code>, <code>:qa!</code>, <code>:wqa</code>.</p>
+
+<div class="tip">
+<strong>:wq ou :x?</strong>
+<p>A diferença é sutil: <code>:wq</code> sempre grava, mesmo sem alterações, e isso muda a data de modificação do arquivo. <code>:x</code> e <code>ZZ</code> só gravam se algo mudou. Para o dia a dia, tanto faz. <code>ZZ</code> (com <kbd>Shift</kbd>) é o mais rápido de digitar.</p>
+</div>
+
+<div class="vimtry" data-file="recado.txt" data-col="1">
+<pre class="vim-inicial">Teste à vontade aqui.
+Apague algo com x, tente :q, veja o E37,
+depois saia com :q! ou ZQ.</pre>
+<p class="try-task"><strong>Treino livre:</strong> provoque o erro E37 de propósito e saia de três jeitos diferentes. Clique em <strong>Reiniciar</strong> para abrir de novo depois de cada saída.</p>
+</div>
+
+<hr>
+
+<h2>O meme: "como sair do Vim"</h2>
+<p>O Vim abre no modo normal, onde as letras são comandos. Quem não sabe disso tenta digitar "sair", "quit" ou "exit", e cada letra faz uma coisa diferente. Veja o que acontece, tecla por tecla, quando alguém digita <code>exit</code> no modo normal:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>O que o Vim entende</th></tr>
+<tr><td><code>e</code></td><td>Mova o cursor até o fim da palavra.</td></tr>
+<tr><td><code>x</code></td><td>Apague o caractere sob o cursor.</td></tr>
+<tr><td><code>i</code></td><td>Entre no modo de inserção.</td></tr>
+<tr><td><code>t</code></td><td>Escreva a letra "t" no texto.</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="importante.txt" data-keys="exit">
+<pre class="vim-inicial">arquivo importante</pre>
+</div>
+
+<p>Resultado: uma letra apagada, um "t" no lugar e o Vim no modo de inserção. A saída segura, de qualquer situação, é sempre a mesma:</p>
+
+<ol class="passo">
+  <li>Aperte <kbd>Esc</kbd> duas vezes. Isso volta ao modo normal e cancela qualquer comando pela metade.</li>
+  <li>Digite <code>:q!</code> e aperte <kbd>Enter</kbd> para sair sem salvar. Para salvar, use <code>:wq</code>.</li>
+</ol>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Digitei :wq e apareceu ":wq" no texto</strong>
+<p><strong>O que aconteceu:</strong> você estava no modo de inserção, com <code>-- INSERÇÃO --</code> no rodapé. Nele, o <kbd>:</kbd> é só um caractere.</p>
+<p><strong>Como resolver:</strong> aperte <kbd>Esc</kbd>, desfaça com <code>u</code> se quiser e só então digite <code>:wq</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"E32: Nenhum nome de arquivo"</strong>
+<p><strong>O que aconteceu:</strong> você abriu o Vim sem arquivo (só <code>vim</code>), escreveu algo e mandou salvar. O Vim não sabe onde gravar.</p>
+<p><strong>Como resolver:</strong> dê um nome: <code>:w notas.txt</code>. A partir daí, <code>:wq</code> funciona.</p>
+</div>
+
+<div class="cenario">
+<strong>"E45: opção 'readonly' está definida (adicione ! para forçar)"</strong>
+<p><strong>O que aconteceu:</strong> o arquivo foi aberto só para leitura, com <code>vim -R</code> ou <code>view</code>, ou o Vim percebeu que você não pode alterá-lo.</p>
+<p><strong>Como resolver:</strong> se o arquivo é seu, <code>:w!</code> força a gravação. Se ele pertence ao sistema, veja o próximo cenário.</p>
+</div>
+
+<div class="cenario">
+<strong>"E212: Impossível abrir arquivo para escrita"</strong>
+<pre class="term">$ vim /etc/hosts</pre>
+<p><strong>O que aconteceu:</strong> você editou um arquivo do sistema sem <code>sudo</code>. O Vim abre, deixa editar, mas não consegue gravar.</p>
+<p><strong>Como resolver:</strong> para não perder o trabalho, salve uma cópia em outro lugar com <code>:w ~/hosts-editado</code> e saia com <code>:q!</code>. Depois abra de novo do jeito certo: <code>sudoedit /etc/hosts</code> ou <code>sudo vim /etc/hosts</code>. Há também um truque para gravar com <code>sudo</code> de dentro do Vim, explicado em <a href="shell.html">Integração com o Shell</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>O Vim sumiu e voltei ao terminal</strong>
+<pre class="term">$ vim notas.txt
+
+[1]+  Parado                  vim notas.txt     « o Vim foi pausado, não fechado
+$ fg                                              « traz o Vim de volta</pre>
+<p><strong>O que aconteceu:</strong> você apertou <kbd>Ctrl</kbd>+<kbd>Z</kbd>, que pausa o programa e devolve o terminal. O Vim continua aberto, com as alterações, em segundo plano.</p>
+<p><strong>Como resolver:</strong> digite <code>fg</code> e <kbd>Enter</kbd>. Não abra o arquivo de novo, ou o Vim vai reclamar de um arquivo de troca (<em>swap</em>), assunto de <a href="socorro.html">Estou Preso no Vim!</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei Ctrl+C e apareceu uma mensagem</strong>
+<p>No modo normal, <kbd>Ctrl</kbd>+<kbd>C</kbd> não fecha o Vim. Ele só mostra a dica <code>Digite  :qa!  e aperte &lt;Enter&gt; para abandonar as alterações e sair do Vim</code>. É exatamente o que você deve fazer, se quiser sair sem salvar.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>vim arquivo</code></td><td>Abre (ou cria, ao salvar) o arquivo</td></tr>
+<tr><td><code>vim +N arquivo</code></td><td>Abre na linha N</td></tr>
+<tr><td><code>vim -R arquivo</code> / <code>view arquivo</code></td><td>Abre só para leitura</td></tr>
+<tr><td><code>:w</code></td><td>Salva</td></tr>
+<tr><td><code>:w nome</code></td><td>Salva com outro nome</td></tr>
+<tr><td><code>:q</code> / <code>:q!</code></td><td>Sai / sai descartando</td></tr>
+<tr><td><code>:wq</code>, <code>:x</code>, <code>ZZ</code></td><td>Salva e sai</td></tr>
+<tr><td><code>ZQ</code></td><td>Sai descartando</td></tr>
+<tr><td><code>:qa!</code></td><td>Sai de todos os arquivos, descartando</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Salvar e sair</h3>
+<p>Complete o comando que salva e sai:</p>
+<div class="ex-code">:<input data-answer="wq|x" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Sair descartando</h3>
+<p>Complete o comando que sai sem salvar, mesmo com alterações:</p>
+<div class="ex-code">:<input data-answer="q!|qa!" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Abrir na linha</h3>
+<p>Complete para abrir <code>app.py</code> direto na linha 120:</p>
+<div class="ex-code">vim <input data-answer="+120" aria-label="opção"> app.py</div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">4. Você mudou o arquivo e digitou <code>:q</code>. O que acontece?</p>
+<label><input type="radio" name="q4"> O Vim salva e sai.</label>
+<label><input type="radio" name="q4"> O Vim sai e perde as alterações.</label>
+<label><input type="radio" name="q4"> Aparece o erro E37 e o Vim continua aberto.</label>
+<label><input type="radio" name="q4"> O Vim pergunta se você quer salvar.</label>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">5. Qual comando é equivalente a <code>ZZ</code>?</p>
+<label><input type="radio" name="q5"> <code>:q!</code></label>
+<label><input type="radio" name="q5"> <code>:x</code></label>
+<label><input type="radio" name="q5"> <code>:w</code></label>
+<label><input type="radio" name="q5"> <code>ZQ</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Abra com <code>vim arquivo</code>; <code>[Novo]</code> no rodapé quer dizer que o arquivo ainda não existe.</li>
+  <li><code>:wq</code> (ou <code>:x</code>, ou <code>ZZ</code>) salva e sai. <code>:q!</code> (ou <code>ZQ</code>) sai sem salvar.</li>
+  <li>E37 é o Vim impedindo você de perder alterações: escolha entre <code>:wq</code> e <code>:q!</code>.</li>
+  <li>Perdido? <kbd>Esc</kbd> <kbd>Esc</kbd>, <code>:q!</code>, <kbd>Enter</kbd>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

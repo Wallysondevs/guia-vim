@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — registradores: ", 0, 1-9, a-z, _ e :reg | Guia Vim</title>
+<meta name="description" content="Os registradores do Vim explicados: o sem nome, o 0 (última cópia), 1 a 9 (histórico de apagados), a-z (seus), A-Z (anexar), _ (buraco negro), . : / e +. Como ler o :reg e usar Ctrl-r no modo de inserção.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Registradores</span></h1>
+
+<p class="intro">Outros editores têm <strong>uma</strong> área de transferência. O Vim tem dezenas, chamadas <strong>registradores</strong>, cada uma com um nome de uma letra ou símbolo. Algumas o Vim preenche sozinho (a última cópia, os últimos apagados, a última busca), e 26 são suas, para guardar o que quiser.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Como escolher um registrador: <code>"a</code> antes do comando.</li>
+  <li>O que fica em cada um: <code>"</code>, <code>0</code>, <code>1</code>–<code>9</code>, <code>-</code>, <code>a</code>–<code>z</code>, <code>_</code>, <code>.</code>, <code>:</code>, <code>/</code>, <code>+</code>.</li>
+  <li>Anexar texto a um registrador com a letra maiúscula.</li>
+  <li>Ler a saída do <code>:reg</code>, coluna por coluna.</li>
+  <li>Colar um registrador enquanto digita, com <kbd>Ctrl</kbd>+<kbd>r</kbd>.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Leia <a href="copiar-colar.html">Copiar e Colar</a>. Esta aula explica para onde vai o texto que <code>y</code>, <code>d</code>, <code>c</code> e <code>x</code> pegam.</p>
+</div>
+
+<hr>
+
+<h2>Escolhendo um registrador</h2>
+<p>Para usar um registrador específico, escreva <code>"</code> (aspas duplas) e o nome dele <strong>antes</strong> do comando de copiar, apagar ou colar:</p>
+
+<dl class="anatomy">
+  <dt>"a</dt><dd>Use o registrador <code>a</code>. As aspas avisam "o próximo caractere é um nome de registrador".</dd>
+  <dt>yy</dt><dd>Copie a linha (para dentro do <code>a</code>).</dd>
+</dl>
+
+<p>Depois, <code>"ap</code> cola o conteúdo do <code>a</code>. Enquanto isso, você pode copiar e apagar outras coisas à vontade: o <code>a</code> só muda quando você mandar.</p>
+
+<div class="vimdemo" data-file="lista.txt" data-keys="&quot;ayyj&quot;byyG&quot;bp&quot;ap">
+<pre class="vim-inicial">um
+dois
+tres</pre>
+</div>
+
+<p>Leia em partes: <code>"ayy</code> guarda "um" no <code>a</code>; <code>j</code> desce; <code>"byy</code> guarda "dois" no <code>b</code>; <code>G</code> vai ao fim; <code>"bp</code> cola o <code>b</code>; <code>"ap</code> cola o <code>a</code>. Dois "clipboards" independentes ao mesmo tempo.</p>
+
+<div class="vimtry" data-file="assinatura.txt">
+<pre class="vim-inicial">Atenciosamente,
+Ana Souza
+---
+Texto do e-mail.
+---</pre>
+<pre class="vim-meta">Atenciosamente,
+Ana Souza
+---
+Texto do e-mail.
+Atenciosamente,
+Ana Souza
+---</pre>
+<p class="try-task"><strong>Missão:</strong> guarde as duas primeiras linhas no registrador <code>s</code> (de "assinatura") com <code>"s2yy</code> e cole-as depois de "Texto do e-mail." com <code>"sp</code>.</p>
+</div>
+
+<hr>
+
+<h2>Os registradores que o Vim preenche sozinho</h2>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Nome</th><th>Guarda</th><th>Quem escreve</th></tr>
+<tr><td><code>""</code> (sem nome)</td><td>O último texto copiado <strong>ou</strong> apagado</td><td><code>y</code>, <code>d</code>, <code>c</code>, <code>x</code>, <code>s</code>; é o que o <code>p</code> usa</td></tr>
+<tr><td><code>"0</code></td><td>A última <strong>cópia</strong></td><td>Só o <code>y</code>; apagar não mexe nele</td></tr>
+<tr><td><code>"1</code> a <code>"9</code></td><td>Os últimos apagamentos de linha inteira ou de várias linhas, do mais novo (<code>1</code>) ao mais antigo (<code>9</code>)</td><td><code>dd</code>, <code>dj</code>, <code>dap</code>…; a cada novo, os outros andam uma casa</td></tr>
+<tr><td><code>"-</code></td><td>O último apagamento <strong>pequeno</strong> (dentro de uma linha)</td><td><code>dw</code>, <code>x</code>, <code>diw</code></td></tr>
+<tr><td><code>".</code></td><td>O último texto digitado no modo de inserção</td><td>Só leitura</td></tr>
+<tr><td><code>":</code></td><td>O último comando <code>:</code></td><td>Só leitura</td></tr>
+<tr><td><code>"/</code></td><td>A última busca</td><td>Só leitura</td></tr>
+<tr><td><code>"%</code></td><td>O nome do arquivo aberto</td><td>Só leitura</td></tr>
+<tr><td><code>"+</code> e <code>"*</code></td><td>A área de transferência do sistema</td><td>Veja <a href="area-transferencia.html">Área de Transferência</a></td></tr>
+</table>
+</div>
+
+<h3>Por que o 0 salva a sua cópia</h3>
+<p>O caso clássico: você copia algo, apaga outra coisa e, quando cola, vem o texto apagado. É que o <code>""</code> guarda o último texto copiado <em>ou</em> apagado. O <code>"0</code> só guarda cópias, então ele ainda tem o que você copiou:</p>
+
+<div class="vimdemo" data-file="config.txt" data-keys="yyjdd&quot;0P">
+<pre class="vim-inicial">nome = Ana
+linha errada
+fim</pre>
+</div>
+
+<p>Leia em partes: <code>yy</code> copia a linha "nome = Ana"; <code>j</code> desce; <code>dd</code> apaga "linha errada" (agora o <code>""</code> tem a linha apagada); <code>"0P</code> cola "nome = Ana", que estava a salvo no <code>0</code>, acima da linha atual. Um <code>P</code> sem o <code>"0</code> teria colado de volta a "linha errada".</p>
+
+<h3>O histórico de apagados: 1 a 9</h3>
+<p>Cada <code>dd</code> empurra o anterior para o registrador seguinte. Os 9 últimos apagamentos de linhas ficam guardados:</p>
+
+<div class="vimdemo" data-file="letras.txt" data-keys="dddddd&quot;1p&quot;2p&quot;3p">
+<pre class="vim-inicial">a
+b
+c
+d</pre>
+</div>
+
+<p>"a" foi apagada primeiro e acabou no <code>3</code>; "c", a última, ficou no <code>1</code>. Um truque do Vim real: depois de <code>"1p</code>, apertar <code>.</code> cola o <code>"2</code>, outro <code>.</code> cola o <code>"3</code>, e assim por diante. Com <code>"1pu.u.u.</code> você "folheia" o histórico até achar o que procura. O simulador desta página não imita esse truque; teste no seu Vim.</p>
+
+<hr>
+
+<h2>Seus registradores: a a z</h2>
+<p>As 26 letras minúsculas são suas. Nada do Vim escreve nelas sozinho. Use-as para guardar trechos que você vai colar várias vezes: uma assinatura, um bloco de código, uma URL.</p>
+
+<h3>Anexar com a letra maiúscula</h3>
+<p>Com a letra <strong>maiúscula</strong>, o texto é <strong>acrescentado</strong> ao que já está no registrador, em vez de substituí-lo. É perfeito para juntar linhas espalhadas pelo arquivo:</p>
+
+<dl class="anatomy">
+  <dt>"A</dt><dd>Registrador <code>a</code>, modo anexar (maiúsculo).</dd>
+  <dt>yy</dt><dd>Copie a linha e acrescente ao <code>a</code>.</dd>
+</dl>
+
+<div class="vimdemo" data-file="log.txt" data-keys="&quot;ayyjj&quot;AyyG&quot;ap">
+<pre class="vim-inicial">ERRO: disco cheio
+info: tudo ok
+ERRO: rede caiu
+--- erros:</pre>
+</div>
+
+<p>As duas linhas de erro, que estavam separadas, foram coladas juntas no fim. Comece sempre com a minúscula (<code>"ayy</code>) para esvaziar o registrador, e use a maiúscula nas seguintes.</p>
+
+<div class="vimtry" data-file="tarefas.txt">
+<pre class="vim-inicial">[x] lavar louça
+[ ] estudar Vim
+[x] pagar conta
+[ ] regar plantas
+PENDENTES:</pre>
+<pre class="vim-meta">[x] lavar louça
+[ ] estudar Vim
+[x] pagar conta
+[ ] regar plantas
+PENDENTES:
+[ ] estudar Vim
+[ ] regar plantas</pre>
+<p class="try-task"><strong>Missão:</strong> junte as tarefas pendentes (<code>[ ]</code>) no registrador <code>p</code> e cole embaixo de "PENDENTES:". Use <code>"pyy</code> na primeira e <code>"Pyy</code> na segunda.</p>
+</div>
+
+<hr>
+
+<h2>O buraco negro: _</h2>
+<p>O registrador <code>_</code> é um ralo: o que vai para lá some, e nenhum outro registrador é alterado. Use quando quiser apagar algo <strong>sem perder</strong> o que você copiou:</p>
+
+<dl class="anatomy">
+  <dt>"_</dt><dd>Use o buraco negro (de <em>black hole</em>).</dd>
+  <dt>dd</dt><dd>Apague a linha, sem guardar em lugar nenhum.</dd>
+</dl>
+
+<div class="vimdemo" data-file="modelo.txt" data-keys="yyj&quot;_ddp">
+<pre class="vim-inicial">linha modelo
+lixo
+fim</pre>
+</div>
+
+<p>O "lixo" saiu, mas o <code>p</code> ainda colou a "linha modelo" copiada no começo.</p>
+
+<hr>
+
+<h2>Colando registradores enquanto digita: Ctrl-r</h2>
+<p>No modo de inserção, <kbd>Ctrl</kbd>+<kbd>r</kbd> seguido do nome de um registrador cola o conteúdo dele ali, sem sair do modo de inserção:</p>
+
+<dl class="anatomy">
+  <dt>"ayiw</dt><dd>No modo normal: guarda a palavra no registrador <code>a</code>.</dd>
+  <dt>A</dt><dd>Vai para o fim da linha, no modo de inserção.</dd>
+  <dt>&lt;C-r&gt;a</dt><dd><kbd>Ctrl</kbd>+<kbd>r</kbd> e depois <kbd>a</kbd>: cola o registrador <code>a</code>.</dd>
+</dl>
+
+<div class="vimdemo" data-file="frase.txt" data-col="5" data-keys="&quot;ayiwA e mais &lt;C-r&gt;a&lt;Esc&gt;">
+<pre class="vim-inicial">um dois tres</pre>
+</div>
+
+<p>Alguns usos práticos de <kbd>Ctrl</kbd>+<kbd>r</kbd>:</p>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas (no modo de inserção)</th><th>Cola</th></tr>
+<tr><td><code>&lt;C-r&gt;"</code></td><td>O último texto copiado ou apagado</td></tr>
+<tr><td><code>&lt;C-r&gt;0</code></td><td>A última cópia</td></tr>
+<tr><td><code>&lt;C-r&gt;.</code></td><td>O último texto que você digitou</td></tr>
+<tr><td><code>&lt;C-r&gt;%</code></td><td>O nome do arquivo</td></tr>
+<tr><td><code>&lt;C-r&gt;+</code></td><td>A área de transferência do sistema</td></tr>
+</table>
+</div>
+<p>Na linha de comando (depois de <code>:</code> ou <code>/</code>), o <kbd>Ctrl</kbd>+<kbd>r</kbd> funciona igual. <code>:%s/&lt;C-r&gt;0/novo/g</code> substitui o texto copiado sem você precisar digitá-lo.</p>
+
+<hr>
+
+<h2>Lendo o :reg</h2>
+<p>O comando <code>:reg</code> (de <em>registers</em>) mostra o que há em cada registrador. Depois de copiar "um" com <code>"ayy</code>, apagar "dois" com <code>dw</code> e copiar "tres" com <code>yiw</code>, ele mostra:</p>
+
+<pre class="syntax">:reg
+Type Name Content
+  c  ""   tres
+  c  "0   tres
+  l  "a   um^J
+  c  "-   dois
+  c  "%   notas.txt
+Aperte ENTER ou digite um comando para continuar</pre>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Coluna</th><th>Significado</th></tr>
+<tr><td><code>Type</code> (tipo)</td><td><code>c</code> = caracteres (um pedaço de linha), <code>l</code> = linhas inteiras, <code>b</code> = bloco (do modo visual de bloco). O tipo decide como o <code>p</code> cola.</td></tr>
+<tr><td><code>Name</code> (nome)</td><td>O nome para usar com <code>"</code>: <code>"a</code>, <code>"0</code>…</td></tr>
+<tr><td><code>Content</code> (conteúdo)</td><td>O texto guardado. <code>^J</code> representa uma quebra de linha.</td></tr>
+</table>
+</div>
+
+<p>O cabeçalho <code>Type Name Content</code> aparece em inglês mesmo com o Vim em português, porque ele não tem tradução. Para ver só alguns registradores, passe os nomes: <code>:reg a0</code>. O simulador desta página também aceita <code>:reg</code>, com o cabeçalho traduzido.</p>
+
+<hr>
+
+<h2>Formas diferentes de não perder uma cópia</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Como</th><th>Quando usar</th></tr>
+<tr><td>Colar do <code>0</code></td><td><code>"0p</code></td><td>Você já apagou algo depois de copiar.</td></tr>
+<tr><td>Apagar no buraco negro</td><td><code>"_dd</code></td><td>Você sabe, antes de apagar, que vai colar depois.</td></tr>
+<tr><td>Registrador nomeado</td><td><code>"ayy</code> … <code>"ap</code></td><td>Você vai colar o mesmo trecho várias vezes.</td></tr>
+<tr><td>Colar por cima no visual</td><td><code>viwp</code></td><td>Trocar uma palavra pela copiada (veja <a href="visual.html">Modo Visual</a>).</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>E353: Não há nada no registrador a</strong>
+<p><strong>O que aconteceu:</strong> você tentou colar um registrador vazio. Os registradores começam vazios a cada vez que o Vim abre (a menos que o arquivo <code>~/.viminfo</code> os guarde).</p>
+<p><strong>Como resolver:</strong> confira com <code>:reg a</code> e copie algo para ele antes.</p>
+</div>
+
+<div class="cenario">
+<strong>Digitei "a e apareceu um " no texto</strong>
+<p><strong>O que aconteceu:</strong> você estava no modo de inserção.</p>
+<p><strong>Como resolver:</strong> <kbd>Esc</kbd> e <code>u</code>. Registradores com <code>"</code> são usados no modo normal; no modo de inserção, use <kbd>Ctrl</kbd>+<kbd>r</kbd>.</p>
+</div>
+
+<div class="cenario">
+<strong>O "A apagou o que eu tinha guardado</strong>
+<p><strong>O que aconteceu:</strong> com o <kbd>Caps Lock</kbd> desligado, você digitou <code>"a</code> em vez de <code>"A</code>, e a minúscula substitui o conteúdo.</p>
+<p><strong>Como resolver:</strong> <code>u</code> não traz o registrador de volta. Copie as linhas de novo: a primeira com <code>"a</code>, as seguintes com <code>"A</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"+p não colou nada</strong>
+<p><strong>O que aconteceu:</strong> o seu Vim foi compilado sem suporte à área de transferência (<code>-clipboard</code>).</p>
+<p><strong>Como resolver:</strong> veja <a href="area-transferencia.html">Área de Transferência do Sistema</a>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Faz</th></tr>
+<tr><td><code>"{reg}y…</code> / <code>"{reg}d…</code></td><td>Copia / apaga para o registrador</td></tr>
+<tr><td><code>"{reg}p</code></td><td>Cola o registrador</td></tr>
+<tr><td><code>"{A-Z}y…</code></td><td>Acrescenta ao registrador</td></tr>
+<tr><td><code>"_d…</code></td><td>Apaga sem guardar</td></tr>
+<tr><td><code>"0p</code></td><td>Cola a última cópia</td></tr>
+<tr><td><code>"1p</code> … <code>"9p</code></td><td>Cola um dos últimos apagamentos de linhas</td></tr>
+<tr><td><code>&lt;C-r&gt;{reg}</code></td><td>No modo de inserção ou na linha de comando: cola o registrador</td></tr>
+<tr><td><code>:reg</code> / <code>:reg ab</code></td><td>Mostra os registradores</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Guardar</h3>
+<p>Complete para copiar a linha atual para o registrador <code>x</code>:</p>
+<div class="ex-code"><input data-answer="&quot;xyy|&quot;xY" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Apagar sem perder</h3>
+<p>Complete para apagar a linha atual sem alterar nenhum registrador:</p>
+<div class="ex-code"><input data-answer="&quot;_dd" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. Você copiou com <code>yy</code>, depois apagou duas linhas com <code>dd</code> e <code>dd</code>. Onde está a cópia?</p>
+<label><input type="radio" name="q3"> No registrador <code>""</code></label>
+<label><input type="radio" name="q3"> No registrador <code>"0</code></label>
+<label><input type="radio" name="q3"> No registrador <code>"1</code></label>
+<label><input type="radio" name="q3"> Foi perdida</label>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">4. Na saída do <code>:reg</code>, o que significa um <code>l</code> na coluna Type?</p>
+<label><input type="radio" name="q4"> Registrador bloqueado (<em>locked</em>)</label>
+<label><input type="radio" name="q4"> Texto longo</label>
+<label><input type="radio" name="q4"> Linhas inteiras: o <code>p</code> cola numa linha nova</label>
+<label><input type="radio" name="q4"> Registrador local do arquivo</label>
+</div>
+
+<div class="vimtry" data-file="nomes.txt">
+<pre class="vim-inicial">Cliente: Maria
+remover esta linha
+Contato:</pre>
+<pre class="vim-meta">Cliente: Maria
+Contato: Maria</pre>
+<p class="try-task"><strong>Missão final:</strong> copie "Maria" para o registrador <code>m</code> (<code>$"myiw</code>), apague a linha do meio sem tocar nos registradores (<code>j"_dd</code>) e, no fim da linha "Contato:", digite um espaço e cole o <code>m</code> com <kbd>Ctrl</kbd>+<kbd>r</kbd> (<code>A &lt;C-r&gt;m&lt;Esc&gt;</code>).</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>"</code> + nome escolhe o registrador: <code>"ayy</code>, <code>"ap</code>.</li>
+  <li><code>""</code> guarda o último copiado ou apagado; <code>"0</code>, só a última cópia.</li>
+  <li><code>"1</code>–<code>"9</code> são o histórico de linhas apagadas; <code>"-</code>, o último apagamento pequeno.</li>
+  <li><code>a</code>–<code>z</code> são seus; a maiúscula (<code>"A</code>) anexa.</li>
+  <li><code>"_</code> apaga sem guardar; <kbd>Ctrl</kbd>+<kbd>r</kbd> cola registradores no modo de inserção.</li>
+  <li><code>:reg</code> mostra tudo: tipo (<code>c</code>, <code>l</code>, <code>b</code>), nome e conteúdo.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — desfazer e refazer (u, Ctrl-r) | Guia Vim</title>
+<meta name="description" content="Aprenda a desfazer e refazer no Vim com u e Ctrl-r: o que conta como uma alteração, como ler a mensagem do desfazer, contagens, o U maiúsculo e voltar no tempo com :earlier e :later.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Desfazer e Refazer</span></h1>
+
+<p class="intro">Errou? No Vim, quase nada é definitivo. O <code>u</code> desfaz a última alteração e o <kbd>Ctrl</kbd>+<kbd>r</kbd> refaz. Saber exatamente o que cada <code>u</code> desfaz é o que dá coragem para experimentar comandos novos.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Desfazer com <code>u</code> e refazer com <kbd>Ctrl</kbd>+<kbd>r</kbd>.</li>
+  <li>O que conta como "uma alteração" para o Vim.</li>
+  <li>Ler a mensagem <code>1 alteração; antes de #2  5 segundos atrás</code>.</li>
+  <li>Desfazer várias de uma vez com <code>3u</code>.</li>
+  <li>Voltar no tempo com <code>:earlier 10m</code>.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p><code>u</code> e <kbd>Ctrl</kbd>+<kbd>r</kbd> são comandos do <strong>modo normal</strong>. No modo de inserção, o <code>u</code> só escreve a letra "u". Aperte <kbd>Esc</kbd> antes.</p>
+</div>
+
+<hr>
+
+<h2>u: desfazer</h2>
+
+<dl class="anatomy">
+  <dt>u</dt><dd><em>undo</em>, desfazer: volta o texto ao estado de antes da última alteração.</dd>
+</dl>
+
+<p>Na demonstração, uma linha é apagada com <code>dd</code> e volta com <code>u</code>. Observe a mensagem que aparece no rodapé depois do <code>u</code>:</p>
+
+<div class="vimdemo" data-file="lista.txt" data-line="2" data-keys="ddu">
+<pre class="vim-inicial">arroz
+feijão
+café</pre>
+</div>
+
+<h3>Como ler a mensagem do desfazer</h3>
+<p>Depois do <code>u</code> o Vim escreveu <code>1 linha a mais; antes de #1  0 segundos atrás</code>. Cada pedaço quer dizer:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Pedaço</th><th>Significado</th></tr>
+<tr><td><code>1 linha a mais</code></td><td>O que mudou ao desfazer: o arquivo ganhou de volta uma linha. Quando o número de linhas não muda, aparece <code>1 alteração</code>.</td></tr>
+<tr><td><code>antes de #1</code></td><td>Você agora está no estado anterior à alteração número 1. O Vim numera cada alteração.</td></tr>
+<tr><td><code>0 segundos atrás</code></td><td>Há quanto tempo a alteração desfeita tinha sido feita.</td></tr>
+</table>
+</div>
+
+<p>No Vim em inglês, a mesma mensagem é <code>1 more line; before #1  0 seconds ago</code>.</p>
+
+<hr>
+
+<h2>O que conta como uma alteração</h2>
+<p>Esta é a regra mais importante desta aula:</p>
+<ul>
+  <li><strong>Cada comando do modo normal</strong> que muda o texto é uma alteração: <code>x</code>, <code>dd</code>, <code>dw</code>, <code>p</code>…</li>
+  <li><strong>Uma ida inteira ao modo de inserção</strong> é uma alteração só, não importa quantas letras você digitou. Do <code>i</code> até o <kbd>Esc</kbd>, tudo sai junto num único <code>u</code>.</li>
+</ul>
+
+<div class="vimdemo" data-file="diario.txt" data-keys="A e escrevi uma frase bem comprida&lt;Esc&gt;u">
+<pre class="vim-inicial">Hoje eu acordei</pre>
+</div>
+
+<p>Um único <code>u</code> apagou a frase inteira. Por isso vale sair do modo de inserção com frequência: cada <kbd>Esc</kbd> cria um "ponto de volta". Escreveu um parágrafo? <kbd>Esc</kbd>. Assim, se o próximo parágrafo der errado, o <code>u</code> leva só ele.</p>
+
+<div class="note">
+<strong>Detalhe</strong>
+<p>Mover o cursor com as setas no meio da inserção também divide a inserção em duas para o desfazer.</p>
+</div>
+
+<hr>
+
+<h2>Ctrl-r: refazer</h2>
+
+<dl class="anatomy">
+  <dt>Ctrl+r</dt><dd><em>redo</em>, refazer: aplica de novo a alteração que o <code>u</code> desfez.</dd>
+</dl>
+
+<div class="vimdemo" data-file="nome.txt" data-keys="xxxuu&lt;C-r&gt;">
+<pre class="vim-inicial">xyzVim</pre>
+</div>
+
+<p>Três <code>x</code> apagaram "x", "y" e "z", nessa ordem. Os dois <code>u</code> desfizeram as duas últimas alterações, trazendo de volta o "z" e o "y" (<code>yzVim</code>). O <kbd>Ctrl</kbd>+<kbd>r</kbd> refez uma delas, apagando o "y" de novo: o texto ficou <code>zVim</code>. A mensagem diz <code>após #2</code>: você está no estado logo depois da alteração número 2.</p>
+
+<div class="warning">
+<strong>O refazer some se você alterar algo</strong>
+<p>Depois de desfazer, se você fizer uma alteração nova (apagar, digitar…), aquilo que estava para ser refeito deixa de estar ao alcance do <kbd>Ctrl</kbd>+<kbd>r</kbd>. O Vim não perde de verdade: guarda numa "árvore de desfazer", acessível com <code>g-</code> e <code>g+</code> ou <code>:earlier</code>, explicados abaixo.</p>
+</div>
+
+<hr>
+
+<h2>Várias de uma vez: 3u</h2>
+<p>Como quase tudo no Vim, <code>u</code> e <kbd>Ctrl</kbd>+<kbd>r</kbd> aceitam um número: <code>3u</code> desfaz as três últimas alterações e <code>2</code> <kbd>Ctrl</kbd>+<kbd>r</kbd> refaz duas.</p>
+
+<div class="vimtry" data-file="letras.txt" data-max-keys="8">
+<pre class="vim-inicial">abcdef</pre>
+<pre class="vim-meta">cdef</pre>
+<p class="try-task"><strong>Missão:</strong> apague as 4 primeiras letras com <code>xxxx</code> (quatro alterações). Depois desfaça as quatro de uma vez com <code>4u</code> e refaça só duas com <code>2</code> e <kbd>Ctrl</kbd>+<kbd>r</kbd>. Resultado esperado: <code>cdef</code>.</p>
+</div>
+
+<hr>
+
+<h2>U maiúsculo: desfazer a linha</h2>
+<p>O <code>U</code> (maiúsculo) desfaz <strong>todas</strong> as alterações recentes feitas na última linha que você mexeu, de uma vez. O detalhe que confunde: o próprio <code>U</code> conta como uma alteração, então um <code>u</code> depois dele desfaz o <code>U</code>.</p>
+<p>Na prática, quase ninguém precisa dele. Se você apertou <code>U</code> sem querer (por exemplo, com o <kbd>Caps Lock</kbd> ligado), aperte <code>u</code> para voltar.</p>
+
+<hr>
+
+<h2>Voltar no tempo: :earlier e :later</h2>
+<p>Além de contar alterações, você pode voltar por <strong>tempo</strong>. Isso também alcança os ramos da árvore de desfazer que o <kbd>Ctrl</kbd>+<kbd>r</kbd> já não alcança.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Volta (ou avança) para…</th></tr>
+<tr><td><code>:earlier 10m</code></td><td>Como o texto estava 10 minutos atrás</td></tr>
+<tr><td><code>:earlier 30s</code></td><td>30 segundos atrás</td></tr>
+<tr><td><code>:earlier 3</code></td><td>3 alterações atrás (como <code>3u</code>, mas atravessando ramos)</td></tr>
+<tr><td><code>:earlier 1f</code></td><td>O estado da última vez que você salvou (<em>file</em>)</td></tr>
+<tr><td><code>:later 10m</code></td><td>10 minutos para a frente, desfazendo o <code>:earlier</code></td></tr>
+<tr><td><code>g-</code> / <code>g+</code></td><td>Estado anterior / seguinte em ordem de tempo, passando por todos os ramos</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>No simulador</strong>
+<p>O Vim simulado tem <code>u</code>, <kbd>Ctrl</kbd>+<kbd>r</kbd>, <code>:undo</code> e <code>:redo</code>, mas não <code>:earlier</code>, <code>:later</code>, <code>g-</code> e <code>g+</code>. Teste esses no seu Vim.</p>
+</div>
+
+<h3>E depois de fechar o arquivo?</h3>
+<p>Por padrão, o histórico de desfazer some quando você fecha o arquivo. Salvar <strong>não</strong> apaga o histórico: enquanto o arquivo estiver aberto, você pode desfazer até antes do <code>:w</code>. Para manter o histórico mesmo depois de fechar, existe o desfazer persistente (<code>:set undofile</code>), explicado em <a href="sessoes.html">Sessões e Undo Persistente</a>.</p>
+
+<hr>
+
+<h2>Formas diferentes de voltar atrás</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que acontece</th><th>Quando usar</th></tr>
+<tr><td><code>u</code></td><td>Desfaz a última alteração</td><td>Quase sempre.</td></tr>
+<tr><td><code>5u</code></td><td>Desfaz as 5 últimas</td><td>Quando você sabe quantas foram.</td></tr>
+<tr><td><code>:earlier 2m</code></td><td>Volta 2 minutos</td><td>"Estava bom há pouco tempo, não sei quantas alterações atrás."</td></tr>
+<tr><td><code>:earlier 1f</code></td><td>Volta ao último salvamento</td><td>"Quero o arquivo como estava quando salvei", sem fechar.</td></tr>
+<tr><td><code>:e!</code></td><td>Recarrega o arquivo do disco, descartando tudo que não foi salvo</td><td>"Quero começar de novo" (veja <a href="salvar.html">Salvar e Sair</a>).</td></tr>
+<tr><td><code>:q!</code></td><td>Sai sem salvar</td><td>Desistir de tudo.</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="linhas.txt">
+<pre class="vim-inicial">linha 1
+linha 2
+linha 3</pre>
+<pre class="vim-meta">linha 1</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está na linha 1. Apague as três linhas com <code>3dd</code>. Oops! Era para apagar só as duas últimas. Desfaça com <code>u</code> e corrija: desça com <code>j</code> e use <code>2dd</code>.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>O u escreveu a letra "u" no texto</strong>
+<p><strong>O que aconteceu:</strong> você estava no modo de inserção.</p>
+<p><strong>Como resolver:</strong> <kbd>Esc</kbd>, depois <code>u</code>. O "u" digitado faz parte da mesma inserção e some junto.</p>
+</div>
+
+<div class="cenario">
+<strong>Apareceu "Já está na alteração mais antiga"</strong>
+<p><strong>O que aconteceu:</strong> não há mais nada para desfazer. Você voltou até o estado em que o arquivo foi aberto.</p>
+<p><strong>Como resolver:</strong> nada a desfazer. Se foi longe demais, use <kbd>Ctrl</kbd>+<kbd>r</kbd>. No refazer, a mensagem equivalente é "Já está na alteração mais nova".</p>
+</div>
+
+<div class="cenario">
+<strong>O u desfez muito mais do que eu esperava</strong>
+<p><strong>O que aconteceu:</strong> tudo o que você digitou numa única ida ao modo de inserção é uma alteração só.</p>
+<p><strong>Como resolver:</strong> <kbd>Ctrl</kbd>+<kbd>r</kbd> traz de volta. Da próxima vez, aperte <kbd>Esc</kbd> com mais frequência enquanto escreve.</p>
+</div>
+
+<div class="cenario">
+<strong>Fechei o Vim, abri de novo e o u não volta nada</strong>
+<p><strong>O que aconteceu:</strong> o histórico de desfazer fica na memória e some ao fechar.</p>
+<p><strong>Como resolver:</strong> se você não salvou, a versão antiga é a que está no disco. Para o futuro, ligue o desfazer persistente (<code>set undofile</code> no <a href="vimrc.html">.vimrc</a>).</p>
+</div>
+
+<div class="cenario">
+<strong>Ctrl-r no modo de inserção não refez, e apareceu uma aspa</strong>
+<p><strong>O que aconteceu:</strong> no modo de inserção, <kbd>Ctrl</kbd>+<kbd>r</kbd> tem outra função: colar um registrador. O Vim mostra uma <code>"</code> esperando o nome dele.</p>
+<p><strong>Como resolver:</strong> <kbd>Esc</kbd> para cancelar, e <kbd>Esc</kbd> de novo para ir ao modo normal. Lá, <kbd>Ctrl</kbd>+<kbd>r</kbd> refaz.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>u</code></td><td>Desfaz a última alteração</td></tr>
+<tr><td><code>3u</code></td><td>Desfaz as 3 últimas alterações</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>r</kbd></td><td>Refaz o que foi desfeito</td></tr>
+<tr><td><code>U</code></td><td>Desfaz todas as alterações da última linha alterada</td></tr>
+<tr><td><code>:undo</code> / <code>:redo</code></td><td>O mesmo que <code>u</code> / <kbd>Ctrl</kbd>+<kbd>r</kbd></td></tr>
+<tr><td><code>:earlier 10m</code> / <code>:later 10m</code></td><td>Volta / avança no tempo</td></tr>
+<tr><td><code>:earlier 1f</code></td><td>Volta ao estado do último salvamento</td></tr>
+<tr><td><code>g-</code> / <code>g+</code></td><td>Anda na árvore de desfazer em ordem de tempo</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Desfazer</h3>
+<p>Qual tecla desfaz a última alteração?</p>
+<div class="ex-code"><input data-answer="u" aria-label="tecla"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Cinco minutos atrás</h3>
+<p>Complete o comando que volta o texto a como estava 5 minutos atrás:</p>
+<div class="ex-code">:<input data-answer="earlier 5m|ea 5m|earlier 300s" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">3. Você entrou no modo de inserção, digitou três frases e apertou <kbd>Esc</kbd>. Quantos <code>u</code> são necessários para apagar as três frases?</p>
+<label><input type="radio" name="q3"> 1</label>
+<label><input type="radio" name="q3"> 3</label>
+<label><input type="radio" name="q3"> Um por letra</label>
+<label><input type="radio" name="q3"> Um por palavra</label>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">4. O que significa "antes de #4" na mensagem do desfazer?</p>
+<label><input type="radio" name="q4"> Que faltam 4 alterações para desfazer.</label>
+<label><input type="radio" name="q4"> Que você desfez 4 alterações.</label>
+<label><input type="radio" name="q4"> Que o texto está como estava antes da alteração número 4.</label>
+<label><input type="radio" name="q4"> Que o arquivo tem 4 linhas.</label>
+</div>
+
+<div class="vimtry" data-file="frase.txt" data-col="7">
+<pre class="vim-inicial">O Vim muito é rápido</pre>
+<pre class="vim-meta">O Vim é rápido</pre>
+<p class="try-task"><strong>Missão final:</strong> o cursor está em "muito". Apague a palavra com <code>dw</code>. Agora desfaça com <code>u</code>, veja a mensagem, e refaça com <kbd>Ctrl</kbd>+<kbd>r</kbd>. Treine algumas vezes: a missão é cumprida quando "muito" estiver apagado.</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>u</code> desfaz, <kbd>Ctrl</kbd>+<kbd>r</kbd> refaz, e os dois aceitam número.</li>
+  <li>Um comando do modo normal é uma alteração; uma ida inteira ao modo de inserção também.</li>
+  <li>A mensagem diz o que mudou, em que ponto do histórico você está e há quanto tempo.</li>
+  <li><code>:earlier</code> e <code>:later</code> voltam e avançam no tempo, inclusive para o último salvamento (<code>:earlier 1f</code>).</li>
+  <li>O histórico vive enquanto o arquivo está aberto; salvar não o apaga.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

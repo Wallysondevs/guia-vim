@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — vimdiff: comparar arquivos e resolver conflitos | Guia Vim</title>
+<meta name="description" content="Compare arquivos lado a lado com vimdiff: ]c e [c para navegar, do e dp para copiar diferenças, :diffupdate, uso com git difftool e git mergetool e como resolver conflitos de merge.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">vimdiff</span></h1>
+
+<p class="intro">Você tem duas versões de um arquivo de configuração, uma do servidor e uma sua, e quer saber exatamente o que mudou. O <strong>vimdiff</strong> abre as duas lado a lado, pinta as diferenças e deixa você copiar trechos de um lado para o outro com duas teclas. Ele também resolve conflitos de merge do Git.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Abrir dois ou três arquivos em modo diff e ler as cores.</li>
+  <li>Pular entre diferenças com <code>]c</code> e <code>[c</code>.</li>
+  <li>Copiar diferenças com <code>do</code> e <code>dp</code>.</li>
+  <li>Usar o vimdiff com <code>git difftool</code> e <code>git mergetool</code>.</li>
+  <li>Resolver um conflito de merge, com e sem vimdiff.</li>
+</ul>
+</div>
+
+<div class="note">
+<strong>Sobre o simulador</strong>
+<p>O Vim simulado tem uma janela só e não compara arquivos. As telas de diff são do Vim real. O <code>vim-tiny</code> não tem diff: instale o pacote <code>vim</code> completo. A missão de conflito, mais abaixo, usa só comandos que você já conhece e roda no simulador.</p>
+</div>
+
+<hr>
+
+<h2>Abrir em modo diff</h2>
+<p>Há duas formas equivalentes, no terminal:</p>
+
+<dl class="anatomy">
+  <dt>vimdiff</dt><dd>Atalho para <code>vim -d</code>: abre o Vim em modo diff.</dd>
+  <dt>servidor.conf</dt><dd>Primeiro arquivo: fica na janela da esquerda.</dd>
+  <dt>meu.conf</dt><dd>Segundo arquivo: fica na janela da direita.</dd>
+</dl>
+
+<pre class="term">$ vimdiff servidor.conf meu.conf
+$ vim -d servidor.conf meu.conf</pre>
+
+<p>Os dois comandos fazem o mesmo. O resultado é parecido com isto:</p>
+
+<pre class="term" data-title="servidor.conf (~) — VIM">porta = 8080                │porta = 8080
+timeout = 30                │timeout = 60                « linha alterada
+-------------------------   │cache = sim                 « só existe na direita
+log = /var/log/app.log      │log = /var/log/app.log
+servidor.conf                meu.conf</pre>
+
+<p>Na tela real, as diferenças aparecem coloridas:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Cor (tema padrão)</th><th>Grupo</th><th>Significa</th></tr>
+<tr><td>Fundo roxo ou azul</td><td><code>DiffChange</code></td><td>A linha existe nos dois lados, mas mudou</td></tr>
+<tr><td>Fundo vermelho, no trecho exato</td><td><code>DiffText</code></td><td>A parte da linha que mudou</td></tr>
+<tr><td>Fundo azul</td><td><code>DiffAdd</code></td><td>Linha que só existe deste lado</td></tr>
+<tr><td>Traços <code>---</code></td><td><code>DiffDelete</code></td><td>Espaço reservado: do outro lado há linhas que aqui não existem</td></tr>
+</table>
+</div>
+
+<p>As linhas iguais por muito tempo ficam recolhidas numa <a href="dobras.html">dobra</a> (<code>+-- 25 lines: …</code>). Use <code>zo</code> para abrir uma e <code>zR</code> para abrir todas.</p>
+
+<div class="tip">
+<strong>Rolagem amarrada</strong>
+<p>As duas janelas rolam juntas: ao descer numa, a outra acompanha. Para trocar de janela, use <kbd>Ctrl</kbd>+<kbd>W</kbd> <kbd>W</kbd> (veja <a href="janelas.html">Janelas</a>).</p>
+</div>
+
+<hr>
+
+<h2>Pular entre diferenças: ]c e [c</h2>
+
+<dl class="anatomy">
+  <dt>]</dt><dd>"Próximo", como em outros comandos de colchete.</dd>
+  <dt>c</dt><dd><em>change</em>: o próximo bloco que mudou.</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Vai para</th></tr>
+<tr><td><code>]c</code></td><td>O começo da próxima diferença</td></tr>
+<tr><td><code>[c</code></td><td>O começo da diferença anterior</td></tr>
+<tr><td><code>3]c</code></td><td>Três diferenças à frente</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Copiar diferenças: do e dp</h2>
+<p>Com o cursor numa diferença, duas teclas resolvem:</p>
+
+<dl class="anatomy">
+  <dt>do</dt><dd><em>diff obtain</em> (obter): traz para <strong>esta</strong> janela a versão da outra.</dd>
+  <dt>dp</dt><dd><em>diff put</em> (colocar): manda a versão <strong>desta</strong> janela para a outra.</dd>
+</dl>
+
+<p>Exemplo: o cursor está na janela da direita (<code>meu.conf</code>), na linha <code>timeout = 60</code>. Você quer o valor do servidor:</p>
+
+<pre class="term" data-title="meu.conf — VIM, depois de do">porta = 8080                │porta = 8080
+timeout = 30                │timeout = 30                « veio da esquerda
+-------------------------   │cache = sim
+log = /var/log/app.log      │log = /var/log/app.log</pre>
+
+<p>A linha deixa de ser diferença e perde a cor. O arquivo da direita agora está modificado: salve com <code>:w</code>, ou salve todos e saia com <code>:wqa</code>.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>do</code> / <code>:diffget</code></td><td>Copia a diferença da outra janela para esta</td></tr>
+<tr><td><code>dp</code> / <code>:diffput</code></td><td>Copia a diferença desta janela para a outra</td></tr>
+<tr><td><code>:'&lt;,'&gt;diffget</code></td><td>Copia só as linhas selecionadas no modo visual</td></tr>
+<tr><td><code>:diffupdate</code></td><td>Recalcula as diferenças (depois de editar à mão)</td></tr>
+<tr><td><code>:diffoff!</code></td><td>Sai do modo diff em todas as janelas</td></tr>
+<tr><td><code>:windo diffthis</code></td><td>Liga o modo diff nas janelas já abertas</td></tr>
+</table>
+</div>
+
+<div class="warning">
+<strong>Edições à mão bagunçam as cores</strong>
+<p>Ao digitar diretamente num dos lados, o Vim nem sempre atualiza as cores na hora. Se elas parecerem erradas, rode <code>:diffupdate</code>.</p>
+</div>
+
+<hr>
+
+<h2>Ajustar a comparação: diffopt</h2>
+<p>A opção <code>diffopt</code> muda como o Vim compara. Duas configurações úteis no <code>.vimrc</code>:</p>
+
+<pre class="file" data-file="~/.vimrc">" ignora diferenças só de espaços em branco
+set diffopt+=iwhite
+" algoritmo que costuma alinhar melhor blocos de código
+set diffopt+=algorithm:histogram,indent-heuristic</pre>
+
+<hr>
+
+<h2>Com o Git: difftool e mergetool</h2>
+<p>O Git sabe usar o vimdiff para mostrar diferenças e para resolver conflitos. Configure uma vez:</p>
+
+<pre class="term">$ git config --global diff.tool vimdiff
+$ git config --global merge.tool vimdiff
+$ git config --global difftool.prompt false
+$ git config --global mergetool.keepBackup false</pre>
+
+<dl class="anatomy">
+  <dt>diff.tool vimdiff</dt><dd>Usa o vimdiff no <code>git difftool</code>.</dd>
+  <dt>merge.tool vimdiff</dt><dd>Usa o vimdiff no <code>git mergetool</code>.</dd>
+  <dt>difftool.prompt false</dt><dd>Não pergunta "Launch 'vimdiff'?" a cada arquivo.</dd>
+  <dt>mergetool.keepBackup false</dt><dd>Não deixa arquivos <code>.orig</code> espalhados depois de resolver.</dd>
+</dl>
+
+<h3>Ver o que mudou</h3>
+<pre class="term" data-cwd="~/projeto">$ git difftool
+$ git difftool HEAD~1 -- config.py</pre>
+
+<p>O Git abre um vimdiff por arquivo alterado: à esquerda a versão antiga, à direita a atual. Saia com <code>:qa</code> para ir ao próximo.</p>
+
+<h3>Resolver um conflito de merge</h3>
+<pre class="term" data-cwd="~/projeto">$ git merge feature
+Mesclagem automática de config.py
+CONFLITO (conteúdo): conflito de mesclagem em config.py
+Automatic merge failed; fix conflicts and then commit the result.
+$ git mergetool</pre>
+
+<p>As mensagens do Git em português variam conforme a versão e as traduções instaladas; algumas linhas continuam em inglês. O <code>git mergetool</code> abre quatro janelas:</p>
+
+<pre class="term" data-title="config.py — VIM">  LOCAL           │  BASE            │  REMOTE
+  (sua versão)    │  (o ancestral)   │  (a que chegou)
+──────────────────┴──────────────────┴──────────────────
+  MERGED: o arquivo final, com os marcadores de conflito</pre>
+
+<p>O cursor começa na janela de baixo, <code>MERGED</code>. Em cada conflito (<code>]c</code> para o próximo), escolha de onde vem o texto:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando (na janela MERGED)</th><th>Fica com</th></tr>
+<tr><td><code>:diffget LOCAL</code></td><td>A sua versão</td></tr>
+<tr><td><code>:diffget REMOTE</code></td><td>A versão que chegou</td></tr>
+<tr><td><code>:diffget BASE</code></td><td>A versão original, de antes das duas mudanças</td></tr>
+<tr><td>Editar à mão</td><td>Uma mistura das duas</td></tr>
+</table>
+</div>
+
+<p>Os nomes <code>LOCAL</code>, <code>REMOTE</code> e <code>BASE</code> funcionam porque eles aparecem nos nomes dos arquivos temporários que o Git cria; basta digitar o começo e <kbd>Tab</kbd>. Ao terminar, salve tudo e saia com <code>:wqa</code>, depois conclua no terminal:</p>
+
+<pre class="term" data-cwd="~/projeto">$ git add config.py
+$ git commit</pre>
+
+<hr>
+
+<h2>Resolver um conflito sem vimdiff</h2>
+<p>Muitas vezes é mais rápido abrir o arquivo com conflito diretamente e apagar o que sobra. O Git marca o conflito assim:</p>
+
+<pre class="file" data-file="config.py">porta = 8080
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+timeout = 30
+=======
+timeout = 60
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature
+log = sim</pre>
+
+<dl class="anatomy">
+  <dt>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</dt><dd>Começo do conflito. Daqui até o <code>=======</code> está a <strong>sua</strong> versão.</dd>
+  <dt>=======</dt><dd>Divisória.</dd>
+  <dt>&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature</dt><dd>Fim do conflito. Entre a divisória e aqui está a versão que chegou (do branch <code>feature</code>).</dd>
+</dl>
+
+<p>Resolver é deixar só as linhas certas e apagar os três marcadores. Com o Vim, use a <a href="busca.html">busca</a> para chegar aos marcadores e o <code>dd</code> para apagar:</p>
+
+<div class="vimdemo" data-file="config.py" data-keys="/&lt;&lt;&lt;&lt;&lt;CR&gt;3dd/&gt;&gt;&gt;&lt;CR&gt;dd">
+<pre class="vim-inicial">porta = 8080
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+timeout = 30
+=======
+timeout = 60
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature
+log = sim</pre>
+</div>
+
+<p>Aqui ficamos com a versão que chegou: <code>/&lt;&lt;&lt;&lt;</code> leva ao começo do conflito, <code>3dd</code> apaga o marcador, a nossa linha e a divisória, e <code>/&gt;&gt;&gt;</code> + <code>dd</code> apaga o marcador final.</p>
+
+<div class="vimtry" data-file="config.py">
+<pre class="vim-inicial">porta = 8080
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+timeout = 30
+=======
+timeout = 60
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature
+log = sim</pre>
+<pre class="vim-meta">porta = 8080
+timeout = 30
+log = sim</pre>
+<p class="try-task"><strong>Missão:</strong> resolva o conflito ficando com a <strong>sua</strong> versão (<code>timeout = 30</code>). Apague os três marcadores e a linha <code>timeout = 60</code>. Dica: <code>/&lt;&lt;&lt;&lt;</code>, <kbd>Enter</kbd>, <code>dd</code>, depois <code>/====</code> e <code>3dd</code>.</p>
+</div>
+
+<div class="tip">
+<strong>Para ver se sobrou algum conflito</strong>
+<p>Procure por <code>/^&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>. Se o Vim disser <code>E486: Padrão não encontrado</code>, não sobrou nenhum. No terminal, <code>git diff --check</code> também avisa sobre marcadores esquecidos.</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de comparar</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Como</th><th>Quando usar</th></tr>
+<tr><td><code>diff -u a b</code> (no shell)</td><td>Texto com <code>+</code> e <code>-</code></td><td>Diferenças pequenas, rápidas de ler</td></tr>
+<tr><td><code>vimdiff a b</code></td><td>Lado a lado, colorido, editável</td><td>Juntar mudanças de duas versões</td></tr>
+<tr><td><code>:vert diffsplit b</code></td><td>Já dentro do Vim, abre <code>b</code> em diff com o arquivo atual</td><td>Você já está editando um dos arquivos</td></tr>
+<tr><td><code>git difftool</code></td><td>vimdiff para cada arquivo alterado</td><td>Revisar mudanças antes de um commit</td></tr>
+<tr><td>Marcadores à mão</td><td><code>/&lt;&lt;&lt;&lt;</code> + <code>dd</code></td><td>Conflitos pequenos de merge</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>do e dp não fazem nada</strong>
+<pre class="term" data-title="notas.txt — VIM">E99: O buffer atual não está no modo diff</pre>
+<p><strong>O que aconteceu:</strong> você abriu os arquivos com <code>vim a b</code> (sem <code>-d</code>) ou com <code>:split</code>, sem ligar o modo diff.</p>
+<p><strong>Como resolver:</strong> em cada janela, <code>:diffthis</code>, ou de uma vez: <code>:windo diffthis</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Com três arquivos, o do não sabe de onde pegar</strong>
+<pre class="term" data-title="config.py — VIM">E101: Há mais de dois buffers no modo diff; não sei quais usar</pre>
+<p><strong>O que aconteceu:</strong> no <code>git mergetool</code> há três origens possíveis.</p>
+<p><strong>Como resolver:</strong> diga qual: <code>:diffget LOCAL</code>, <code>:diffget REMOTE</code> ou <code>:diffget BASE</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>As cores ficaram desalinhadas depois que editei</strong>
+<p><strong>O que aconteceu:</strong> o Vim não recalcula o diff a cada tecla.</p>
+<p><strong>Como resolver:</strong> <code>:diffupdate</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"Não é um comando do editor" ao rodar :diffthis</strong>
+<pre class="term" data-title="notas.txt — VIM">E492: Não é um comando do editor: diffthis</pre>
+<p><strong>O que aconteceu:</strong> o seu Vim foi compilado sem diff (é o caso do <code>vim-tiny</code>).</p>
+<p><strong>Como resolver:</strong> instale o Vim completo (veja <a href="instalar.html">Instalar</a>). Confira com <code>vim --version | grep diff</code>: deve aparecer <code>+diff</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>vimdiff a b</code> / <code>vim -d a b</code></td><td>Abre em modo diff</td></tr>
+<tr><td><code>]c</code> / <code>[c</code></td><td>Próxima / anterior diferença</td></tr>
+<tr><td><code>do</code> / <code>dp</code></td><td>Obter da outra janela / colocar na outra</td></tr>
+<tr><td><code>:diffget X</code> / <code>:diffput X</code></td><td>O mesmo, escolhendo o buffer</td></tr>
+<tr><td><code>:diffupdate</code></td><td>Recalcula as diferenças</td></tr>
+<tr><td><code>:diffthis</code> / <code>:diffoff</code></td><td>Liga / desliga o diff na janela</td></tr>
+<tr><td><code>:vert diffsplit arq</code></td><td>Abre <code>arq</code> ao lado em modo diff</td></tr>
+<tr><td><code>zo</code> / <code>zR</code></td><td>Abre uma / todas as dobras de linhas iguais</td></tr>
+<tr><td><code>:wqa</code></td><td>Salva tudo e sai</td></tr>
+<tr><td><code>git difftool</code> / <code>git mergetool</code></td><td>Usam o vimdiff, se configurado</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Próxima diferença</h3>
+<p>Quais teclas levam à próxima diferença?</p>
+<div class="ex-code"><input data-answer="]c" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Trazer a versão da outra janela</h3>
+<p>Quais duas teclas copiam para esta janela a versão da outra?</p>
+<div class="ex-code"><input data-answer="do|:diffget" aria-label="teclas"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. No <code>git mergetool</code>, você quer ficar com a versão que veio do outro branch. Qual comando usar na janela MERGED?</p>
+<label><input type="radio" name="q3"> <code>:diffget LOCAL</code></label>
+<label><input type="radio" name="q3"> <code>:diffget BASE</code></label>
+<label><input type="radio" name="q3"> <code>:diffget REMOTE</code></label>
+<label><input type="radio" name="q3"> <code>dp</code></label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">4. Num conflito de merge, as linhas entre <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> e <code>=======</code> são:</p>
+<label><input type="radio" name="q4"> A sua versão (do branch em que você está).</label>
+<label><input type="radio" name="q4"> A versão que chegou do outro branch.</label>
+<label><input type="radio" name="q4"> A versão original, antes das mudanças.</label>
+<label><input type="radio" name="q4"> Um comentário do Git.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>vimdiff a b</code> (ou <code>vim -d</code>) abre os arquivos lado a lado, com as diferenças coloridas.</li>
+  <li><code>]c</code> e <code>[c</code> pulam entre diferenças; <code>do</code> e <code>dp</code> copiam de um lado para o outro.</li>
+  <li><code>:diffupdate</code> recalcula; <code>:wqa</code> salva tudo e sai.</li>
+  <li>Configurado no Git, o vimdiff abre com <code>git difftool</code> e <code>git mergetool</code> (<code>:diffget LOCAL</code>/<code>REMOTE</code>).</li>
+  <li>Conflitos pequenos se resolvem à mão: busque os marcadores e apague com <code>dd</code>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

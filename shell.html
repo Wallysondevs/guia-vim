@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — integração com o shell: :!, :r !, filtros e :w ! | Guia Vim</title>
+<meta name="description" content="Use o shell de dentro do Vim: rodar comandos com :!, inserir a saída com :r !, filtrar texto com :%!sort e jq, mandar o arquivo para um comando com :w !, suspender com Ctrl-Z e usar o Vim como editor do git e do crontab.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Integração com o Shell</span></h1>
+
+<p class="intro">O Vim não precisa saber ordenar, formatar JSON ou contar palavras: os programas do terminal já sabem. Esta aula mostra como o Vim conversa com o <strong>shell</strong> nas duas direções: rodar comandos sem sair do editor e passar o seu texto por um programa, recebendo o resultado de volta.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Rodar um comando do terminal sem sair do Vim, com <code>:!</code>.</li>
+  <li>Colocar a saída de um comando dentro do arquivo, com <code>:r !</code>.</li>
+  <li>Usar programas como <strong>filtros</strong>: <code>:%!sort</code>, <code>:%!jq .</code>, <code>!!date</code>.</li>
+  <li>Mandar o arquivo para um comando com <code>:w !</code>, incluindo o truque do <code>sudo tee</code>.</li>
+  <li>Ir e voltar entre o Vim e o terminal com <kbd>Ctrl</kbd>+<kbd>Z</kbd> e <code>fg</code>.</li>
+  <li>Usar o Vim como editor do git, do crontab e de outros programas.</li>
+</ul>
+</div>
+
+<div class="warning">
+<strong>Esta aula é para o Vim real</strong>
+<p>O Vim simulado deste guia não roda comandos do sistema. Os exemplos abaixo mostram o que aparece na tela do Vim de verdade. Abra um terminal e acompanhe; os comandos usados (<code>sort</code>, <code>date</code>, <code>wc</code>, <code>column</code>) existem no Linux e no macOS. No Windows, eles funcionam no WSL ou no Git Bash.</p>
+</div>
+
+<hr>
+
+<h2>O que é o shell</h2>
+<p>O <strong>shell</strong> é o programa que lê o que você digita no terminal, como o <code>bash</code> ou o <code>zsh</code>. Quando o Vim "roda um comando", ele entrega o texto a esse shell, espera o resultado e volta. Por isso, tudo o que funciona no seu terminal também funciona aqui.</p>
+
+<hr>
+
+<h2>:! — rodar um comando e voltar</h2>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Abre a linha de comando do Vim.</dd>
+  <dt>!</dt><dd>"Isto não é um comando do Vim, é do shell".</dd>
+  <dt>ls</dt><dd>O comando a rodar, exatamente como no terminal.</dd>
+</dl>
+
+<p>O Vim sai da frente, mostra a saída do comando e espera você apertar <kbd>Enter</kbd> para voltar ao arquivo:</p>
+
+<pre class="file" data-file="tela do Vim depois de :!ls">:!ls
+anotacoes.txt  config.json  script.sh
+
+Aperte ENTER ou digite um comando para continuar</pre>
+
+<p>Nada no seu arquivo mudou. O <code>:!</code> só mostra a saída. No Vim em inglês, a última linha é <code>Press ENTER or type command to continue</code>.</p>
+
+<h3>O nome do arquivo: %</h3>
+<p>Dentro de comandos do shell, <code>%</code> é trocado pelo nome do arquivo que você está editando. Isso permite rodar o próprio arquivo:</p>
+
+<pre class="term" data-title="terminal">$ vim calculo.py</pre>
+
+<pre class="file" data-file="tela do Vim depois de :!python3 %">:!python3 calculo.py
+Total: 42
+
+Aperte ENTER ou digite um comando para continuar</pre>
+
+<p>Repare que o Vim mostra o comando com o <code>%</code> já trocado. Lembre de salvar antes: o shell lê o arquivo do disco, e não o que está na tela. Dá para fazer as duas coisas de uma vez: <code>:w | !python3 %</code> (o <code>|</code> separa dois comandos do Vim).</p>
+
+<h3>Quando o comando dá erro</h3>
+<p>Se o programa termina com erro, o Vim avisa com o código de saída dele:</p>
+
+<pre class="file" data-file="tela do Vim depois de :!jqq">:!jqq
+/bin/bash: linha 1: jqq: comando não encontrado
+
+shell devolveu 127
+
+Aperte ENTER ou digite um comando para continuar</pre>
+
+<p><code>127</code> é o código do shell para "comando não encontrado". Veja mais sobre códigos de saída no <a href="https://wallysondevs.github.io/guia-ubuntu/sintaxe.html">Guia Ubuntu</a>.</p>
+
+<hr>
+
+<h2>:r ! — colocar a saída no arquivo</h2>
+<p>O <code>:r</code> (de <em>read</em>, ler) insere algo <strong>abaixo da linha do cursor</strong>. Com <code>!</code>, esse algo é a saída de um comando.</p>
+
+<dl class="anatomy">
+  <dt>:r</dt><dd>Ler e inserir abaixo do cursor.</dd>
+  <dt>!date</dt><dd>De onde ler: da saída do comando <code>date</code>.</dd>
+</dl>
+
+<div class="vimdemo" data-file="diario.txt" data-title="antes — diario.txt">
+<pre class="vim-inicial">Diário de bordo
+Hoje aprendi a usar o :r !</pre>
+</div>
+
+<div class="vimdemo" data-file="diario.txt" data-line="2" data-title="depois de :r !date — diario.txt">
+<pre class="vim-inicial">Diário de bordo
+qui. 15 out 2026 20:46:46 -03
+Hoje aprendi a usar o :r !</pre>
+</div>
+
+<p>O cursor estava na linha 1, e a data entrou logo abaixo dela. O formato da data depende do idioma do sistema; acima está como aparece num Linux em português.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que insere</th></tr>
+<tr><td><code>:r !date</code></td><td>A data e a hora atuais</td></tr>
+<tr><td><code>:r !ls</code></td><td>A lista de arquivos da pasta</td></tr>
+<tr><td><code>:r !curl -s https://exemplo.com/dados.txt</code></td><td>O conteúdo de uma página</td></tr>
+<tr><td><code>:r outro.txt</code></td><td>Sem <code>!</code>: o conteúdo de outro arquivo</td></tr>
+<tr><td><code>:0r !date</code></td><td>Com <code>0</code> na frente: insere no topo do arquivo</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Filtros: passar o texto por um programa</h2>
+<p>Aqui está o recurso mais poderoso da aula. Com uma <a href="ex-avancado.html">faixa</a> antes do <code>!</code>, o Vim <strong>envia aquelas linhas</strong> para o comando e <strong>troca as linhas pela saída</strong> dele. O programa vira uma ferramenta de edição.</p>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Linha de comando.</dd>
+  <dt>%</dt><dd>Faixa: o arquivo inteiro (aqui o <code>%</code> é uma faixa, e não o nome do arquivo).</dd>
+  <dt>!</dt><dd>Mandar essas linhas para um programa…</dd>
+  <dt>sort</dt><dd>…o <code>sort</code>, que ordena. A saída dele substitui as linhas.</dd>
+</dl>
+
+<div class="vimdemo" data-file="frutas.txt" data-title="antes — frutas.txt">
+<pre class="vim-inicial">uva
+banana
+maçã</pre>
+</div>
+
+<div class="vimdemo" data-file="frutas.txt" data-title="depois de :%!sort — frutas.txt">
+<pre class="vim-inicial">banana
+maçã
+uva</pre>
+</div>
+
+<h3>Filtros úteis</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:%!sort -u</code></td><td>Ordena e remove repetidas</td></tr>
+<tr><td><code>:%!jq .</code></td><td>Formata um JSON (precisa do programa <code>jq</code>)</td></tr>
+<tr><td><code>:%!python3 -m json.tool</code></td><td>Formata um JSON usando o Python</td></tr>
+<tr><td><code>:'&lt;,'&gt;!column -t</code></td><td>Alinha as colunas das linhas selecionadas</td></tr>
+<tr><td><code>:%!tr a-z A-Z</code></td><td>Tudo em maiúsculas</td></tr>
+<tr><td><code>:'&lt;,'&gt;!bc</code></td><td>Calcula as contas selecionadas (programa <code>bc</code>)</td></tr>
+</table>
+</div>
+
+<p>Um JSON todo amassado numa linha, formatado com <code>:%!python3 -m json.tool</code>:</p>
+
+<div class="vimdemo" data-file="config.json" data-title="antes — config.json">
+<pre class="vim-inicial">{"b":1,"a":[1,2]}</pre>
+</div>
+
+<div class="vimdemo" data-file="config.json" data-title="depois de :%!python3 -m json.tool — config.json">
+<pre class="vim-inicial">{
+    "b": 1,
+    "a": [
+        1,
+        2
+    ]
+}</pre>
+</div>
+
+<p>E uma tabela desalinhada, selecionada com <code>V</code> e alinhada com <code>!column -t</code>:</p>
+
+<div class="vimdemo" data-file="tabela.txt" data-title="antes — tabela.txt">
+<pre class="vim-inicial">nome idade cidade
+Ana 30 Recife
+Bernardo 4 Natal</pre>
+</div>
+
+<div class="vimdemo" data-file="tabela.txt" data-title="depois de :%!column -t — tabela.txt">
+<pre class="vim-inicial">nome      idade  cidade
+Ana       30     Recife
+Bernardo  4      Natal</pre>
+</div>
+
+<h3>O operador !</h3>
+<p>No modo normal, <code>!</code> também é um operador, como o <code>d</code>. Ele espera um movimento e abre a linha de comando com a faixa já preenchida. Você só digita o programa:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O Vim escreve</th><th>Você completa com</th></tr>
+<tr><td><code>!ip</code></td><td><code>:.,.+3!</code> (o parágrafo atual)</td><td><code>sort</code> e <kbd>Enter</kbd></td></tr>
+<tr><td><code>!G</code></td><td><code>:.,$!</code> (até o fim)</td><td><code>column -t</code> e <kbd>Enter</kbd></td></tr>
+<tr><td><code>!!</code></td><td><code>:.!</code> (só a linha atual)</td><td><code>date</code> e <kbd>Enter</kbd></td></tr>
+</table>
+</div>
+
+<p>O <code>!!date</code> troca a linha atual pela data. É um jeito rápido de carimbar a hora num diário.</p>
+
+<div class="warning">
+<strong>Atenção: o filtro substitui o texto</strong>
+<p>Se o comando falhar, a <strong>mensagem de erro</strong> dele toma o lugar das suas linhas. Por exemplo, <code>:%!jq .</code> num JSON quebrado deixa só <code>jq: parse error: ...</code> no arquivo. Não se assuste: <code>u</code> desfaz e o texto volta inteiro.</p>
+</div>
+
+<hr>
+
+<h2>:w ! — mandar o arquivo para um comando</h2>
+<p>O contrário do <code>:r !</code>: o <code>:w !</code> envia o texto <strong>para</strong> um comando, sem alterar o arquivo. O espaço importa: <code>:w !wc</code> manda para o programa <code>wc</code>, enquanto <code>:w!wc</code> (sem espaço) salvaria à força num arquivo chamado "wc".</p>
+
+<pre class="file" data-file="tela do Vim depois de :w !wc -l">:w !wc -l
+3
+
+Aperte ENTER ou digite um comando para continuar</pre>
+
+<p>O <code>wc -l</code> contou 3 linhas no que você está editando, mesmo sem salvar.</p>
+
+<h3>O truque do sudo</h3>
+<p>Você abriu um arquivo do sistema sem <code>sudo</code>, editou tudo e, na hora de salvar, aparece <code>E45: opção 'readonly' está definida</code> ou <code>E212: Impossível abrir arquivo para escrita</code>. Em vez de perder o trabalho, mande o texto para o <code>tee</code> rodando como administrador:</p>
+
+<dl class="anatomy">
+  <dt>:w !</dt><dd>Envia o texto para um comando…</dd>
+  <dt>sudo tee %</dt><dd>…o <code>tee</code>, que grava o que recebe num arquivo, rodando com <code>sudo</code>. O <code>%</code> vira o nome do arquivo atual.</dd>
+  <dt>&gt; /dev/null</dt><dd>Joga fora a cópia que o <code>tee</code> mostraria na tela.</dd>
+</dl>
+
+<pre class="file" data-file="linha de comando do Vim">:w !sudo tee % &gt; /dev/null</pre>
+
+<p>O <code>sudo</code> pede a sua senha no terminal. Depois, o Vim percebe que o arquivo mudou "por fora" e pergunta o que fazer, com uma mensagem parecida com esta:</p>
+
+<pre class="file" data-file="rodapé do Vim">W12: Aviso: arquivo "/etc/hosts" foi alterado e o buffer também foi alterado no Vim
+[O]K, (C)arregar arquivo:</pre>
+
+<p>Aperte <kbd>C</kbd> para carregar a versão que acabou de ser gravada.</p>
+
+<div class="tip">
+<strong>O jeito recomendado: sudoedit</strong>
+<p>Para arquivos do sistema, prefira abrir com <code>sudoedit /etc/hosts</code> (ou <code>sudo -e</code>). Ele copia o arquivo, abre a cópia no seu Vim com as <strong>suas</strong> configurações e grava de volta com permissão de administrador quando você sai. É mais seguro que rodar o Vim inteiro como root.</p>
+</div>
+
+<pre class="term">$ sudoedit /etc/hosts</pre>
+
+<hr>
+
+<h2>Ir e voltar entre o Vim e o terminal</h2>
+
+<h3>Ctrl+Z e fg</h3>
+<p>No terminal, <kbd>Ctrl</kbd>+<kbd>Z</kbd> <strong>suspende</strong> o Vim: ele fica pausado e você volta ao prompt. Para retomar, use <code>fg</code> (de <em>foreground</em>, primeiro plano). O Vim volta exatamente como estava, com desfazer e tudo.</p>
+
+<pre class="term">$ vim notas.txt
+[1]+  Parado                  vim notas.txt         « depois de Ctrl+Z dentro do Vim
+$ ls
+notas.txt  projeto
+$ fg                                               « volta para o Vim
+</pre>
+
+<p>Se você esquecer que deixou um Vim suspenso e tentar fechar o terminal, o shell avisa que há trabalhos parados. O comando <code>jobs</code> lista todos.</p>
+
+<h3>:sh e :terminal</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:sh</code></td><td>Abre um shell novo. Digite <code>exit</code> para voltar ao Vim.</td></tr>
+<tr><td><code>:terminal</code></td><td>Abre um terminal numa <a href="janelas.html">janela</a> dentro do Vim (Vim 8.1 ou mais novo, versão completa).</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Ler a saída de um comando direto no Vim</h2>
+<p>Um <code>-</code> no lugar do nome do arquivo faz o Vim ler o que chega pelo pipe (<code>|</code>). Ótimo para examinar saídas longas com busca, dobras e tudo o que o Vim oferece:</p>
+
+<pre class="term">$ ls -l /etc | vim -
+Vim: Lendo da entrada padrão...</pre>
+
+<p>O texto abre num buffer sem nome. Para salvar, dê um nome: <code>:w listagem.txt</code>. Para só olhar, use <code>vim -R -</code> (<em>read-only</em>) e saia com <code>:q!</code>. Por exemplo, <code>git diff | vim -R -</code>.</p>
+
+<hr>
+
+<h2>O Vim como editor de outros programas</h2>
+<p>Vários programas abrem um editor para você escrever algo: o <code>git</code> (mensagem do commit), o <code>crontab -e</code>, o <code>visudo</code>, o <code>sudoedit</code>. Eles olham as variáveis de ambiente <code>VISUAL</code> e <code>EDITOR</code> para saber qual editor usar.</p>
+
+<pre class="file" data-file="~/.bashrc (acrescente no fim)">export VISUAL=vim
+export EDITOR=vim</pre>
+
+<pre class="term">$ source ~/.bashrc
+$ git config --global core.editor vim                « só para o git
+$ crontab -e                                         « agora abre no Vim</pre>
+
+<p>No Debian e no Ubuntu existe também uma escolha para o sistema todo: <code>sudo update-alternatives --config editor</code>. No Ubuntu, <code>select-editor</code> escolhe o editor do <code>crontab</code>.</p>
+
+<h3>Mensagem de commit no Vim</h3>
+<p>Quando o <code>git commit</code> abre o Vim, o fluxo é: <code>i</code> para escrever a mensagem, <kbd>Esc</kbd>, e <code>:wq</code> para confirmar. Para <strong>desistir</strong> do commit, saia sem salvar com <code>:q!</code>: com a mensagem vazia, o git cancela.</p>
+
+<pre class="term">$ git commit
+Aborting commit due to empty commit message.         « depois de sair com :q!</pre>
+
+<hr>
+
+<h2>Formas diferentes de fazer</h2>
+<p>Exemplo: "ordenar as linhas e tirar as repetidas".</p>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Comando</th><th>Quando usar</th></tr>
+<tr><td>Do próprio Vim</td><td><code>:sort u</code></td><td>Funciona em qualquer sistema, até no Windows sem ferramentas extras.</td></tr>
+<tr><td>Filtro externo</td><td><code>:%!sort -u</code></td><td>Quando você precisa das opções do <code>sort</code> (por coluna, por versão, por número com unidade).</td></tr>
+<tr><td>Fora do Vim</td><td><code>sort -u arq.txt -o arq.txt</code></td><td>Quando nem precisa abrir o arquivo.</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"shell devolveu 127"</strong>
+<p><strong>O que aconteceu:</strong> o programa não existe ou o nome está errado. O código 127 significa "comando não encontrado".</p>
+<p><strong>Como resolver:</strong> confira o nome no terminal e, se faltar, instale o programa (por exemplo, <code>sudo apt install jq</code>).</p>
+</div>
+
+<div class="cenario">
+<strong>O filtro apagou meu texto e deixou uma mensagem de erro</strong>
+<p><strong>O que aconteceu:</strong> o comando falhou e a saída dele (o erro) substituiu as linhas. Exemplo com JSON inválido:</p>
+<pre class="file" data-file="config.json depois de :%!jq .">jq: parse error: Invalid numeric literal at line 2, column 0</pre>
+<p><strong>Como resolver:</strong> <code>u</code> desfaz e o texto original volta. Conserte o problema e tente de novo.</p>
+</div>
+
+<div class="cenario">
+<strong>O :!python3 % rodou a versão antiga do arquivo</strong>
+<p><strong>O que aconteceu:</strong> o comando lê o arquivo do disco, e você não tinha salvo as mudanças.</p>
+<p><strong>Como resolver:</strong> use <code>:w | !python3 %</code>, que salva antes de rodar.</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei Ctrl+Z e o Vim "sumiu"</strong>
+<p><strong>O que aconteceu:</strong> ele foi suspenso, não fechado. Nada se perdeu.</p>
+<p><strong>Como resolver:</strong> digite <code>fg</code> no terminal.</p>
+</div>
+
+<div class="cenario">
+<strong>"E32: Nenhum nome de arquivo" depois de vim -</strong>
+<p><strong>O que aconteceu:</strong> o texto que veio do pipe ainda não tem nome de arquivo, então o <code>:w</code> não sabe onde gravar.</p>
+<p><strong>Como resolver:</strong> dê um nome: <code>:w saida.txt</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:!cmd</code></td><td>Roda um comando e mostra a saída</td></tr>
+<tr><td><code>:!!</code></td><td>Repete o último <code>:!cmd</code></td></tr>
+<tr><td><code>:r !cmd</code></td><td>Insere a saída abaixo do cursor</td></tr>
+<tr><td><code>:r arquivo</code></td><td>Insere o conteúdo de outro arquivo</td></tr>
+<tr><td><code>:{faixa}!cmd</code></td><td>Filtra as linhas pelo comando (troca pela saída)</td></tr>
+<tr><td><code>!{movimento}</code> / <code>!!</code></td><td>Operador de filtro / filtra a linha atual</td></tr>
+<tr><td><code>:w !cmd</code></td><td>Envia o texto para o comando, sem alterar o arquivo</td></tr>
+<tr><td><code>:w !sudo tee % &gt; /dev/null</code></td><td>Grava como administrador</td></tr>
+<tr><td><code>%</code> (em comandos)</td><td>O nome do arquivo atual</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <code>fg</code></td><td>Suspende o Vim / volta para ele</td></tr>
+<tr><td><code>:sh</code>, <code>:terminal</code></td><td>Abre um shell / um terminal dentro do Vim</td></tr>
+<tr><td><code>cmd | vim -</code></td><td>Abre a saída de um comando no Vim</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Ordenar o arquivo com o sort do sistema</h3>
+<div class="ex-code">:<input data-answer="%!sort|1,$!sort" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Inserir a lista de arquivos da pasta abaixo do cursor</h3>
+<div class="ex-code">:<input data-answer="r !ls|r!ls|read !ls" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Voltar ao Vim depois de Ctrl+Z</h3>
+<p>Qual comando você digita no terminal?</p>
+<div class="ex-code">$ <input data-answer="fg" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Qual é a diferença entre <code>:!sort</code> e <code>:%!sort</code>?</p>
+<label><input type="radio" name="q4"> Nenhuma, as duas ordenam o arquivo.</label>
+<label><input type="radio" name="q4"> <code>:!sort</code> só roda o comando; <code>:%!sort</code> manda o arquivo para o sort e troca as linhas pelo resultado.</label>
+<label><input type="radio" name="q4"> <code>:%!sort</code> salva o arquivo antes de ordenar.</label>
+<label><input type="radio" name="q4"> <code>:!sort</code> ordena só a linha atual.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">5. Você rodou <code>:%!jq .</code> e o arquivo virou uma mensagem de erro. O que fazer?</p>
+<label><input type="radio" name="q5"> Fechar sem salvar e perder as alterações.</label>
+<label><input type="radio" name="q5"> Rodar o comando de novo.</label>
+<label><input type="radio" name="q5"> Copiar o erro e procurar na internet antes de qualquer coisa.</label>
+<label><input type="radio" name="q5"> Apertar <code>u</code> para desfazer e o texto original volta.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>:!cmd</code> roda um comando; <code>%</code> é o nome do arquivo atual.</li>
+  <li><code>:r !cmd</code> coloca a saída do comando dentro do arquivo.</li>
+  <li><code>:{faixa}!cmd</code> usa o comando como filtro e substitui as linhas pela saída; <code>u</code> desfaz se algo der errado.</li>
+  <li><code>:w !cmd</code> envia o texto para um comando; <code>:w !sudo tee %</code> salva como administrador, mas <code>sudoedit</code> é melhor.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Z</kbd> suspende, <code>fg</code> volta; <code>EDITOR=vim</code> faz outros programas usarem o Vim.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

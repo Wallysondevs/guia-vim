@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — instalar no Linux, macOS e Windows | Guia Vim</title>
+<meta name="description" content="Como instalar o Vim no Ubuntu, Debian, Fedora, Arch, openSUSE, Alpine, macOS e Windows; a diferença entre vim, vim-tiny e gvim; e como conferir os recursos com vim --version.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Instalar em Qualquer Sistema</span></h1>
+
+<p class="intro">O Vim existe para praticamente todo sistema operacional. Em muitos Linux e no macOS ele já vem instalado, mas às vezes numa versão reduzida. Nesta aula você instala a versão completa e aprende a conferir o que ela sabe fazer.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Instalar o Vim no Ubuntu, Debian, Fedora, Arch, openSUSE, Alpine, macOS e Windows.</li>
+  <li>A diferença entre <code>vim</code>, <code>vim-tiny</code> e <code>gvim</code>.</li>
+  <li>Ler o <code>vim --version</code> e descobrir se o seu Vim copia para a área de transferência.</li>
+  <li>Criar o seu primeiro arquivo de configuração.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>Primeiro: você já tem um Vim?</h2>
+<p>Abra um terminal e pergunte ao sistema onde estão os comandos <code>vim</code> e <code>vi</code>:</p>
+
+<dl class="anatomy">
+  <dt>type</dt><dd>Comando do shell que diz o que um nome é: um programa, um apelido, um comando interno.</dd>
+  <dt>vim vi</dt><dd>Os nomes a procurar. Pode passar vários.</dd>
+</dl>
+
+<pre class="term">$ type vim vi
+bash: type: vim: não encontrado                « o Vim completo não está instalado
+vi é /usr/bin/vi                               « mas existe um vi</pre>
+
+<p>Esse é o resultado típico num Ubuntu ou Debian recém-instalado: o <code>vi</code> existe, mas é o <code>vim.tiny</code>, uma versão reduzida. Ela edita texto normalmente, mas não tem cores de sintaxe, ajuda (<code>:help</code>) nem as mensagens em português.</p>
+
+<hr>
+
+<h2>Linux</h2>
+
+<h3>Ubuntu, Debian, Linux Mint e derivados</h3>
+
+<dl class="anatomy">
+  <dt>sudo</dt><dd>Roda o comando como administrador. Ele pede a sua senha.</dd>
+  <dt>apt install</dt><dd>O gerenciador de pacotes do Debian e do Ubuntu, instalando.</dd>
+  <dt>vim</dt><dd>O pacote do Vim completo, sem interface gráfica.</dd>
+</dl>
+
+<pre class="term">$ sudo apt install vim</pre>
+
+<p>O Debian e o Ubuntu têm vários pacotes do Vim. Todos instalam o mesmo editor, compilado com recursos diferentes. Antes de escolher, você pode ver qual versão o seu sistema oferece:</p>
+
+<pre class="term">$ apt policy vim
+vim:
+  Instalado: (nenhum)                          « ainda não está instalado
+  Candidato: 2:9.1.2141-1ubuntu4.9             « a versão que o apt instalaria
+  Tabela de versão:
+     2:9.1.2141-1ubuntu4.9 500
+        500 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 Packages</pre>
+
+<p>O <code>9.1.2141</code> quer dizer Vim 9.1 com 2141 correções (os <em>patches</em>). O número exato muda com as atualizações do sistema.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Pacote</th><th>O que tem</th><th>Escolha se…</th></tr>
+<tr><td><code>vim-tiny</code></td><td>Vim mínimo; é o <code>vi</code> padrão</td><td>Já vem instalado. Serve para emergências.</td></tr>
+<tr><td><code>vim</code></td><td>Vim completo no terminal, sem área de transferência do sistema</td><td>Você usa o Vim em servidores ou só no terminal.</td></tr>
+<tr><td><code>vim-gtk3</code></td><td>Vim completo + <code>gvim</code> (janela gráfica) + área de transferência</td><td>Você usa o Vim no desktop e quer copiar e colar com outros programas. <strong>Recomendado no desktop.</strong></td></tr>
+<tr><td><code>vim-nox</code></td><td>Vim completo com suporte a Python, Ruby, Lua e Tcl, sem interface gráfica</td><td>Algum plugin exige uma dessas linguagens.</td></tr>
+</table>
+</div>
+
+<p>Depois de instalar o <code>vim</code>, o comando <code>vi</code> passa a abrir o Vim completo também, e o tutorial <code>vimtutor</code> fica disponível.</p>
+
+<h3>Fedora, Red Hat, Rocky e AlmaLinux</h3>
+<p>No Fedora, o <code>vi</code> vem do pacote <code>vim-minimal</code>. O Vim completo se chama <code>vim-enhanced</code>, e o gráfico, <code>vim-X11</code>:</p>
+<pre class="term" data-host="fedora">$ sudo dnf install vim-enhanced</pre>
+
+<h3>Arch Linux, Manjaro e EndeavourOS</h3>
+<p>No Arch, o pacote <code>vim</code> não acessa a área de transferência gráfica. O pacote <code>gvim</code> instala o Vim de terminal com esse suporte e também a versão gráfica:</p>
+<pre class="term" data-host="arch">$ sudo pacman -S vim</pre>
+<p>Ou, para ter a área de transferência:</p>
+<pre class="term" data-host="arch">$ sudo pacman -S gvim</pre>
+
+<h3>openSUSE</h3>
+<pre class="term" data-host="suse">$ sudo zypper install vim</pre>
+
+<h3>Alpine (containers)</h3>
+<p>Imagens Alpine vêm só com o <code>vi</code> do BusyBox. Dentro de um container, rodando como root:</p>
+<pre class="term" data-user="root" data-host="container">#&gt; apk add vim</pre>
+
+<hr>
+
+<h2>macOS</h2>
+<p>O macOS já traz o Vim em <code>/usr/bin/vim</code>. Abra o app Terminal e digite <code>vim</code>. Ele é suficiente para aprender, mas não acessa a área de transferência do sistema.</p>
+<p>Para a versão mais nova, com área de transferência, use o <a href="https://brew.sh">Homebrew</a>:</p>
+<pre class="term" data-user="ana" data-host="mac">$ brew install vim</pre>
+<p>Se quiser uma janela própria, como um app do Mac, instale o <strong>MacVim</strong>:</p>
+<pre class="term" data-user="ana" data-host="mac">$ brew install --cask macvim</pre>
+
+<hr>
+
+<h2>Windows</h2>
+<p>No Windows há três caminhos. Escolha um:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Caminho</th><th>Como</th><th>O que você ganha</th></tr>
+<tr><td>Instalador oficial</td><td>Baixe o instalador em <a href="https://www.vim.org/download.php">vim.org/download.php</a> e avance as telas.</td><td><code>gvim</code> (janela gráfica), <code>vim</code> para o terminal e o <code>vimtutor</code>. Marque a opção que cria os arquivos <code>.bat</code> para usar o <code>vim</code> no Prompt e no PowerShell.</td></tr>
+<tr><td>winget</td><td>No PowerShell: <code>winget install vim.vim</code></td><td>O mesmo pacote do instalador oficial, sem cliques.</td></tr>
+<tr><td>WSL</td><td>Dentro do Ubuntu no WSL: <code>sudo apt install vim</code></td><td>O Vim do Linux, idêntico ao deste guia.</td></tr>
+</table>
+</div>
+
+<pre class="syntax">PS C:\Users\ana&gt; winget install vim.vim</pre>
+
+<div class="tip">
+<strong>Já usa o Git no Windows?</strong>
+<p>O Git for Windows traz um Vim dentro do <strong>Git Bash</strong>. Abra o Git Bash e digite <code>vim</code>: é ele que abre quando você faz um <code>git commit</code> sem configurar outro editor.</p>
+</div>
+
+<hr>
+
+<h2>Neovim (opcional)</h2>
+<p>Se você preferir o Neovim, os comandos básicos são os mesmos. Ele se chama <code>nvim</code>:</p>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Sistema</th><th>Comando</th></tr>
+<tr><td>Ubuntu/Debian</td><td><code>sudo apt install neovim</code></td></tr>
+<tr><td>Fedora</td><td><code>sudo dnf install neovim</code></td></tr>
+<tr><td>Arch</td><td><code>sudo pacman -S neovim</code></td></tr>
+<tr><td>macOS</td><td><code>brew install neovim</code></td></tr>
+<tr><td>Windows</td><td><code>winget install Neovim.Neovim</code></td></tr>
+</table>
+</div>
+<p>As diferenças estão na aula <a href="neovim.html">Neovim</a>.</p>
+
+<hr>
+
+<h2>Conferir o que o seu Vim sabe fazer</h2>
+<p>O Vim é compilado com recursos que podem estar ligados (<code>+</code>) ou desligados (<code>-</code>). O <code>--version</code> mostra a lista inteira:</p>
+
+<dl class="anatomy">
+  <dt>vim</dt><dd>O programa.</dd>
+  <dt>--version</dt><dd>Opção longa: mostra versão, correções e recursos, e sai sem abrir o editor.</dd>
+</dl>
+
+<p>Esta é a saída real do <code>vim.tiny</code> que vem no Ubuntu 26.04. Ela sai sempre em inglês:</p>
+
+<pre class="term">$ vim.tiny --version
+VIM - Vi IMproved 9.1 (2024 Jan 02, compiled Aug 24 2026 22:11:12)      « versão 9.1
+Included patches: 1-948, 950-2141                                     « correções incluídas
+Modified by team+vim@tracker.debian.org
+Compiled by team+vim@tracker.debian.org
+Tiny version without GUI.  Features included (+) or not (-):          « "Tiny": a versão mínima
++acl                 +jumplist            -sound
+-arabic              -keymap              -spell                      « sem corretor ortográfico
++autocmd             -lambda              -startuptime
+-autochdir           -langmap             -statusline
+-autoservername      -libcall             -sun_workshop
+-balloon_eval        -linebreak           -syntax                     « sem cores de sintaxe
+…</pre>
+
+<p>A lista é longa. Para achar um recurso específico, filtre com o <code>grep</code>. O mais procurado é a área de transferência:</p>
+
+<pre class="term">$ vim.tiny --version | grep clipboard
+-clipboard           +mouse               +terminfo          « sem área de transferência
+-clipboard_provider  -mouseshape          +termresponse
+-eval                -perl                -wayland_clipboard
++iconv               -signs               -xterm_clipboard</pre>
+
+<p>O <code>grep</code> mostra as linhas inteiras em que a palavra aparece, por isso vêm outros recursos junto. O que importa é o <code>-clipboard</code> no começo da primeira linha.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Recurso</th><th>Para que serve</th></tr>
+<tr><td><code>+clipboard</code></td><td>Copiar e colar com outros programas pelos registradores <code>+</code> e <code>*</code>. Veja <a href="area-transferencia.html">Área de Transferência</a>.</td></tr>
+<tr><td><code>+syntax</code></td><td>Cores de sintaxe para código.</td></tr>
+<tr><td><code>+eval</code></td><td>Vimscript: <code>.vimrc</code> com condições, funções, a maioria dos plugins.</td></tr>
+<tr><td><code>+terminal</code></td><td>Abrir um terminal dentro do Vim (<code>:terminal</code>).</td></tr>
+<tr><td><code>+python3</code></td><td>Plugins escritos em Python.</td></tr>
+</table>
+</div>
+
+<p>Dentro do Vim, o comando <code>:version</code> mostra a mesma lista.</p>
+
+<hr>
+
+<h2>Sua primeira configuração</h2>
+<p>O Vim lê um arquivo de configuração ao abrir: <code>~/.vimrc</code> no Linux e no macOS, ou <code>_vimrc</code> na pasta do usuário no Windows. Vamos criar um com uma linha só, que liga os números de linha:</p>
+
+<pre class="term">$ vim ~/.vimrc</pre>
+
+<div class="vimtry" data-file=".vimrc" data-save="1">
+<pre class="vim-inicial"></pre>
+<pre class="vim-meta">set number</pre>
+<p class="try-task"><strong>Missão:</strong> o arquivo está vazio. Aperte <kbd>i</kbd>, digite <code>set number</code>, aperte <kbd>Esc</kbd> e salve com <code>:w</code> e <kbd>Enter</kbd>. Na próxima vez que você abrir o Vim de verdade, as linhas virão numeradas.</p>
+</div>
+
+<p>O resto da configuração você monta aos poucos, em <a href="vimrc.html">.vimrc Básico</a>.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"Comando 'vim' não encontrado"</strong>
+<pre class="term">$ vim
+Comando 'vim' não encontrado, mas poder ser instalado com:
+sudo apt install vim        # version 2:9.1.2141-1ubuntu4.6, or
+sudo apt install vim-gtk3   # version 2:9.1.2141-1ubuntu4.6
+…</pre>
+<p><strong>O que aconteceu:</strong> só o <code>vim.tiny</code> está instalado, e ele responde pelo nome <code>vi</code>, não <code>vim</code>.</p>
+<p><strong>Como resolver:</strong> <code>sudo apt install vim</code> (ou <code>vim-gtk3</code> no desktop). O "poder" no lugar de "pode" é um erro da tradução original.</p>
+</div>
+
+<div class="cenario">
+<strong>Instalei e as mensagens continuam em inglês</strong>
+<p><strong>O que aconteceu:</strong> o Vim usa o idioma do sistema. Se ele estiver em inglês, ou se você abriu o <code>vim.tiny</code>, as mensagens saem em inglês.</p>
+<p><strong>Como confirmar:</strong> rode <code>echo $LANG</code>. Se aparecer <code>pt_BR.UTF-8</code> e mesmo assim estiver em inglês, confira com <code>type vim</code> se você está abrindo o Vim completo.</p>
+<p><strong>Como resolver:</strong> nada a fazer, se você não se importa. Os comandos são os mesmos nos dois idiomas, e este guia cita as mensagens em inglês quando elas importam.</p>
+</div>
+
+<div class="cenario">
+<strong>Copio no Vim e não consigo colar no navegador</strong>
+<p><strong>O que aconteceu:</strong> o seu Vim foi compilado com <code>-clipboard</code>. É o caso do pacote <code>vim</code> no Debian e no Ubuntu, do <code>vim</code> no Arch e do Vim que vem com o macOS.</p>
+<p><strong>Como resolver:</strong> instale a versão com área de transferência: <code>vim-gtk3</code> (Debian/Ubuntu), <code>gvim</code> (Arch) ou <code>brew install vim</code> (macOS). Confira com <code>vim --version | grep clipboard</code>: precisa aparecer <code>+clipboard</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Windows: "vim não é reconhecido como um comando interno"</strong>
+<p><strong>O que aconteceu:</strong> o instalador colocou o Vim no computador, mas não no <code>PATH</code> do terminal.</p>
+<p><strong>Como resolver:</strong> rode o instalador de novo e marque a criação dos arquivos <code>.bat</code>, ou use o atalho do <strong>gvim</strong> no menu Iniciar. Se instalou pelo <code>winget</code>, feche e abra o terminal.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Sistema</th><th>Vim de terminal</th><th>Com interface gráfica / área de transferência</th></tr>
+<tr><td>Ubuntu, Debian, Mint</td><td><code>sudo apt install vim</code></td><td><code>sudo apt install vim-gtk3</code></td></tr>
+<tr><td>Fedora, RHEL, Rocky, Alma</td><td><code>sudo dnf install vim-enhanced</code></td><td><code>sudo dnf install vim-X11</code></td></tr>
+<tr><td>Arch, Manjaro</td><td><code>sudo pacman -S vim</code></td><td><code>sudo pacman -S gvim</code></td></tr>
+<tr><td>openSUSE</td><td><code>sudo zypper install vim</code></td><td><code>sudo zypper install gvim</code></td></tr>
+<tr><td>Alpine</td><td><code>apk add vim</code></td><td>—</td></tr>
+<tr><td>macOS</td><td>já vem; ou <code>brew install vim</code></td><td><code>brew install --cask macvim</code></td></tr>
+<tr><td>Windows</td><td><code>winget install vim.vim</code></td><td>o mesmo pacote inclui o gvim</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Ubuntu no desktop</h3>
+<p>Complete para instalar o Vim com área de transferência no Ubuntu:</p>
+<div class="ex-code">sudo apt install <input data-answer="vim-gtk3" aria-label="pacote"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Conferir recursos</h3>
+<p>Complete para ver só as linhas que falam de área de transferência:</p>
+<div class="ex-code">vim --version | grep <input data-answer="clipboard" aria-label="palavra"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. O <code>vim --version</code> mostra <code>-syntax</code>. O que isso quer dizer?</p>
+<label><input type="radio" name="q3"> A sintaxe dos comandos está errada.</label>
+<label><input type="radio" name="q3"> Esse Vim foi compilado sem cores de sintaxe.</label>
+<label><input type="radio" name="q3"> As cores estão desligadas no <code>.vimrc</code>.</label>
+<label><input type="radio" name="q3"> O Vim está em modo de segurança.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. No Windows, qual caminho dá exatamente o mesmo Vim usado neste guia?</p>
+<label><input type="radio" name="q4"> Bloco de Notas com uma extensão</label>
+<label><input type="radio" name="q4"> <code>gvim</code> pelo instalador</label>
+<label><input type="radio" name="q4"> Git Bash</label>
+<label><input type="radio" name="q4"> <code>sudo apt install vim</code> dentro do WSL</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Linux: <code>apt install vim</code>, <code>dnf install vim-enhanced</code>, <code>pacman -S vim</code>, <code>zypper install vim</code>, <code>apk add vim</code>.</li>
+  <li>No desktop Debian/Ubuntu prefira <code>vim-gtk3</code>, que acessa a área de transferência.</li>
+  <li>macOS já tem o Vim; Windows usa o instalador oficial, o <code>winget</code> ou o WSL.</li>
+  <li><code>vim --version</code> lista os recursos: <code>+</code> ligado, <code>-</code> desligado.</li>
+  <li>A configuração mora em <code>~/.vimrc</code>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

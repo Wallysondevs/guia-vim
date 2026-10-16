@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — como usar os projetos | Guia Vim</title>
+<meta name="description" content="Laboratórios práticos de Vim: editar configurações de servidor, montar seu .vimrc, refatorar código, escrever Markdown e desafios Vim Golf, todos com missões no Vim simulado.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Como Usar os Projetos</span></h1>
+
+<p class="intro">Ler sobre o Vim ensina pouco. O que faz os dedos aprenderem é <strong>usar</strong>. Cada projeto desta seção é um laboratório: uma tarefa real, dividida em etapas, e cada etapa tem uma missão no Vim simulado que confere se você chegou ao resultado certo.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Como os laboratórios funcionam e como saber que a missão foi cumprida.</li>
+  <li>Em que ordem fazer os projetos e o que estudar antes de cada um.</li>
+  <li>Como repetir os exercícios no Vim de verdade, no seu computador.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>Como funciona um laboratório</h2>
+<ol class="passo">
+  <li><strong>Leia o objetivo da etapa.</strong> Ele diz o que precisa mudar no texto e, às vezes, quais comandos usar.</li>
+  <li><strong>Clique no Vim simulado</strong> para ele receber o teclado. O contorno fica verde quando está pronto.</li>
+  <li><strong>Edite até o texto ficar igual à meta.</strong> Embaixo da janela aparece "Missão em andamento…" e, quando o texto bate, "✔ Missão cumprida".</li>
+  <li><strong>Errou?</strong> Use <code>u</code> para desfazer ou o botão <strong>Reiniciar</strong> para começar de novo.</li>
+  <li><strong>Compare com a solução.</strong> Cada missão tem um "Ver uma solução" escondido. Abra só depois de tentar; muitas vezes a sua solução é tão boa quanto a do guia.</li>
+</ol>
+
+<p>Teste agora. Este é um treino livre, sem meta: brinque à vontade.</p>
+
+<div class="vimtry" data-file="rascunho.txt">
+<pre class="vim-inicial">Este é um treino livre.
+Experimente dd, x, u, i e Esc.
+Nada aqui afeta o seu computador.</pre>
+<p class="try-task"><strong>Treino livre:</strong> apague a segunda linha com <code>dd</code>, desfaça com <code>u</code> e escreva algo novo com <code>o</code>.</p>
+</div>
+
+<div class="tip">
+<strong>No celular</strong>
+<p>O teclado do celular não tem <kbd>Esc</kbd>. Use o botão <strong>Esc</strong> na barra da janela do Vim.</p>
+</div>
+
+<hr>
+
+<h2>Os projetos</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Projeto</th><th>O que você faz</th><th>Estude antes</th><th>Tempo</th></tr>
+<tr><td><a href="projeto-config-servidor.html">Editar Configurações de Servidor</a></td><td>Muda opções de um <code>sshd_config</code> e de um <code>nginx.conf</code>, comenta e descomenta linhas e salva</td><td><a href="busca.html">Buscar</a>, <a href="operadores.html">Operadores</a>, <a href="substituir.html">Substituir</a>, <a href="bloco.html">Visual de Bloco</a></td><td>20 min</td></tr>
+<tr><td><a href="projeto-vimrc.html">Monte seu .vimrc</a></td><td>Monta, em 5 etapas, um arquivo de configuração que deixa o Vim confortável</td><td><a href="opcoes.html">Opções Úteis</a>, <a href="vimrc.html">.vimrc Básico</a></td><td>25 min</td></tr>
+<tr><td><a href="projeto-refatorar.html">Refatorar com Macros e :g</a></td><td>Renomeia variáveis, transforma CSV em SQL, numera listas e limpa logs</td><td><a href="contadores.html">Repetição (.)</a>, <a href="macros.html">Macros</a>, <a href="ex-avancado.html">Comandos Ex</a></td><td>30 min</td></tr>
+<tr><td><a href="projeto-markdown.html">Escrever em Markdown</a></td><td>Escreve um README: títulos, listas, troca parágrafos de lugar e mexe em tabelas</td><td><a href="objetos.html">Objetos de Texto</a>, <a href="copiar-colar.html">Copiar e Colar</a>, <a href="bloco.html">Visual de Bloco</a></td><td>20 min</td></tr>
+<tr><td><a href="projeto-golf.html">Desafios Vim Golf</a></td><td>12 desafios para fazer cada edição com o menor número de teclas</td><td>Todo o Nível 2</td><td>livre</td></tr>
+</table>
+</div>
+
+<h3>Ordem sugerida</h3>
+<ol class="passo">
+  <li><strong>Editar Configurações de Servidor</strong>: usa o básico (buscar, trocar, apagar, salvar) numa situação real. É o melhor primeiro projeto para quem acabou o Nível 1 e começou o Nível 2.</li>
+  <li><strong>Monte seu .vimrc</strong>: deixa o seu Vim do jeito que você gosta antes dos projetos mais longos.</li>
+  <li><strong>Escrever em Markdown</strong>: treina objetos de texto e o modo visual de bloco.</li>
+  <li><strong>Refatorar com Macros e :g</strong>: o projeto mais "mágico"; mostra por que o Vim é tão rápido em tarefas repetitivas.</li>
+  <li><strong>Desafios Vim Golf</strong>: para quando você já se sente à vontade e quer ficar rápido.</li>
+</ol>
+
+<hr>
+
+<h2>O contador de teclas</h2>
+<p>Quando a missão é cumprida, o guia mostra quantas teclas você usou. Nos desafios de <a href="projeto-golf.html">Vim Golf</a> existe um limite: a ideia é achar o caminho mais curto. Nos outros projetos, o número é só curiosidade. Primeiro faça funcionar, depois tente diminuir.</p>
+
+<div class="note">
+<strong>Como o guia conta</strong>
+<p>Cada tecla apertada conta 1, inclusive <kbd>Esc</kbd> e <kbd>Enter</kbd>. <kbd>Ctrl</kbd>+<kbd>V</kbd> conta como uma tecla só.</p>
+</div>
+
+<hr>
+
+<h2>Fazendo no Vim de verdade</h2>
+<p>O simulador é ótimo para treinar sem medo, mas a meta é usar o Vim de verdade. Para repetir um laboratório no seu computador, crie um arquivo com o texto inicial e abra no Vim:</p>
+
+<pre class="term">$ mkdir -p ~/lab-vim
+$ cd ~/lab-vim
+$ vim sshd_config</pre>
+
+<p>Dentro do Vim, aperte <code>i</code>, cole o texto inicial do laboratório (no terminal, normalmente <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd>), aperte <kbd>Esc</kbd> e salve com <code>:w</code>. Agora faça a missão. Se quiser recomeçar, saia sem salvar com <code>:q!</code> e abra de novo.</p>
+
+<div class="warning">
+<strong>Nunca treine em arquivos reais do sistema</strong>
+<p>Os laboratórios de configuração usam cópias de mentira. Não abra <code>/etc/ssh/sshd_config</code> de verdade para treinar: um erro ali pode tirar o seu acesso a um servidor. Use sempre a pasta <code>~/lab-vim</code>.</p>
+</div>
+
+<div class="tip">
+<strong>Ainda inseguro?</strong>
+<p>Rode <code>vimtutor</code> no terminal. É um curso de 30 minutos que vem junto com o Vim. Veja a aula <a href="vimtutor.html">vimtutor</a>.</p>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">1. Você errou tudo numa missão e quer o texto original de volta. O que é mais rápido?</p>
+<label><input type="radio" name="q1"> Apertar <code>u</code> umas 50 vezes.</label>
+<label><input type="radio" name="q1"> Clicar no botão <strong>Reiniciar</strong> da janela do Vim.</label>
+<label><input type="radio" name="q1"> Recarregar o site no navegador.</label>
+<label><input type="radio" name="q1"> Fechar o Vim com <code>:q!</code>.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">2. Para treinar o laboratório de configuração no seu computador, qual arquivo você deve abrir?</p>
+<label><input type="radio" name="q2"> <code>/etc/ssh/sshd_config</code></label>
+<label><input type="radio" name="q2"> <code>/etc/nginx/nginx.conf</code></label>
+<label><input type="radio" name="q2"> <code>~/.bashrc</code></label>
+<label><input type="radio" name="q2"> Uma cópia em <code>~/lab-vim</code></label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">3. Quando aparece "✔ Missão cumprida"?</p>
+<label><input type="radio" name="q3"> Quando o texto do Vim fica exatamente igual à meta.</label>
+<label><input type="radio" name="q3"> Depois de 1 minuto.</label>
+<label><input type="radio" name="q3"> Quando você aperta <kbd>Esc</kbd>.</label>
+<label><input type="radio" name="q3"> Só quando você usa o número mínimo de teclas.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Cada projeto é uma tarefa real dividida em etapas com missões que se corrigem sozinhas.</li>
+  <li>Clique no Vim simulado antes de digitar; use <code>u</code> ou <strong>Reiniciar</strong> para voltar.</li>
+  <li>Comece por <a href="projeto-config-servidor.html">Editar Configurações de Servidor</a> e termine nos desafios de Vim Golf.</li>
+  <li>Repita os laboratórios no Vim de verdade, sempre em arquivos de treino.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — mensagens e erros comuns | Guia Vim</title>
+<meta name="description" content="Entenda o rodapé do Vim: modo atual, comando pendente, régua (linha, coluna, Tudo/Topo/Fim) e as mensagens de erro mais comuns em português e inglês, com o que fazer em cada uma.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Mensagens e Erros Comuns</span></h1>
+
+<p class="intro">O Vim conversa com você pela última linha da tela. Ali aparecem o modo em que você está, o comando que está digitando, onde está o cursor e, quando algo dá errado, uma mensagem com um código como <code>E37</code>. Aprender a ler esse rodapé acaba com metade das dúvidas.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>As três partes do rodapé: mensagem, comando pendente e régua.</li>
+  <li>Ler a régua: <code>12,5-9</code> e <code>Tudo</code>, <code>Topo</code>, <code>Fim</code> ou uma porcentagem.</li>
+  <li>O que significam as mensagens mais comuns, em português e em inglês, e o que fazer em cada uma.</li>
+  <li>Rever mensagens que sumiram e consultar a ajuda de qualquer erro.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>As três partes do rodapé</h2>
+<p>Veja um rodapé com as três partes ocupadas: o Vim em modo de inserção, com um comando sendo gravado:</p>
+
+<div class="vimdemo" data-file="exemplo.txt" data-keys="qaiOlá">
+<pre class="vim-inicial">Texto de exemplo.</pre>
+</div>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Parte</th><th>Onde</th><th>O que mostra</th></tr>
+<tr><td>Mensagem</td><td>À esquerda</td><td>O modo (<code>-- INSERÇÃO --</code>), avisos, erros e resultados de comandos. Também é onde aparece o que você digita depois de <code>:</code> ou <code>/</code>.</td></tr>
+<tr><td>Comando pendente</td><td>No meio, à direita</td><td>As teclas de um comando ainda incompleto, como <code>2d</code> ou <code>"a</code>. Vem da opção <code>showcmd</code>.</td></tr>
+<tr><td>Régua</td><td>À direita</td><td>Linha, coluna e a posição na tela. Vem da opção <code>ruler</code>.</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>Não vê o comando pendente ou a régua?</strong>
+<p>O Vim completo liga <code>showcmd</code> e <code>ruler</code> por padrão (no arquivo <code>defaults.vim</code>). Se o seu Vim não mostra, ligue com <code>:set showcmd ruler</code> ou coloque no seu <a href="vimrc.html">.vimrc</a>.</p>
+</div>
+
+<hr>
+
+<h2>Lendo a régua</h2>
+<p>A régua tem a forma <code>linha,coluna</code> e, mais à direita, onde você está no arquivo.</p>
+
+<h3>Quando aparecem dois números na coluna</h3>
+<p>Às vezes a coluna aparece como <code>5-9</code>. O primeiro número conta <strong>bytes</strong>; o segundo, a <strong>coluna na tela</strong>. Eles ficam diferentes em dois casos:</p>
+
+<ul>
+  <li><strong>Tabs:</strong> um tab é 1 byte, mas ocupa até 8 colunas na tela.</li>
+  <li><strong>Letras com acento:</strong> "é", "ã", "ç" ocupam 2 bytes, mas 1 coluna na tela.</li>
+</ul>
+
+<div class="vimdemo" data-file="tab.txt" data-col="2">
+<pre class="vim-inicial">	x</pre>
+</div>
+
+<p>A linha começa com um tab e o cursor está no "x". A régua mostra <code>1,2-9</code>: o "x" é o 2º byte da linha, mas aparece na 9ª coluna da tela.</p>
+
+<div class="vimdemo" data-file="acento.txt" data-col="5">
+<pre class="vim-inicial">não é</pre>
+</div>
+
+<p>O cursor está no "é", a 5ª letra. A régua mostra <code>1,6-5</code>: como o "ã" ocupa 2 bytes, o "é" começa no 6º byte. Numa linha vazia, a régua mostra <code>0-1</code>: não há byte nenhum, mas o cursor está na coluna 1 da tela.</p>
+
+<h3>Tudo, Topo, Fim ou porcentagem</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Texto</th><th>Inglês</th><th>Significado</th></tr>
+<tr><td><code>Tudo</code></td><td><code>All</code></td><td>O arquivo inteiro cabe na tela.</td></tr>
+<tr><td><code>Topo</code></td><td><code>Top</code></td><td>Você está vendo o começo do arquivo.</td></tr>
+<tr><td><code>Fim</code></td><td><code>Bot</code></td><td>Você está vendo o fim do arquivo.</td></tr>
+<tr><td><code>45%</code></td><td><code>45%</code></td><td>Quanto do arquivo ficou acima do que aparece na tela.</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="longo.txt" data-height="4" data-keys="G">
+<pre class="vim-inicial">linha 1
+linha 2
+linha 3
+linha 4
+linha 5
+linha 6
+linha 7
+linha 8
+linha 9
+linha 10</pre>
+</div>
+
+<p>Nesta tela de só 4 linhas, o começo mostra <code>Topo</code>. Depois do <code>G</code> (última linha), a régua mostra <code>Fim</code>.</p>
+
+<hr>
+
+<h2>Mensagens de modo</h2>
+<p>Estas não são erros: só dizem em que modo você está. No modo normal, o rodapé fica vazio.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Português</th><th>Inglês</th><th>Você está…</th><th>Como sair</th></tr>
+<tr><td><code>-- INSERÇÃO --</code></td><td><code>-- INSERT --</code></td><td>Escrevendo texto (<code>i</code>, <code>a</code>, <code>o</code>…)</td><td><kbd>Esc</kbd></td></tr>
+<tr><td><code>-- SUBSTITUIÇÃO --</code></td><td><code>-- REPLACE --</code></td><td>Escrevendo por cima (<code>R</code>)</td><td><kbd>Esc</kbd></td></tr>
+<tr><td><code>-- VISUAL --</code></td><td><code>-- VISUAL --</code></td><td>Selecionando caracteres (<code>v</code>)</td><td><kbd>Esc</kbd></td></tr>
+<tr><td><code>-- VISUAL/LINHA --</code></td><td><code>-- VISUAL LINE --</code></td><td>Selecionando linhas (<code>V</code>)</td><td><kbd>Esc</kbd></td></tr>
+<tr><td><code>-- VISUAL/BLOCO --</code></td><td><code>-- VISUAL BLOCK --</code></td><td>Selecionando um bloco (<kbd>Ctrl</kbd>+<kbd>v</kbd>)</td><td><kbd>Esc</kbd></td></tr>
+<tr><td><code>gravando @a</code></td><td><code>recording @a</code></td><td>Gravando uma macro no registrador "a"</td><td><code>q</code></td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="modos.txt" data-keys="v&lt;Esc&gt;V&lt;Esc&gt;&lt;C-v&gt;&lt;Esc&gt;R">
+<pre class="vim-inicial">Clique em Próxima tecla e veja o rodapé mudar.</pre>
+</div>
+
+<hr>
+
+<h2>Mensagens de resultado</h2>
+<p>Estas aparecem depois que um comando funcionou, para confirmar o que aconteceu.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Português</th><th>Inglês</th><th>Quando aparece</th></tr>
+<tr><td><code>"notas.txt" 3L, 45B gravado(s)</code></td><td><code>"notas.txt" 3L, 45B written</code></td><td>Depois de salvar (veja <a href="salvar.html">Salvar e Sair</a>). Com <code>[Novo]</code> se o arquivo não existia.</td></tr>
+<tr><td><code>3 linhas a menos</code></td><td><code>3 fewer lines</code></td><td>Um comando apagou mais de 2 linhas.</td></tr>
+<tr><td><code>3 linhas a mais</code></td><td><code>3 more lines</code></td><td>Um comando (colar, desfazer) acrescentou mais de 2 linhas.</td></tr>
+<tr><td><code>3 linhas copiadas</code></td><td><code>3 lines yanked</code></td><td>Você copiou mais de 2 linhas.</td></tr>
+<tr><td><code>5 substituições em 3 linhas</code></td><td><code>5 substitutions on 3 lines</code></td><td>Depois de um <code>:s</code> (veja <a href="substituir.html">Substituir</a>).</td></tr>
+<tr><td><code>1 alteração; antes de #2  5 segundos atrás</code></td><td><code>1 change; before #2  5 seconds ago</code></td><td>Depois de desfazer (veja <a href="desfazer.html">Desfazer e Refazer</a>).</td></tr>
+<tr><td><code>busca atingiu FIM; continuando do TOPO</code></td><td><code>search hit BOTTOM, continuing at TOP</code></td><td>A busca chegou ao fim do arquivo e recomeçou do início. Não é erro.</td></tr>
+<tr><td><code>busca atingiu TOPO; continuando do FIM</code></td><td><code>search hit TOP, continuing at BOTTOM</code></td><td>O mesmo, buscando para trás.</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="busca.txt" data-line="3" data-keys="/um&lt;CR&gt;">
+<pre class="vim-inicial">um começo
+dois
+um fim</pre>
+</div>
+
+<p>O cursor estava na última linha. A busca por "um" não achou nada abaixo, voltou para o começo e encontrou na linha 1, avisando no rodapé.</p>
+
+<hr>
+
+<h2>Mensagens de erro</h2>
+<p>Erros começam com <code>E</code> e um número, e aparecem em vermelho. O número é o mesmo em qualquer idioma, então serve para pesquisar.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Português</th><th>Inglês</th><th>O que aconteceu</th><th>O que fazer</th></tr>
+<tr><td><code>E37: Alterações não foram gravadas (adicione ! para forçar)</code></td><td><code>E37: No write since last change (add ! to override)</code></td><td>Tentou sair com alterações não salvas.</td><td><code>:wq</code> para salvar e sair, ou <code>:q!</code> para descartar.</td></tr>
+<tr><td><code>E32: Nenhum nome de arquivo</code></td><td><code>E32: No file name</code></td><td><code>:w</code> num texto que ainda não tem nome.</td><td><code>:w nome.txt</code></td></tr>
+<tr><td><code>E45: opção 'readonly' está definida (adicione ! para forçar)</code></td><td><code>E45: 'readonly' option is set (add ! to override)</code></td><td>O arquivo foi aberto como somente leitura.</td><td><code>:w!</code>, se você tem permissão; senão veja <a href="salvar.html">Salvar e Sair</a>.</td></tr>
+<tr><td><code>E212: Impossível abrir arquivo para escrita</code></td><td><code>E212: Can't open file for writing</code></td><td>Sem permissão, ou a pasta não existe.</td><td><code>sudoedit</code> ou criar a pasta.</td></tr>
+<tr><td><code>E486: Padrão não encontrado: xyz</code></td><td><code>E486: Pattern not found: xyz</code></td><td>A busca ou o <code>:s</code> não achou o texto.</td><td>Confira maiúsculas e acentos; veja <a href="busca.html">Buscar</a>.</td></tr>
+<tr><td><code>E492: Não é um comando do editor: xyz</code></td><td><code>E492: Not an editor command: xyz</code></td><td>Digitou um comando com <code>:</code> que não existe.</td><td>Confira o que está depois do <code>:</code>.</td></tr>
+<tr><td><code>E20: Marca não definida</code></td><td><code>E20: Mark not set</code></td><td>Usou <code>'a</code> ou <code>`a</code> sem ter criado a marca.</td><td>Crie com <code>ma</code> (veja <a href="marcas.html">Marcas</a>).</td></tr>
+<tr><td><code>E35: Nenhuma expressão regular anterior</code></td><td><code>E35: No previous regular expression</code></td><td>Apertou <code>n</code> sem ter buscado nada.</td><td>Busque primeiro com <code>/</code>.</td></tr>
+<tr><td><code>E348: Nenhuma cadeia de caracteres sob o cursor</code></td><td><code>E348: No string under cursor</code></td><td>Usou <code>*</code> ou <code>#</code> numa linha sem palavra.</td><td>Ponha o cursor sobre uma palavra.</td></tr>
+<tr><td><code>E353: Não há nada no registrador a</code></td><td><code>E353: Nothing in register a</code></td><td>Tentou colar (<code>"ap</code>) de um registrador vazio.</td><td>Veja <a href="registradores.html">Registradores</a>.</td></tr>
+<tr><td><code>E518: Opção desconhecida: xyz</code></td><td><code>E518: Unknown option: xyz</code></td><td><code>:set</code> com um nome de opção que não existe.</td><td>Confira a grafia: <code>:set number</code>, não <code>:set numbers</code>.</td></tr>
+<tr><td><code>E325: ATENÇÃO</code></td><td><code>E325: ATTENTION</code></td><td>Existe um arquivo de troca: outro Vim aberto ou um travamento.</td><td>Veja <a href="socorro.html">Estou Preso no Vim!</a></td></tr>
+<tr><td><code>W10: Aviso: Modificando um arquivo somente-leitura</code></td><td><code>W10: Warning: Changing a readonly file</code></td><td>Começou a alterar um arquivo somente leitura (é um aviso, começa com W).</td><td>Siga editando; para salvar, veja o E45.</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="erros.txt" data-keys="/xyz&lt;CR&gt;:xyz&lt;CR&gt;:set numbers&lt;CR&gt;n">
+<pre class="vim-inicial">Um texto sem o padrão procurado.</pre>
+</div>
+
+<p>Avance tecla por tecla: cada <kbd>Enter</kbd> provoca um erro diferente (E486, E492 e E518). O último <code>n</code> repete a busca por "xyz" e mostra o E486 de novo.</p>
+
+<hr>
+
+<h2>"Aperte ENTER ou digite um comando para continuar"</h2>
+<p>Quando a mensagem tem mais de uma linha (por exemplo, a saída de <code>:reg</code>, <code>:marks</code> ou de vários erros seguidos), o Vim mostra tudo e espera, com <code>Aperte ENTER ou digite um comando para continuar</code> (em inglês, <code>Press ENTER or type command to continue</code>).</p>
+<p>Aperte <kbd>Enter</kbd> ou <kbd>Espaço</kbd> para voltar ao texto. Você também pode digitar <code>:</code> e um comando direto.</p>
+
+<hr>
+
+<h2>A mensagem sumiu antes de eu ler</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:messages</code></td><td>Mostra as últimas mensagens (inclusive erros) desde que o Vim abriu</td></tr>
+<tr><td><code>g&lt;</code></td><td>Mostra de novo a saída do último comando</td></tr>
+<tr><td><code>:help E37</code></td><td>Abre a explicação oficial de qualquer erro (troque E37 pelo código que apareceu)</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>No simulador</strong>
+<p>O Vim simulado mostra as mensagens no rodapé, mas não tem <code>:messages</code>, <code>g&lt;</code> nem <code>:help</code>. Use-os no seu Vim.</p>
+</div>
+
+<hr>
+
+<h2>Por que meu Vim fala inglês?</h2>
+<p>O Vim mostra as mensagens no idioma do sistema quando o pacote completo e as traduções estão instalados. Ele aparece em inglês quando:</p>
+<ul>
+  <li>Você está usando o <code>vi</code> mínimo do Debian/Ubuntu (<code>vim.tiny</code>), que não traz traduções. Instale o pacote <code>vim</code>.</li>
+  <li>O sistema está em inglês, ou a variável <code>LANG</code> não é <code>pt_BR.UTF-8</code>.</li>
+  <li>Alguém pôs <code>language messages en_US.UTF-8</code> no <code>.vimrc</code>. Muita gente faz isso de propósito: as mensagens em inglês são mais fáceis de pesquisar na internet.</li>
+</ul>
+
+<pre class="term">$ echo $LANG
+pt_BR.UTF-8</pre>
+
+<p>Dentro do Vim, <code>:language messages</code> mostra o idioma atual das mensagens.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Não aparece nada no rodapé quando entro no modo de inserção</strong>
+<p><strong>O que aconteceu:</strong> a opção <code>showmode</code> está desligada (comum no <code>vi</code> mínimo).</p>
+<p><strong>Como resolver:</strong> <code>:set showmode</code>, ou instale o Vim completo.</p>
+</div>
+
+<div class="cenario">
+<strong>A mensagem de erro some e o texto fica como estava</strong>
+<p><strong>O que aconteceu:</strong> a mensagem é apagada na próxima tecla. Isso é normal.</p>
+<p><strong>Como resolver:</strong> use <code>:messages</code> para reler.</p>
+</div>
+
+<div class="cenario">
+<strong>Tudo travou com "Aperte ENTER" no pé da tela</strong>
+<p><strong>O que aconteceu:</strong> o Vim está esperando você ler uma mensagem longa.</p>
+<p><strong>Como resolver:</strong> <kbd>Enter</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Ajuda do erro</h3>
+<p>Complete para ver a explicação oficial do erro E486:</p>
+<div class="ex-code">:<input data-answer="help E486|h E486" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Mensagens antigas</h3>
+<p>Complete o comando que mostra as mensagens que já sumiram:</p>
+<div class="ex-code">:<input data-answer="messages|mes" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. A régua mostra <code>7,12-5</code>. O que isso quer dizer?</p>
+<label><input type="radio" name="q3"> Linha 12, coluna 7.</label>
+<label><input type="radio" name="q3"> 7 erros e 12 avisos.</label>
+<label><input type="radio" name="q3"> Linha 7; o cursor está no byte 12, que aparece na coluna 5 da tela.</label>
+<label><input type="radio" name="q3"> O arquivo tem 7 linhas e 12 bytes.</label>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Apareceu "busca atingiu FIM; continuando do TOPO". O que fazer?</p>
+<label><input type="radio" name="q4"> Salvar e reiniciar o Vim.</label>
+<label><input type="radio" name="q4"> Nada: a busca recomeçou do início do arquivo e achou o texto.</label>
+<label><input type="radio" name="q4"> Apertar <kbd>Ctrl</kbd>+<kbd>q</kbd>.</label>
+<label><input type="radio" name="q4"> Desfazer com <code>u</code>.</label>
+</div>
+
+<div class="vimtry" data-file="bomdia.txt" data-save="1">
+<pre class="vim-inicial">Bom dai, Ana!</pre>
+<pre class="vim-meta">Bom dia, Ana!</pre>
+<p class="try-task"><strong>Missão final:</strong> primeiro tente sair com <code>:q</code> e leia o erro. Depois corrija "dai" para "dia" (dica: com o cursor no "a", <code>xp</code> troca duas letras de lugar) e salve com <code>:w</code> ou <code>:wq</code>.</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>O rodapé tem mensagem (esquerda), comando pendente (meio) e régua (direita).</li>
+  <li>A régua <code>12,5-9</code> é linha 12, byte 5, coluna 9 da tela; <code>Tudo/Topo/Fim/%</code> diz que parte do arquivo você está vendo.</li>
+  <li>Erros começam com <code>E</code> e número; avisos, com <code>W</code>. O número é igual em qualquer idioma.</li>
+  <li><code>:messages</code> relê mensagens; <code>:help E37</code> explica qualquer erro.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

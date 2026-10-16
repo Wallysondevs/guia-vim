@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — vimtutor, o tutorial oficial | Guia Vim</title>
+<meta name="description" content="O vimtutor é o tutorial interativo que vem com o Vim, em português. Como abrir, como instalar, o roteiro das lições e como ele se encaixa neste guia.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">vimtutor</span></h1>
+
+<p class="intro">O próprio Vim vem com um curso: o <code>vimtutor</code>. É um arquivo de texto com lições que você lê e pratica ao mesmo tempo, dentro do Vim de verdade. Leva de 25 a 30 minutos e existe em português.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>O que é o <code>vimtutor</code> e por que vale a pena fazê-lo.</li>
+  <li>Como abrir em português (e em outros idiomas) em qualquer sistema.</li>
+  <li>O roteiro das lições e onde cada uma é explicada neste guia.</li>
+  <li>O que fazer se o comando não existir.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>O que é</h2>
+<p>O <code>vimtutor</code> abre o Vim com uma <strong>cópia</strong> de um arquivo de lições. Cada lição explica um comando e traz linhas marcadas com <code>---&gt;</code> para você praticar ali mesmo. Como é uma cópia, você pode estragar o texto à vontade: o original fica intacto, e da próxima vez ele começa limpo.</p>
+
+<p>O começo da versão em português é assim:</p>
+
+<pre class="term" data-title="vimtutor — Vim">$ vimtutor
+===============================================================================
+=    B e m - v i n d o  ao  t u t o r i a l  do  V I M  -  Versão 1.8 pt_BR   =
+===============================================================================
+
+     Vim é um poderoso editor que possui muitos comandos, tantos que seria
+     impossível ensiná-los num tutorial como este, que é concebido para
+     apresentar os comandos suficientes para permiti-lo usar facilmente o
+     Vim como um editor de textos genérico.
+
+     O tempo necessário para completar o tutorial é de cerca de 25-30 minutos,
+     dependendo de quanto tempo é gasto praticando os comandos.</pre>
+
+<p>Você navega pelo tutorial com as próprias teclas que ele ensina: a primeira lição é justamente mover o cursor com <kbd>h</kbd> <kbd>j</kbd> <kbd>k</kbd> <kbd>l</kbd>.</p>
+
+<hr>
+
+<h2>Como abrir</h2>
+
+<dl class="anatomy">
+  <dt>vimtutor</dt><dd>O programa. Ele copia o arquivo de lições para uma pasta temporária e abre o Vim nessa cópia.</dd>
+  <dt>pt</dt><dd>Opcional: o idioma, em código de duas letras. Sem ele, o <code>vimtutor</code> usa o idioma do sistema.</dd>
+</dl>
+
+<pre class="term">$ vimtutor          « no idioma do sistema
+$ vimtutor pt       « força o português
+$ vimtutor en       « força o inglês</pre>
+
+<p>Com o sistema em português, só <code>vimtutor</code> já abre a versão "pt_BR". O tutorial tem mais de 30 idiomas, e todos usam o mesmo código de duas letras: <code>es</code>, <code>fr</code>, <code>it</code>, <code>de</code>, <code>ja</code>…</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Sistema</th><th>Como abrir</th></tr>
+<tr><td>Linux</td><td><code>vimtutor</code> no terminal (depois de instalar o Vim completo)</td></tr>
+<tr><td>macOS</td><td><code>vimtutor</code> no Terminal; já vem com o sistema</td></tr>
+<tr><td>Windows</td><td>Atalho "Vim tutor" no menu Iniciar, criado pelo instalador oficial</td></tr>
+<tr><td>Janela gráfica</td><td><code>vimtutor -g</code> abre no gvim em vez do terminal</td></tr>
+</table>
+</div>
+
+<div class="tip">
+<strong>Há um segundo capítulo</strong>
+<p>As versões recentes do Vim 9.1 trazem um segundo capítulo, mais avançado, aberto com <code>vimtutor -c 2</code>. Por enquanto ele só existe em alguns idiomas, e o português não é um deles: em <code>pt</code>, use o capítulo 1 e continue pelo Nível 2 deste guia.</p>
+</div>
+
+<hr>
+
+<h2>Experimente as primeiras lições aqui</h2>
+<p>As duas missões abaixo usam as frases originais das lições 1.1.3 e 1.1.4 do <code>vimtutor</code> em português.</p>
+
+<h3>Lição 1.1.3: remoção com x</h3>
+<div class="vimtry" data-file="tutor" data-col="1">
+<pre class="vim-inicial">A vvaca pullouu por ccimaa dda luuua.</pre>
+<pre class="vim-meta">A vaca pulou por cima da lua.</pre>
+<p class="try-task"><strong>Missão:</strong> apague as letras repetidas com <kbd>x</kbd>. Mova o cursor com <kbd>h</kbd> e <kbd>l</kbd> até cada letra sobrando.</p>
+</div>
+
+<details><summary>Ver uma solução mais rápida</summary>
+<p>Em vez de andar letra por letra, use <code>f</code> + letra para pular até ela (aula <a href="f-t.html">Pular para um Caractere</a>): <kbd>f</kbd><kbd>v</kbd><kbd>x</kbd>, <kbd>f</kbd><kbd>l</kbd><kbd>l</kbd><kbd>x</kbd>, e assim por diante.</p>
+</details>
+
+<h3>Lição 1.1.4: inserção com i</h3>
+<div class="vimtry" data-file="tutor" data-col="1">
+<pre class="vim-inicial">Tem text fatado nesta .</pre>
+<pre class="vim-meta">Tem algum texto faltando nesta linha.</pre>
+<p class="try-task"><strong>Missão:</strong> deixe a frase igual a "Tem algum texto faltando nesta linha.". Leve o cursor até o caractere <strong>depois</strong> de onde falta texto, aperte <kbd>i</kbd>, digite o que falta e volte com <kbd>Esc</kbd>. Repita para cada trecho.</p>
+</div>
+
+<hr>
+
+<h2>O roteiro das lições</h2>
+<p>O capítulo 1 tem sete lições, cada uma com várias partes e um resumo. A tabela mostra onde cada assunto é aprofundado neste guia:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Lição</th><th>Assuntos</th><th>No guia</th></tr>
+<tr><td>1.1</td><td>Mover o cursor, sair, apagar com <code>x</code>, inserir com <code>i</code> e <code>A</code>, editar um arquivo</td><td><a href="mover.html">Mover o Cursor</a>, <a href="abrir-sair.html">Abrir e Sair</a>, <a href="apagar.html">Apagar</a>, <a href="inserir.html">Inserir Texto</a></td></tr>
+<tr><td>1.2</td><td>Remoção com <code>dw</code> e <code>d$</code>, operadores e movimentos, contadores, <code>dd</code>, desfazer</td><td><a href="gramatica.html">Verbo + Movimento</a>, <a href="contadores.html">Números e Repetição</a>, <a href="desfazer.html">Desfazer e Refazer</a></td></tr>
+<tr><td>1.3</td><td>Colar com <code>p</code>, substituir caractere com <code>r</code>, o operador <code>c</code></td><td><a href="copiar-colar.html">Copiar e Colar</a>, <a href="operadores.html">Operadores</a></td></tr>
+<tr><td>1.4</td><td>Posição e estado do arquivo, busca, parênteses correspondentes, <code>:s</code></td><td><a href="busca.html">Buscar</a>, <a href="pares.html">Parênteses e Blocos</a>, <a href="substituir.html">Substituir</a></td></tr>
+<tr><td>1.5</td><td>Comandos externos com <code>:!</code>, salvar, salvar trechos, ler arquivos</td><td><a href="shell.html">Integração com o Shell</a>, <a href="salvar.html">Salvar e Sair</a></td></tr>
+<tr><td>1.6</td><td><code>o</code> e <code>a</code>, modo de substituição <code>R</code>, copiar e colar, opções com <code>:set</code></td><td><a href="inserir.html">Inserir Texto</a>, <a href="opcoes.html">Opções Úteis</a></td></tr>
+<tr><td>1.7</td><td>Ajuda interna, arquivo de configuração, completar comandos com <kbd>Tab</kbd></td><td><a href="ajuda.html">A Ajuda Interna</a>, <a href="vimrc.html">.vimrc Básico</a></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>vimtutor ou este guia?</h2>
+<p>Os dois. Eles se completam:</p>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>vimtutor</th><th>Este guia</th></tr>
+<tr><td>Dentro do Vim de verdade, no seu computador</td><td>No navegador, com um Vim simulado</td></tr>
+<tr><td>Linear: uma lição depois da outra</td><td>Por assunto, com consulta rápida</td></tr>
+<tr><td>Explicações curtas</td><td>Anatomia de cada comando, demonstrações tecla a tecla e cenários de erro</td></tr>
+<tr><td>Cobre o básico (equivale ao Nível 1 e ao começo do Nível 2)</td><td>Vai até macros, Vimscript, plugins e projetos</td></tr>
+</table>
+</div>
+
+<p>Uma sugestão de rotina: faça o <code>vimtutor</code> inteiro uma vez agora, siga as aulas do Nível 1 aqui e faça o <code>vimtutor</code> de novo uma semana depois. Na segunda vez, você vai perceber como os comandos já saem sozinhos.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"Comando 'vimtutor' não encontrado"</strong>
+<pre class="term">$ vimtutor
+Comando 'vimtutor' não encontrado, mas poder ser instalado com:
+sudo apt install vim-runtime</pre>
+<p><strong>O que aconteceu:</strong> no Ubuntu e no Debian, o <code>vimtutor</code> mora no pacote <code>vim-runtime</code>, que não vem com o <code>vim-tiny</code> instalado por padrão.</p>
+<p><strong>Como resolver:</strong> instale o Vim completo com <code>sudo apt install vim</code>. Ele já traz o <code>vim-runtime</code> junto (a sugestão do sistema também funciona). Veja <a href="instalar.html">Instalar</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>O tutorial abriu em inglês</strong>
+<p><strong>O que aconteceu:</strong> o idioma do sistema não é português, ou não está definido no terminal.</p>
+<p><strong>Como resolver:</strong> peça o idioma explicitamente: <code>vimtutor pt</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Baguncei o texto do tutorial</strong>
+<p><strong>O que aconteceu:</strong> nada grave. Você está editando uma cópia temporária.</p>
+<p><strong>Como resolver:</strong> saia com <code>:q!</code> e rode <code>vimtutor</code> de novo: ele começa do zero. Se quiser só desfazer o último passo, <code>u</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Não sei como passar para a próxima lição</strong>
+<p><strong>Como resolver:</strong> as lições estão uma embaixo da outra no mesmo arquivo. Desça com <kbd>j</kbd> (segure para repetir). Para pular para uma lição, busque o número: <code>/1.3</code> e <kbd>Enter</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Em português</h3>
+<p>Complete para abrir o tutorial em português, qualquer que seja o idioma do sistema:</p>
+<div class="ex-code">vimtutor <input data-answer="pt" aria-label="idioma"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">2. O que acontece com o arquivo original do tutorial quando você o edita?</p>
+<label><input type="radio" name="q2"> É alterado para sempre.</label>
+<label><input type="radio" name="q2"> Nada: o <code>vimtutor</code> abre uma cópia temporária.</label>
+<label><input type="radio" name="q2"> É apagado ao sair.</label>
+<label><input type="radio" name="q2"> Fica somente leitura.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">3. No Ubuntu, de qual pacote vem o <code>vimtutor</code>?</p>
+<label><input type="radio" name="q3"> <code>vim-tiny</code></label>
+<label><input type="radio" name="q3"> <code>vimtutor</code></label>
+<label><input type="radio" name="q3"> <code>vim-doc</code></label>
+<label><input type="radio" name="q3"> <code>vim-runtime</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>vimtutor</code> é o curso oficial que vem com o Vim, em mais de 30 idiomas.</li>
+  <li><code>vimtutor pt</code> força o português; no Windows, use o atalho "Vim tutor".</li>
+  <li>No Ubuntu/Debian ele está no pacote <code>vim-runtime</code>, instalado junto com o <code>vim</code>.</li>
+  <li>Você edita uma cópia: pode errar à vontade.</li>
+  <li>Faça agora e de novo daqui a uma semana.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

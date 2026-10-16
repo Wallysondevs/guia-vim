@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — modo visual de bloco (Ctrl-v): editar colunas | Guia Vim</title>
+<meta name="description" content="Aprenda o modo visual de bloco do Vim: selecionar colunas com Ctrl-v, comentar várias linhas com I, acrescentar no fim com $A, trocar, apagar e colar blocos, e o que fazer quando Ctrl-v cola em vez de selecionar.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Modo Visual de Bloco</span></h1>
+
+<p class="intro">Comentar 20 linhas de código, colocar um traço no começo de cada item de uma lista, apagar uma coluna de uma tabela: tudo isso é editar o <strong>mesmo lugar em várias linhas</strong>. O modo visual de bloco seleciona um retângulo de texto e permite digitar em todas as linhas de uma vez. Poucos editores fazem isso tão bem.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Selecionar um retângulo com <kbd>Ctrl</kbd>+<kbd>v</kbd>.</li>
+  <li>Inserir texto no começo de várias linhas com <code>I</code> (comentar código).</li>
+  <li>Acrescentar no fim de linhas de tamanhos diferentes com <code>$A</code>.</li>
+  <li>Apagar, trocar (<code>c</code>, <code>r</code>) e copiar colunas.</li>
+  <li>O que fazer se <kbd>Ctrl</kbd>+<kbd>v</kbd> colar em vez de selecionar.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Esta aula continua <a href="visual.html">Modo Visual</a>. O bloco segue as mesmas ideias: primeiro a seleção, depois o comando.</p>
+</div>
+
+<hr>
+
+<h2>Ctrl-v: selecionar um retângulo</h2>
+<p>Com <kbd>Ctrl</kbd>+<kbd>v</kbd>, o rodapé mostra <code>-- VISUAL/BLOCO --</code> (em inglês, <code>-- VISUAL BLOCK --</code>). Agora <code>j</code> e <code>k</code> aumentam o bloco em linhas, e <code>l</code> e <code>h</code>, em colunas. O canto direito do rodapé mostra o tamanho como "linhas x colunas".</p>
+
+<dl class="anatomy">
+  <dt>Ctrl+v</dt><dd>Começa a seleção de bloco no cursor.</dd>
+  <dt>jj</dt><dd>Estende duas linhas para baixo: o bloco tem 3 linhas.</dd>
+  <dt>ll</dt><dd>Estende duas colunas para a direita: o bloco tem 3 colunas.</dd>
+</dl>
+
+<div class="vimdemo" data-file="lista.txt" data-keys="&lt;C-v&gt;jjll">
+<pre class="vim-inicial">linha um
+linha dois
+linha tres
+linha quatro</pre>
+</div>
+
+<p>O retângulo destacado cobre as colunas 1 a 3 das linhas 1 a 3, e o rodapé mostra <code>3x3</code>.</p>
+
+<hr>
+
+<h2>I: inserir no começo de várias linhas</h2>
+<p>Este é o uso mais famoso: comentar várias linhas. Selecione a primeira coluna das linhas e aperte <code>I</code> maiúsculo (de <em>insert</em>). Digite o texto e aperte <kbd>Esc</kbd>. Enquanto você digita, o texto aparece só na primeira linha. Ao apertar <kbd>Esc</kbd>, o Vim repete o mesmo texto em todas as linhas do bloco.</p>
+
+<dl class="anatomy">
+  <dt>Ctrl+v</dt><dd>Começa o bloco.</dd>
+  <dt>jj</dt><dd>Três linhas, uma coluna.</dd>
+  <dt>I</dt><dd>Insere antes do bloco, em cada linha.</dd>
+  <dt># </dt><dd>O texto a inserir.</dd>
+  <dt>Esc</dt><dd>Termina e aplica a todas as linhas.</dd>
+</dl>
+
+<div class="vimdemo" data-file="script.sh" data-keys="&lt;C-v&gt;jjI# &lt;Esc&gt;">
+<pre class="vim-inicial">linha um
+linha dois
+linha tres
+linha quatro</pre>
+</div>
+
+<div class="warning">
+<strong>Atenção: use I maiúsculo</strong>
+<p>O <code>i</code> minúsculo no modo de bloco não insere em todas as linhas. E não saia com as setas nem com o mouse: o texto só é copiado para as outras linhas quando você aperta <kbd>Esc</kbd>.</p>
+</div>
+
+<div class="vimtry" data-file="script.sh">
+<pre class="vim-inicial">echo "backup"
+rm -rf /tmp/teste
+echo "limpeza"
+echo "fim"</pre>
+<pre class="vim-meta"># echo "backup"
+# rm -rf /tmp/teste
+# echo "limpeza"
+echo "fim"</pre>
+<p class="try-task"><strong>Missão:</strong> comente as três primeiras linhas colocando <code>#&#160;</code> (cerquilha e espaço) no começo de cada uma. Use <kbd>Ctrl</kbd>+<kbd>v</kbd>, <code>jj</code>, <code>I</code>, digite e <kbd>Esc</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>Descomentar: apagar uma coluna</h2>
+<p>Para tirar os comentários, selecione as colunas do comentário em todas as linhas e apague com <code>d</code> (ou <code>x</code>):</p>
+
+<div class="vimdemo" data-file="codigo.js" data-keys="&lt;C-v&gt;jjlld">
+<pre class="vim-inicial">// a
+// b
+// c</pre>
+</div>
+
+<p>O bloco cobriu 3 colunas (<code>//</code> e o espaço) nas 3 linhas. O <code>d</code> removeu exatamente esse retângulo.</p>
+
+<div class="vimtry" data-file="codigo.js">
+<pre class="vim-inicial">// let a = 1
+// let b = 2
+// let c = 3
+let d = 4</pre>
+<pre class="vim-meta">let a = 1
+let b = 2
+let c = 3
+let d = 4</pre>
+<p class="try-task"><strong>Missão:</strong> descomente as três primeiras linhas, apagando o bloco <code>//&#160;</code> de três colunas.</p>
+</div>
+
+<hr>
+
+<h2>A: acrescentar depois do bloco</h2>
+<p>O <code>A</code> (de <em>append</em>) faz o mesmo que o <code>I</code>, mas insere <strong>depois</strong> da coluna da direita do bloco.</p>
+
+<h3>No fim de linhas de tamanhos diferentes: $A</h3>
+<p>Se as linhas têm tamanhos diferentes, um bloco comum não alcança o fim de todas. A solução é apertar <code>$</code> dentro do modo de bloco: a borda direita passa a ser "o fim de cada linha", e o <code>A</code> acrescenta no fim de todas.</p>
+
+<dl class="anatomy">
+  <dt>Ctrl+v</dt><dd>Começa o bloco.</dd>
+  <dt>jj</dt><dd>Três linhas.</dd>
+  <dt>$</dt><dd>Estende até o fim de cada linha, qualquer que seja o tamanho.</dd>
+  <dt>A,</dt><dd>Acrescenta uma vírgula depois do bloco.</dd>
+  <dt>Esc</dt><dd>Aplica a todas as linhas.</dd>
+</dl>
+
+<div class="vimdemo" data-file="dados.txt" data-keys="&lt;C-v&gt;jj$A,&lt;Esc&gt;">
+<pre class="vim-inicial">a = 1
+bb = 2
+ccc = 3</pre>
+</div>
+
+<div class="vimtry" data-file="lista.js">
+<pre class="vim-inicial">"maçã"
+"banana"
+"uva"
+"laranja"</pre>
+<pre class="vim-meta">"maçã",
+"banana",
+"uva",
+"laranja"</pre>
+<p class="try-task"><strong>Missão:</strong> coloque uma vírgula no fim das três primeiras linhas, que têm tamanhos diferentes. Use <code>$</code> dentro do bloco antes do <code>A</code>.</p>
+</div>
+
+<hr>
+
+<h2>c e r: trocar o conteúdo do bloco</h2>
+<p>O <code>c</code> apaga o bloco e entra no modo de inserção. O que você digitar aparece em todas as linhas ao apertar <kbd>Esc</kbd>:</p>
+
+<div class="vimdemo" data-file="lista.txt" data-keys="&lt;C-v&gt;jjllc***&lt;Esc&gt;">
+<pre class="vim-inicial">linha um
+linha dois
+linha tres
+linha quatro</pre>
+</div>
+
+<p>Já o <code>r</code> seguido de um caractere troca <strong>cada</strong> caractere do bloco por ele, sem mudar o tamanho:</p>
+
+<div class="vimdemo" data-file="lista.txt" data-keys="&lt;C-v&gt;jjllrX">
+<pre class="vim-inicial">linha um
+linha dois
+linha tres
+linha quatro</pre>
+</div>
+
+<hr>
+
+<h2>Copiar e colar colunas</h2>
+<p>Um bloco copiado com <code>y</code> continua sendo um bloco: ao colar, ele é inserido como colunas, uma linha do bloco em cada linha do texto. Quando o bloco tem mais de duas linhas, o rodapé avisa <code>bloco de 3 linhas copiado</code>.</p>
+
+<div class="vimdemo" data-file="lista.txt" data-keys="&lt;C-v&gt;jjlly0P">
+<pre class="vim-inicial">linha um
+linha dois
+linha tres
+linha quatro</pre>
+</div>
+
+<p>Copiamos "lin" das três primeiras linhas e colamos com <code>P</code> no começo da linha 1. O Vim colou cada pedaço na mesma coluna da linha correspondente.</p>
+
+<hr>
+
+<h2>Formas diferentes de editar várias linhas</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tarefa</th><th>Com bloco</th><th>Alternativa</th></tr>
+<tr><td>Comentar linhas 1 a 3</td><td><kbd>Ctrl</kbd>+<kbd>v</kbd> <code>jjI# </code><kbd>Esc</kbd></td><td><code>:1,3s/^/# /</code></td></tr>
+<tr><td>Vírgula no fim de 3 linhas</td><td><kbd>Ctrl</kbd>+<kbd>v</kbd> <code>jj$A,</code><kbd>Esc</kbd></td><td><code>:.,+2s/$/,/</code> ou <code>A,</code><kbd>Esc</kbd> e <code>j.j.</code></td></tr>
+<tr><td>Apagar as 3 primeiras colunas</td><td><kbd>Ctrl</kbd>+<kbd>v</kbd> <code>jjlld</code></td><td><code>:%s/^...//</code></td></tr>
+<tr><td>Algo em linhas que casam com um padrão</td><td>Não serve</td><td><code>:g/padrão/norm I# </code> (veja <a href="ex-avancado.html">Comandos Ex</a>)</td></tr>
+</table>
+</div>
+<p>O bloco é melhor quando as linhas são vizinhas e você quer ver o resultado. O <code>:s</code> é melhor para muitas linhas ou quando você sabe os números delas.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Ctrl+V colou um texto em vez de selecionar</strong>
+<p><strong>O que aconteceu:</strong> o terminal (Windows Terminal, alguns terminais com atalhos de "copiar/colar") capturou o <kbd>Ctrl</kbd>+<kbd>v</kbd> antes do Vim.</p>
+<p><strong>Como resolver:</strong> use <kbd>Ctrl</kbd>+<kbd>q</kbd>, que o Vim entende como o mesmo comando. No gVim do Windows, também é <kbd>Ctrl</kbd>+<kbd>q</kbd>.</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei I, digitei, e só a primeira linha mudou</strong>
+<p><strong>O que aconteceu:</strong> o texto só é copiado para as outras linhas quando você aperta <kbd>Esc</kbd>. Se você saiu com uma seta, com o mouse ou com <kbd>Ctrl</kbd>+<kbd>c</kbd>, a cópia não acontece.</p>
+<p><strong>Como resolver:</strong> <code>u</code>, refaça e termine sempre com <kbd>Esc</kbd>. Também confira se usou <code>I</code> maiúsculo.</p>
+</div>
+
+<div class="cenario">
+<strong>O A colocou o texto no meio das linhas mais compridas</strong>
+<p><strong>O que aconteceu:</strong> sem o <code>$</code>, o bloco termina numa coluna fixa, e o <code>A</code> insere logo depois dela.</p>
+<p><strong>Como resolver:</strong> <code>u</code> e refaça apertando <code>$</code> antes do <code>A</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Uma linha curta ficou de fora do I</strong>
+<p><strong>O que aconteceu:</strong> o <code>I</code> só insere nas linhas que chegam até a coluna do bloco. Uma linha vazia ou mais curta que a coluna fica igual.</p>
+<p><strong>Como resolver:</strong> comece o bloco na coluna 1 (<code>0</code> antes do <kbd>Ctrl</kbd>+<kbd>v</kbd>) ou use <code>:s/^/texto/</code>, que funciona em qualquer linha.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>No modo de bloco</th><th>O que faz</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>v</kbd> (ou <kbd>Ctrl</kbd>+<kbd>q</kbd>)</td><td>Começa o bloco</td></tr>
+<tr><td><code>I</code>texto<kbd>Esc</kbd></td><td>Insere antes do bloco em cada linha</td></tr>
+<tr><td><code>A</code>texto<kbd>Esc</kbd></td><td>Acrescenta depois do bloco em cada linha</td></tr>
+<tr><td><code>$</code></td><td>Estende até o fim de cada linha</td></tr>
+<tr><td><code>c</code>texto<kbd>Esc</kbd></td><td>Troca o bloco pelo texto em cada linha</td></tr>
+<tr><td><code>r</code> + caractere</td><td>Troca cada caractere do bloco</td></tr>
+<tr><td><code>d</code> / <code>x</code></td><td>Apaga o bloco</td></tr>
+<tr><td><code>y</code> e depois <code>p</code>/<code>P</code></td><td>Copia e cola como colunas</td></tr>
+<tr><td><code>o</code> / <code>O</code></td><td>Vai para o canto oposto / para o outro canto da mesma linha</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Inserir em várias linhas</h3>
+<p>No modo de bloco, qual tecla insere texto antes do bloco em todas as linhas?</p>
+<div class="ex-code"><input data-answer="I" aria-label="tecla"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Até o fim de cada linha</h3>
+<p>Complete para acrescentar <code>;</code> no fim de 4 linhas de tamanhos diferentes:</p>
+<div class="ex-code">Ctrl+v 3j <input data-answer="$A;|$A ;" aria-label="teclas"> Esc</div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. No Windows Terminal, o <kbd>Ctrl</kbd>+<kbd>v</kbd> cola em vez de selecionar. Qual a alternativa?</p>
+<label><input type="radio" name="q3"> <kbd>Ctrl</kbd>+<kbd>b</kbd></label>
+<label><input type="radio" name="q3"> <kbd>Ctrl</kbd>+<kbd>q</kbd></label>
+<label><input type="radio" name="q3"> <kbd>Shift</kbd>+<kbd>v</kbd></label>
+<label><input type="radio" name="q3"> Não há alternativa.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. Você digitou o texto depois do <code>I</code> e saiu com a seta para baixo. O que acontece?</p>
+<label><input type="radio" name="q4"> O texto vai para todas as linhas.</label>
+<label><input type="radio" name="q4"> O Vim mostra um erro.</label>
+<label><input type="radio" name="q4"> O texto vai para a linha de baixo.</label>
+<label><input type="radio" name="q4"> Só a primeira linha recebe o texto.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><kbd>Ctrl</kbd>+<kbd>v</kbd> seleciona um retângulo; <code>j</code>/<code>k</code> mudam as linhas e <code>h</code>/<code>l</code> as colunas.</li>
+  <li><code>I</code>…<kbd>Esc</kbd> insere no começo de cada linha (comentar).</li>
+  <li><code>$A</code>…<kbd>Esc</kbd> acrescenta no fim de cada linha, mesmo com tamanhos diferentes.</li>
+  <li><code>d</code> apaga a coluna, <code>c</code> troca, <code>r</code> substitui cada caractere.</li>
+  <li>Se <kbd>Ctrl</kbd>+<kbd>v</kbd> colar, use <kbd>Ctrl</kbd>+<kbd>q</kbd>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

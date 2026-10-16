@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — estou preso no Vim! Como sair | Guia Vim</title>
+<meta name="description" content="Preso no Vim? O roteiro para sair em qualquer situação: Esc e :q!, tela congelada por Ctrl-S, gravando @q, Caps Lock, aviso E325 do arquivo de troca, Vim aberto pelo git ou crontab, Ctrl-Z e o modo Ex.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Estou Preso no Vim!</span></h1>
+
+<p class="intro">Respire: você não está preso. O Vim só não sai com <kbd>Ctrl</kbd>+<kbd>q</kbd> nem com o "X" da janela como outros programas. Esta página é o mapa de emergência: primeiro o roteiro que resolve 95% dos casos, depois cada situação estranha, com o que aconteceu e como sair.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>O roteiro de três passos para sair de qualquer modo.</li>
+  <li>O que fazer quando a tela congela, quando aparece "gravando" ou quando as teclas fazem coisas estranhas.</li>
+  <li>Como responder ao aviso <code>E325: ATENÇÃO</code> do arquivo de troca.</li>
+  <li>O que fazer quando o Vim abre sozinho (git, crontab) e quando ele "some" com <kbd>Ctrl</kbd>+<kbd>z</kbd>.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>O roteiro de emergência</h2>
+<ol class="passo">
+  <li><strong>Aperte <kbd>Esc</kbd> duas vezes.</strong> Isso sai do modo de inserção, do modo visual e cancela comandos pela metade. Não faz mal apertar a mais.</li>
+  <li><strong>Digite <code>:q!</code> e aperte <kbd>Enter</kbd>.</strong> Você vai ver o <code>:q!</code> aparecer no rodapé enquanto digita. Isso sai <strong>sem salvar</strong>.</li>
+  <li><strong>Quer guardar o que fez?</strong> Em vez de <code>:q!</code>, digite <code>:wq</code> e <kbd>Enter</kbd>: salva e sai.</li>
+</ol>
+
+<dl class="anatomy">
+  <dt>Esc Esc</dt><dd>Volta ao modo normal, de onde quer que você esteja.</dd>
+  <dt>:</dt><dd>Abre a linha de comando no rodapé.</dd>
+  <dt>q!</dt><dd><em>quit</em> + "sem perguntar": sai descartando as alterações.</dd>
+  <dt>Enter</dt><dd>Executa.</dd>
+</dl>
+
+<p>Se o <code>:q!</code> não aparece no rodapé quando você digita, veja as situações abaixo: alguma coisa está "segurando" o teclado.</p>
+
+<div class="vimtry" data-file="panico.txt">
+<pre class="vim-inicial">Treino de pânico controlado.
+Entre no modo de inserção (i), no visual (v), comece um comando (d),
+abra a linha de comando (:) e depois volte com Esc Esc.
+No fim, saia com :q!</pre>
+<p class="try-task"><strong>Treino livre:</strong> faça as bagunças sugeridas no texto e pratique o roteiro. Reparou que <kbd>Esc</kbd> <kbd>Esc</kbd> sempre leva de volta a um rodapé limpo? Use Reiniciar para repetir.</p>
+</div>
+
+<hr>
+
+<h2>A tela congelou e nada responde</h2>
+
+<div class="cenario">
+<strong>Apertei Ctrl+S (o "salvar" de outros programas) e tudo travou</strong>
+<p><strong>O que aconteceu:</strong> no terminal, <kbd>Ctrl</kbd>+<kbd>s</kbd> é um comando antigo de "controle de fluxo": ele pausa a saída do terminal. O Vim continua funcionando, mas a tela parou de ser atualizada.</p>
+<p><strong>Como resolver:</strong> aperte <kbd>Ctrl</kbd>+<kbd>q</kbd>. A tela volta, e tudo o que você digitou durante a pausa aparece de uma vez. Para desativar esse comportamento no terminal, acrescente <code>stty -ixon</code> ao seu <code>~/.bashrc</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>A tela ficou cheia de lixo ou desalinhada</strong>
+<p><strong>O que aconteceu:</strong> outro programa escreveu no terminal por cima do Vim, ou a janela mudou de tamanho no meio de algo.</p>
+<p><strong>Como resolver:</strong> <kbd>Ctrl</kbd>+<kbd>l</kbd> manda o Vim redesenhar a tela.</p>
+</div>
+
+<hr>
+
+<h2>O rodapé mostra algo estranho</h2>
+
+<div class="cenario">
+<strong>Aparece "gravando @q" no rodapé</strong>
+<p><strong>O que aconteceu:</strong> você apertou <code>q</code> seguido de uma letra (por exemplo, tentando digitar <code>:q</code> sem os dois-pontos). Isso começa a gravar uma <a href="macros.html">macro</a>: o Vim está anotando cada tecla.</p>
+<p><strong>Como resolver:</strong> aperte <code>q</code> mais uma vez, no modo normal, para parar a gravação. Nada foi alterado só por gravar.</p>
+</div>
+
+<div class="vimdemo" data-file="exemplo.txt" data-keys="qqq">
+<pre class="vim-inicial">Texto qualquer.</pre>
+</div>
+
+<div class="cenario">
+<strong>Aparece uma janela pequena com comandos antigos no pé da tela</strong>
+<p><strong>O que aconteceu:</strong> você digitou <code>q:</code> (em vez de <code>:q</code>). Isso abre a "janela da linha de comando", com o histórico dos seus comandos. Se tentar sair errado, aparece <code>E11: Inválido na janela da linha de comando; &lt;CR&gt; executa, CTRL-C sai</code>.</p>
+<p><strong>Como resolver:</strong> digite <code>:q</code> e <kbd>Enter</kbd> para fechar só essa janelinha, ou aperte <kbd>Ctrl</kbd>+<kbd>c</kbd> duas vezes.</p>
+</div>
+
+<div class="cenario">
+<strong>Aparece "Entrando no modo Ex. Digite "visual" para ir para o modo Normal."</strong>
+<p><strong>O que aconteceu:</strong> você apertou <code>Q</code> (maiúsculo) e entrou no modo Ex, uma linha de comando contínua, herança do editor <code>ex</code>.</p>
+<p><strong>Como resolver:</strong> digite <code>visual</code> e <kbd>Enter</kbd> para voltar à tela normal. Ou saia direto com <code>q!</code> e <kbd>Enter</kbd> (aqui sem os dois-pontos).</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei Ctrl+C e apareceu "Digite :qa! e aperte &lt;Enter&gt; para abandonar as alterações e sair do Vim"</strong>
+<p><strong>O que aconteceu:</strong> o Vim percebeu que você está tentando sair "à força" e deixa a dica.</p>
+<p><strong>Como resolver:</strong> siga a dica: <code>:qa!</code> e <kbd>Enter</kbd> sai de todos os arquivos abertos sem salvar.</p>
+</div>
+
+<hr>
+
+<h2>As teclas fazem coisas inesperadas</h2>
+
+<div class="cenario">
+<strong>Cada tecla faz uma coisa diferente do que deveria</strong>
+<p><strong>O que aconteceu:</strong> o <kbd>Caps Lock</kbd> está ligado. No Vim, maiúscula e minúscula são comandos diferentes: <code>j</code> desce, mas <code>J</code> junta linhas; <code>u</code> desfaz, mas <code>U</code> desfaz a linha inteira; <code>K</code> abre o manual (<code>man</code>) da palavra sob o cursor.</p>
+<p><strong>Como resolver:</strong> desligue o <kbd>Caps Lock</kbd>, aperte <kbd>Esc</kbd> e desfaça os estragos com <code>u</code>. Se o <code>K</code> abriu um manual, saia dele com <code>q</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Digito e não acontece nada, mas o canto direito do rodapé mostra letras</strong>
+<p><strong>O que aconteceu:</strong> há um comando pela metade esperando continuação (por exemplo <code>d</code>, <code>2</code> ou <code>"a</code>).</p>
+<p><strong>Como resolver:</strong> <kbd>Esc</kbd> cancela o comando pendente.</p>
+</div>
+
+<hr>
+
+<h2>E325: ATENÇÃO — o arquivo de troca</h2>
+<p>Enquanto você edita, o Vim guarda suas alterações num arquivo escondido ao lado do original, o <strong>arquivo de troca</strong> (<em>swap file</em>), com nome como <code>.notas.txt.swp</code>. Numa saída normal ele é apagado. Se ele ainda existe quando você abre o arquivo, o Vim para e avisa:</p>
+
+<pre class="term">$ vim notas.txt
+E325: ATENÇÃO
+Foi encontrado um arquivo de troca de nome ".notas.txt.swp"
+        pertence a: ana   com data: qui out 15 10:12:44 2026
+   nome do arquivo: ~ana/notas.txt
+        modificado: SIM
+   nome de usuário: ana   nome do host: notebook
+    ID do processo: 4321
+Ao abrir o arquivo "notas.txt"
+       com data de: qui out 15 10:05:11 2026
+
+(1) Outro programa pode estar editando o mesmo arquivo. Se for esse
+    o caso, cuidado para não acabar com duas versões do mesmo arquivo
+    ao fazer alterações. Saia, ou continue com cuidado.
+(2) Uma sessão de edição para esse arquivo travou.
+    Se for esse o caso, use ":recover" ou "vim -r notas.txt"
+    para recuperar as alterações (veja ":help recovery").
+    Se você já vez isso, exclua o arquivo de troca ".notas.txt.swp"
+    para evitar esta mensagem.
+
+O arquivo de troca ".notas.txt.swp" já existe!
+[A]brir somente-leitura, (E)ditar mesmo assim, (R)ecuperar, E(x)cluí-lo, (S)air, (C)ancelar:</pre>
+
+<p>O "vez" no lugar de "fez" está assim na tradução oficial do Vim. As datas variam conforme o sistema. As duas causas possíveis estão escritas na própria mensagem: (1) o arquivo já está aberto em outro Vim, ou (2) um Vim anterior fechou de forma anormal (terminal fechado, queda de energia, SSH caiu).</p>
+
+<h3>Qual resposta escolher</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Opção</th><th>Quando usar</th></tr>
+<tr><td><kbd>A</kbd></td><td>Abrir somente-leitura</td><td>Você só quer olhar o arquivo.</td></tr>
+<tr><td><kbd>E</kbd></td><td>Editar mesmo assim</td><td>Você tem certeza de que não há outro Vim aberto e não quer recuperar nada.</td></tr>
+<tr><td><kbd>R</kbd></td><td>Recuperar</td><td>O Vim anterior travou e você quer de volta o que não foi salvo.</td></tr>
+<tr><td><kbd>x</kbd></td><td>Excluí-lo</td><td>Apaga o arquivo de troca. Só aparece quando o processo que o criou já não está rodando.</td></tr>
+<tr><td><kbd>S</kbd></td><td>Sair</td><td>Você lembrou que o arquivo está aberto em outra janela ou aba do terminal: vá até ela.</td></tr>
+<tr><td><kbd>C</kbd></td><td>Cancelar</td><td>Desiste de abrir e volta ao terminal.</td></tr>
+</table>
+</div>
+
+<p>No Vim em inglês as letras são outras: <code>[O]pen Read-Only, (E)dit anyway, (R)ecover, (D)elete it, (Q)uit, (A)bort</code>. Leia sempre a linha de opções antes de apertar.</p>
+
+<h3>Recuperando depois de um travamento</h3>
+<ol class="passo">
+  <li>Aperte <kbd>R</kbd>. O Vim mostra <code>Recuperação concluída. Você deve verificar se está tudo certo.</code></li>
+  <li>Confira o texto. Se estiver bom, salve com <code>:w</code>.</li>
+  <li>O arquivo de troca antigo continua lá. Saia (<code>:q</code>), abra de novo e, no aviso, escolha <kbd>x</kbd> (Excluí-lo). Ou apague pelo terminal: <code>rm .notas.txt.swp</code>.</li>
+</ol>
+
+<pre class="term">$ vim -r
+$ vim -r notas.txt</pre>
+
+<p>O <code>vim -r</code> sozinho lista os arquivos de troca encontrados; com o nome do arquivo, abre já recuperando.</p>
+
+<hr>
+
+<h2>O Vim abriu sozinho</h2>
+
+<div class="cenario">
+<strong>Rodei git commit e caí no Vim</strong>
+<p><strong>O que aconteceu:</strong> o git abre o editor padrão do sistema para você escrever a mensagem do commit. Em muitos sistemas, esse editor é o Vim.</p>
+<p><strong>Como resolver:</strong> aperte <code>i</code>, escreva a mensagem na primeira linha, <kbd>Esc</kbd> e <code>:wq</code>. Para <strong>cancelar</strong> o commit, saia com <code>:cq</code>: ele sai com código de erro, e o git desiste. Para trocar o editor do git: <code>git config --global core.editor nano</code>.</p>
+</div>
+
+<div class="vimtry" data-file="COMMIT_EDITMSG" data-save="1">
+<pre class="vim-inicial">
+
+
+# Escreva a mensagem do commit. Linhas começando com '#' são ignoradas.
+#
+# No ramo main
+# Mudanças a serem submetidas:
+#	modificado:   login.py</pre>
+<pre class="vim-meta">Corrige erro no login
+# Escreva a mensagem do commit. Linhas começando com '#' são ignoradas.
+#
+# No ramo main
+# Mudanças a serem submetidas:
+#	modificado:   login.py</pre>
+<p class="try-task"><strong>Missão:</strong> o git abriu o Vim. Escreva <code>Corrige erro no login</code> na primeira linha (que está vazia) e saia salvando com <code>:wq</code>. (As linhas com <code>#</code> imitam as instruções do git; o texto real depende da versão e do idioma.)</p>
+</div>
+
+<div class="cenario">
+<strong>crontab -e, visudo ou outro comando abriu o Vim</strong>
+<p><strong>O que aconteceu:</strong> esses comandos usam a variável <code>EDITOR</code>, ou perguntam qual editor usar na primeira vez.</p>
+<p><strong>Como resolver:</strong> para escolher outro editor só desta vez: <code>EDITOR=nano crontab -e</code>. Para sempre: <code>export EDITOR=nano</code> no <code>~/.bashrc</code>. No Debian e no Ubuntu, <code>select-editor</code> refaz a pergunta do <code>crontab</code>.</p>
+</div>
+
+<pre class="term">$ EDITOR=nano crontab -e
+$ git config --global core.editor nano</pre>
+
+<hr>
+
+<h2>O Vim sumiu</h2>
+
+<div class="cenario">
+<strong>Apertei Ctrl+Z e voltei para o terminal</strong>
+<p><strong>O que aconteceu:</strong> <kbd>Ctrl</kbd>+<kbd>z</kbd> suspende o programa e devolve o terminal. O Vim continua vivo, pausado, com tudo o que você fez.</p>
+<p><strong>Como resolver:</strong> digite <code>fg</code> (de <em>foreground</em>) para voltar a ele.</p>
+</div>
+
+<pre class="term">$ vim notas.txt
+[1]+  Parado                  vim notas.txt         « depois do Ctrl+Z
+$ fg</pre>
+
+<div class="warning">
+<strong>Não abra o mesmo arquivo de novo</strong>
+<p>Se você esquecer o Vim suspenso e abrir <code>vim notas.txt</code> outra vez, vai ver o aviso E325 da seção acima: o arquivo de troca é do Vim pausado. Escolha <kbd>S</kbd> (Sair) e use <code>fg</code>. O comando <code>jobs</code> mostra os programas suspensos.</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de sair</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Você quer…</th><th>Teclas (depois de <kbd>Esc</kbd>)</th></tr>
+<tr><td>Sair sem salvar nada</td><td><code>:q!</code></td></tr>
+<tr><td>Salvar e sair</td><td><code>:wq</code> ou <code>ZZ</code></td></tr>
+<tr><td>Sair de vários arquivos/janelas sem salvar</td><td><code>:qa!</code></td></tr>
+<tr><td>Sair com erro (cancelar commit do git)</td><td><code>:cq</code></td></tr>
+<tr><td>Voltar ao terminal sem fechar o Vim</td><td><kbd>Ctrl</kbd>+<kbd>z</kbd> (e <code>fg</code> para voltar)</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Referência de emergência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Sintoma</th><th>Saída</th></tr>
+<tr><td>Não sei em que modo estou</td><td><kbd>Esc</kbd> <kbd>Esc</kbd></td></tr>
+<tr><td>Tela congelada</td><td><kbd>Ctrl</kbd>+<kbd>q</kbd></td></tr>
+<tr><td>Tela bagunçada</td><td><kbd>Ctrl</kbd>+<kbd>l</kbd></td></tr>
+<tr><td>"gravando @x"</td><td><code>q</code></td></tr>
+<tr><td>Janela de histórico (<code>q:</code>)</td><td><code>:q</code> ou <kbd>Ctrl</kbd>+<kbd>c</kbd> duas vezes</td></tr>
+<tr><td>Modo Ex (<code>Q</code>)</td><td><code>visual</code> + <kbd>Enter</kbd></td></tr>
+<tr><td>Manual aberto pelo <code>K</code></td><td><code>q</code></td></tr>
+<tr><td>E325 ao abrir</td><td>Leia as opções; na dúvida, <kbd>A</kbd> (somente leitura) ou <kbd>S</kbd> (sair)</td></tr>
+<tr><td>Vim suspenso</td><td><code>fg</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Sair sem salvar</h3>
+<p>Depois de <kbd>Esc</kbd>, o que você digita para sair sem salvar?</p>
+<div class="ex-code"><input data-answer=":q!|:qa!|ZQ" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Descongelar</h3>
+<p>A tela travou depois de um <kbd>Ctrl</kbd>+<kbd>s</kbd>. Qual atalho destrava?</p>
+<div class="ex-code">Ctrl+<input data-answer="q|Q" aria-label="tecla"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. O rodapé mostra "gravando @q". O que fazer?</p>
+<label><input type="radio" name="q3"> Fechar o terminal.</label>
+<label><input type="radio" name="q3"> Apertar <code>q</code> no modo normal.</label>
+<label><input type="radio" name="q3"> Digitar <code>:w</code>.</label>
+<label><input type="radio" name="q3"> Apertar <kbd>Ctrl</kbd>+<kbd>q</kbd>.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. O seu notebook desligou com o Vim aberto. Ao abrir o arquivo de novo, aparece E325. Qual opção traz de volta o que não foi salvo?</p>
+<label><input type="radio" name="q4"> (A)brir somente-leitura</label>
+<label><input type="radio" name="q4"> (E)ditar mesmo assim</label>
+<label><input type="radio" name="q4"> (S)air</label>
+<label><input type="radio" name="q4"> (R)ecuperar</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">5. O git abriu o Vim para a mensagem do commit, mas você desistiu do commit. Como sair para que o git cancele?</p>
+<label><input type="radio" name="q5"> <code>:cq</code></label>
+<label><input type="radio" name="q5"> <code>:wq</code></label>
+<label><input type="radio" name="q5"> <code>ZZ</code></label>
+<label><input type="radio" name="q5"> <kbd>Ctrl</kbd>+<kbd>z</kbd></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Roteiro: <kbd>Esc</kbd> <kbd>Esc</kbd>, depois <code>:q!</code> (sair sem salvar) ou <code>:wq</code> (salvar e sair).</li>
+  <li>Tela congelada: <kbd>Ctrl</kbd>+<kbd>q</kbd>. "gravando": <code>q</code>. Modo Ex: <code>visual</code>.</li>
+  <li>E325 avisa que existe um arquivo de troca: leia as opções; <kbd>R</kbd> recupera depois de um travamento.</li>
+  <li><code>:cq</code> sai com erro (cancela o commit do git).</li>
+  <li><kbd>Ctrl</kbd>+<kbd>z</kbd> só pausa o Vim: <code>fg</code> traz de volta.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

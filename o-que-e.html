@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — o que é o Vim | Guia Vim</title>
+<meta name="description" content="O que é o Vim: a história do vi ao Vim e ao Neovim, por que ele é um editor modal, onde ele já está instalado (servidores, git, crontab) e por que vale a pena aprender.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">O que é o Vim</span></h1>
+
+<p class="intro">O Vim é um editor de texto que roda no terminal. Ele é diferente de quase todos os outros editores: em vez de você escrever o tempo todo, as teclas também servem como <strong>comandos</strong>. Isso assusta no primeiro dia e vira superpoder na primeira semana.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>De onde vem o Vim: do <code>vi</code> dos anos 70 ao Neovim de hoje.</li>
+  <li>O que quer dizer "editor modal" e por que isso é rápido.</li>
+  <li>Onde o Vim (ou o <code>vi</code>) já está esperando por você: servidores, <code>git commit</code>, <code>crontab -e</code>.</li>
+  <li>Quando vale a pena usar o Vim, e quando não.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>O nome: Vi IMproved</h2>
+<p><strong>Vim</strong> vem de <em>Vi IMproved</em>, "vi melhorado". Ele é a versão moderna de um editor bem mais antigo, o <code>vi</code> (de <em>visual</em>). A tela de abertura do Vim em português traduz o nome como "VI Melhorado":</p>
+
+<pre class="term" data-title="ana@notebook: ~ — vim">$ vim
+~
+~                         VIM - VI Melhorado
+~
+~                           versão 9.1.2141
+~                     por Bram Moolenaar et al.
+~          Vim tem código aberto e é livremente distribuível
+~
+~                 Ajude crianças pobres em Uganda!
+~        digite  :help iccf&lt;Enter&gt;     para informações
+~
+~        digite  :q&lt;Enter&gt;             para sair
+~        digite  :help&lt;Enter&gt; ou &lt;F1&gt;  para ajuda on-line
+~        digite  :help version9&lt;Enter&gt; para info da versão</pre>
+
+<p>Essa tela só aparece quando você abre o <code>vim</code> sem nenhum arquivo. Ela já ensina a coisa mais importante: <code>:q</code> e <kbd>Enter</kbd> para sair. O número da versão muda conforme o seu sistema.</p>
+
+<div class="tip">
+<strong>Uganda?</strong>
+<p>O Vim é <em>charityware</em>: é grátis, mas o autor pedia que quem gostasse dele doasse para crianças órfãs em Uganda, pela fundação ICCF. A mensagem continua na tela de abertura até hoje.</p>
+</div>
+
+<hr>
+
+<h2>Uma linha do tempo</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Ano</th><th>Editor</th><th>O que mudou</th></tr>
+<tr><td>1976</td><td><code>vi</code></td><td>Bill Joy cria o modo "visual" do editor <code>ex</code>, na Universidade da Califórnia em Berkeley. Pela primeira vez você vê o texto enquanto edita.</td></tr>
+<tr><td>1991</td><td>Vim 1.14</td><td>Bram Moolenaar lança o Vim, inicialmente para o computador Amiga.</td></tr>
+<tr><td>1994–2001</td><td>Vim 3 a 6</td><td>Janelas divididas (3.0), cores de sintaxe (5.0), dobras e plugins (6.0).</td></tr>
+<tr><td>2014</td><td>Neovim</td><td>Um grupo cria o Neovim, uma variação do Vim focada em extensibilidade (com a linguagem Lua).</td></tr>
+<tr><td>2022</td><td>Vim 9.0</td><td>Nova linguagem de script, o Vim9 script, bem mais rápida.</td></tr>
+<tr><td>2023</td><td>—</td><td>Bram Moolenaar morre. O Vim continua sendo mantido por uma equipe de voluntários.</td></tr>
+<tr><td>2024</td><td>Vim 9.1</td><td>Versão de referência deste guia. Recebe correções contínuas (os "patches").</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Por que "modal"?</h2>
+<p>Num editor comum (Bloco de Notas, Word, VS Code), cada tecla de letra escreve aquela letra. Para comandos, você usa o mouse ou atalhos com <kbd>Ctrl</kbd>.</p>
+<p>O Vim tem <strong>modos</strong>. No <strong>modo normal</strong>, em que ele abre, as letras são comandos: <code>x</code> apaga um caractere, <code>dd</code> apaga uma linha, <code>w</code> pula para a próxima palavra. Para escrever, você entra no <strong>modo de inserção</strong> com <kbd>i</kbd> e sai dele com <kbd>Esc</kbd>.</p>
+
+<p>Veja a mesma sequência de teclas, <code>dd</code>, nos dois modos. Primeiro no modo normal:</p>
+
+<div class="vimdemo" data-file="exemplo.txt" data-keys="dd">
+<pre class="vim-inicial">linha que vai sumir
+linha que fica</pre>
+</div>
+
+<p>A linha inteira sumiu: no modo normal, <code>dd</code> é o comando "apagar linha". Agora as mesmas duas teclas depois de entrar no modo de inserção com <kbd>i</kbd>:</p>
+
+<div class="vimdemo" data-file="exemplo.txt" data-keys="idd&lt;Esc&gt;">
+<pre class="vim-inicial">linha que vai sumir
+linha que fica</pre>
+</div>
+
+<p>Dessa vez apareceram as letras "dd" no texto. O modo muda o significado de cada tecla. Por isso o Vim mostra o modo atual no rodapé, e por isso <kbd>Esc</kbd> é a tecla mais importante dele.</p>
+
+<h3>Por que isso é bom?</h3>
+<ul>
+  <li><strong>Sem mouse e sem <kbd>Ctrl</kbd>:</strong> as mãos ficam na posição de digitação o tempo todo.</li>
+  <li><strong>Comandos combináveis:</strong> <code>d</code> (apagar) + <code>w</code> (palavra) = apagar palavra. Aprendeu um verbo novo, ele funciona com todos os movimentos que você já sabe.</li>
+  <li><strong>Repetição:</strong> o <code>.</code> repete a última alteração. Você ensina uma vez e aplica mil.</li>
+  <li><strong>Funciona em qualquer lugar:</strong> por SSH, num servidor sem interface gráfica, dentro de um container.</li>
+</ul>
+
+<div class="vimtry" data-file="primeiro.txt" data-col="3">
+<pre class="vim-inicial">O xVim é xmodal.</pre>
+<pre class="vim-meta">O Vim é modal.</pre>
+<p class="try-task"><strong>Missão:</strong> o texto tem dois <code>x</code> sobrando. O cursor já está no primeiro: aperte <kbd>x</kbd> para apagá-lo. Depois leve o cursor ao segundo com <kbd>l</kbd> (anda para a direita) e apague-o também. Você está no modo normal, então <kbd>x</kbd> apaga em vez de escrever.</p>
+</div>
+
+<hr>
+
+<h2>vi, Vim, Neovim, gvim: qual é qual?</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Nome</th><th>O que é</th><th>Quando você encontra</th></tr>
+<tr><td><code>vi</code></td><td>O editor original, ou um Vim reduzido fingindo ser ele.</td><td>Em praticamente todo sistema Unix e Linux. O padrão POSIX define o <code>vi</code> como um dos utilitários de um sistema Unix.</td></tr>
+<tr><td><code>vim</code></td><td>O Vim completo, no terminal.</td><td>Você instala (veja <a href="instalar.html">Instalar</a>). No macOS já vem.</td></tr>
+<tr><td><code>vim.tiny</code></td><td>Vim compilado com poucos recursos, sem ajuda nem traduções.</td><td>É o <code>vi</code> padrão do Ubuntu e do Debian.</td></tr>
+<tr><td><code>gvim</code></td><td>O Vim com janela gráfica própria (menus, mouse).</td><td>No Windows, é o que o instalador oficial abre. No Linux, pacote <code>vim-gtk3</code> ou <code>gvim</code>.</td></tr>
+<tr><td><code>nvim</code></td><td>Neovim: um primo do Vim, com configuração em Lua.</td><td>Você instala. Os comandos básicos são os mesmos.</td></tr>
+<tr><td><code>busybox vi</code></td><td>Um <code>vi</code> mínimo dentro do BusyBox.</td><td>Containers Alpine, roteadores, sistemas embarcados.</td></tr>
+</table>
+</div>
+
+<p>Tudo o que você aprender nos Níveis 1 e 2 deste guia funciona em todos eles, com poucas exceções. Num <code>vi</code> mínimo podem faltar o desfazer múltiplo e o modo visual. A aula <a href="neovim.html">Neovim</a> mostra as diferenças.</p>
+
+<p>No Ubuntu, você pode conferir que o <code>vi</code> é, na verdade, o <code>vim.tiny</code>:</p>
+
+<pre class="term">$ update-alternatives --display vi
+vi - modo automático
+  a melhor versão de link é /usr/bin/vim.tiny
+  o link atualmente aponta para /usr/bin/vim.tiny          « o "vi" é o Vim reduzido
+  link vi é /usr/bin/vi</pre>
+
+<hr>
+
+<h2>Onde o Vim aparece sem você chamar</h2>
+<p>Mesmo quem não usa o Vim acaba caindo nele. Vários programas abrem "o editor do sistema" para você escrever algo, e em muitos sistemas esse editor é o <code>vi</code>:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Situação</th><th>O que acontece</th></tr>
+<tr><td><code>git commit</code></td><td>O Git abre um editor para a mensagem do commit. Sem configuração, ele usa o <code>vi</code> no macOS, no Fedora e em muitos servidores. No Debian e no Ubuntu ele usa o editor padrão do sistema, que costuma ser o <code>nano</code>.</td></tr>
+<tr><td><code>crontab -e</code></td><td>Abre a sua tabela de tarefas agendadas no editor padrão.</td></tr>
+<tr><td><code>sudo visudo</code></td><td>Edita a configuração do <code>sudo</code>.</td></tr>
+<tr><td><code>less</code> + <kbd>v</kbd></td><td>Abre no editor o arquivo que você está lendo.</td></tr>
+<tr><td>Servidor por SSH</td><td>Muitas vezes o único editor instalado é o <code>vi</code>.</td></tr>
+<tr><td>Container Docker</td><td>Imagens mínimas costumam ter só o <code>vi</code> do BusyBox, ou nenhum editor.</td></tr>
+</table>
+</div>
+
+<p>Quem decide qual editor abre são as variáveis de ambiente <code>VISUAL</code> e <code>EDITOR</code>. Para fazer o Git usar o Vim:</p>
+
+<pre class="term">$ git config --global core.editor vim
+$ export EDITOR=vim       « vale para crontab, visudo e outros, nesta sessão</pre>
+
+<div class="tip">
+<strong>Caiu num vi sem querer?</strong>
+<p>Para sair sem mudar nada: <kbd>Esc</kbd>, depois <code>:q!</code> e <kbd>Enter</kbd>. Num <code>git commit</code>, sair assim cancela o commit. Detalhes em <a href="abrir-sair.html">Abrir e Sair</a>.</p>
+</div>
+
+<hr>
+
+<h2>Vale a pena aprender?</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Aprenda o Vim se…</th><th>Talvez não precise se…</th></tr>
+<tr><td>Você administra servidores ou mexe com Linux pelo terminal.</td><td>Você só edita um arquivo de configuração por ano (o <code>nano</code> resolve).</td></tr>
+<tr><td>Você programa e quer editar sem tirar a mão do teclado.</td><td>Você depende de recursos visuais de uma IDE e está feliz com ela.</td></tr>
+<tr><td>Você quer um editor que funcione igual em qualquer máquina.</td><td>Você não pode investir uma ou duas semanas de adaptação.</td></tr>
+</table>
+</div>
+
+<p>Um meio-termo popular: usar o modo Vim dentro de outro editor. VS Code, JetBrains, Obsidian e até navegadores têm extensões que imitam os comandos do Vim. Tudo o que este guia ensina funciona lá também, com pequenas diferenças.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"vim: comando não encontrado"</strong>
+<pre class="term">$ vim notas.txt
+Comando 'vim' não encontrado, mas poder ser instalado com:
+sudo apt install vim        # version 2:9.1.2141-1ubuntu4.6, or
+sudo apt install vim-gtk3   # version 2:9.1.2141-1ubuntu4.6
+sudo apt install vim-motif  # version 2:9.1.2141-1ubuntu4.6
+sudo apt install vim-nox    # version 2:9.1.2141-1ubuntu4.6
+sudo apt install neovim     # version 0.11.6-1</pre>
+<p><strong>O que aconteceu:</strong> o sistema só tem o <code>vi</code> reduzido, ou nenhum. No Ubuntu, o <code>vi</code> funciona, mas o comando <code>vim</code> só existe depois de instalar o pacote completo.</p>
+<p><strong>Como resolver:</strong> use <code>vi notas.txt</code> por enquanto, ou instale o Vim completo seguindo <a href="instalar.html">Instalar em Qualquer Sistema</a>. A lista de sugestões e as versões variam de sistema para sistema. O "poder" no lugar de "pode" é um erro da tradução original do Ubuntu.</p>
+</div>
+
+<div class="cenario">
+<strong>Abri um arquivo e as teclas fazem coisas estranhas</strong>
+<p><strong>O que aconteceu:</strong> você está no modo normal, onde as letras são comandos. Digitar uma frase ali dispara dezenas de comandos.</p>
+<p><strong>Como resolver:</strong> aperte <kbd>Esc</kbd>, depois <code>u</code> várias vezes para desfazer tudo. Para escrever, aperte <kbd>i</kbd> antes. Veja <a href="modos.html">Os Modos do Vim</a>.</p>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">1. O que significa o nome "Vim"?</p>
+<label><input type="radio" name="q1"> Visual Interactive Mode</label>
+<label><input type="radio" name="q1"> Vi IMproved (vi melhorado)</label>
+<label><input type="radio" name="q1"> Very Important Machine</label>
+<label><input type="radio" name="q1"> Virtual Input Manager</label>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">2. No modo normal, o que acontece ao digitar <code>dd</code>?</p>
+<label><input type="radio" name="q2"> Aparecem as letras "dd" no texto.</label>
+<label><input type="radio" name="q2"> O Vim salva o arquivo.</label>
+<label><input type="radio" name="q2"> A linha atual é apagada.</label>
+<label><input type="radio" name="q2"> O Vim fecha.</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">3. No Ubuntu, sem instalar nada, qual comando abre um Vim?</p>
+<label><input type="radio" name="q3"> <code>vi</code>, que aponta para o <code>vim.tiny</code></label>
+<label><input type="radio" name="q3"> <code>vim</code></label>
+<label><input type="radio" name="q3"> <code>gvim</code></label>
+<label><input type="radio" name="q3"> <code>nvim</code></label>
+</div>
+
+<div class="exercise">
+<h3>4. Configurar o Git</h3>
+<p>Complete o comando para o Git abrir o Vim nas mensagens de commit:</p>
+<div class="ex-code">git config --global <input data-answer="core.editor" aria-label="opção"> vim</div>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Vim = <em>Vi IMproved</em>, a versão moderna do <code>vi</code> de 1976.</li>
+  <li>Ele é <strong>modal</strong>: no modo normal as teclas são comandos; no de inserção, viram texto.</li>
+  <li>Um <code>vi</code> existe em praticamente todo Linux e Unix, e aparece em <code>git commit</code>, <code>crontab -e</code> e servidores.</li>
+  <li>Neovim é um primo do Vim; o básico é igual nos dois.</li>
+  <li>Preso? <kbd>Esc</kbd> e <code>:q!</code> sempre saem sem salvar.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — referência de comandos de A a Z | Guia Vim</title>
+<meta name="description" content="Todos os comandos e teclas do Vim ensinados no guia, de A a Z, com o modo em que funcionam, o que fazem, o nível e o link para a aula.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Referência de Comandos</span></h1>
+
+<p class="intro">Todas as teclas e comandos ensinados no guia, em ordem alfabética. Cada linha diz em que modo o comando funciona, o que ele faz, em que nível ele aparece e qual aula explica tudo com exemplos.</p>
+
+<div class="note">
+<strong>Como ler a tabela</strong>
+<ul>
+  <li><strong>Teclas:</strong> <code>{mov}</code> é qualquer movimento (<code>w</code>, <code>$</code>, <code>j</code>…), <code>{c}</code> é um caractere, <code>{reg}</code> é o nome de um registrador e <code>{n}</code> é um número.</li>
+  <li><strong>Modo:</strong> "normal" é o modo em que o Vim abre; "operador" quer dizer que a tecla vem depois de um operador como <code>d</code> ou <code>c</code>; "comando" é a linha que abre com <code>:</code>; "shell" é digitado no terminal, fora do Vim.</li>
+  <li><strong>Nível:</strong> 1 = Iniciante, 2 = Intermediário, 3 = Avançado.</li>
+  <li>Maiúscula e minúscula são comandos diferentes: <code>u</code> desfaz, <code>U</code> desfaz a linha.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Atalho</strong>
+<p>Use <kbd>Ctrl</kbd>+<kbd>F</kbd> no navegador para achar uma tecla. Para uma versão resumida, de imprimir, veja a <a href="cheatsheet.html">Folha de Consulta</a>.</p>
+</div>
+
+<hr>
+
+<h2>Por categoria</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Categoria</th><th>Comandos</th><th>Aulas</th></tr>
+<tr><td>Sair e salvar</td><td><code>ZZ / ZQ</code> <code>:w</code> <code>:w nome</code> <code>:w !sudo tee %</code> <code>:wq / :x</code> <code>:q / :q!</code> <code>:e! </code> <code>vim arquivo</code> <code>vim +{n} arquivo</code></td><td><a href="abrir-sair.html">Abrir e Sair (sem pânico)</a>, <a href="salvar.html">Salvar e Sair</a></td></tr>
+<tr><td>Modos e inserção</td><td><code>a</code> <code>A</code> <code>Ctrl+o</code> <code>Ctrl+w</code> <code>Ctrl+u</code> <code>gi</code> <code>i</code> <code>I</code> <code>o / O</code> <code>R</code> …</td><td><a href="modos.html">Os Modos do Vim</a>, <a href="inserir.html">Inserir Texto (i, a, o)</a></td></tr>
+<tr><td>Mover</td><td><code>b / B</code> <code>Ctrl+d / Ctrl+u</code> <code>Ctrl+f / Ctrl+b</code> <code>Ctrl+o / Ctrl+i</code> <code>dt{c} / df{c}</code> <code>e / E</code> <code>f{c} / F{c}</code> <code>gg</code> <code>G / {n}G</code> <code>ge / gE</code> …</td><td><a href="mover.html">Mover o Cursor (hjkl)</a>, <a href="palavras.html">Pular Palavras (w, b, e)</a>, <a href="linhas.html">Início, Fim e Linhas</a>, <a href="f-t.html">Pular para um Caractere (f, t)</a>, <a href="marcas.html">Marcas e Saltos</a>, <a href="pares.html">Parênteses e Blocos (%)</a></td></tr>
+<tr><td>Editar</td><td><code>aw / aW</code> <code>ap</code> <code>a" a' a`</code> <code>a( a[ a{ a&lt;</code> <code>at</code> <code>c{mov}</code> <code>cc</code> <code>C</code> <code>ciw</code> <code>ci"</code> …</td><td><a href="apagar.html">Apagar (x, dd, D)</a>, <a href="desfazer.html">Desfazer e Refazer</a>, <a href="operadores.html">Operadores d, c, y</a>, <a href="contadores.html">Números e Repetição (.)</a>, <a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td>Copiar e colar</td><td><code>Ctrl+r {reg}</code> <code>gp / gP</code> <code>p / P</code> <code>y{mov}</code> <code>yy / Y</code> <code>yiw</code> <code>"{reg}</code> <code>"_</code> <code>"+ / "*</code> <code>"0</code> …</td><td><a href="copiar-colar.html">Copiar e Colar (y, p)</a>, <a href="registradores.html">Registradores</a>, <a href="area-transferencia.html">Área de Transferência do Sistema</a></td></tr>
+<tr><td>Buscar e substituir</td><td><code>n / N</code> <code>* / #</code> <code>/texto / ?texto</code> <code>:s/a/b/</code> <code>:%s/a/b/g</code> <code>:&amp;</code> <code>:noh</code></td><td><a href="busca.html">Buscar (/ ? n *)</a>, <a href="substituir.html">Substituir (:s)</a>, <a href="regex.html">Expressões Regulares do Vim</a></td></tr>
+<tr><td>Seleção</td><td><code>Ctrl+v</code> <code>gv</code> <code>I / A</code> <code>o</code> <code>u / U</code> <code>v / V</code></td><td><a href="visual.html">Modo Visual</a>, <a href="bloco.html">Modo Visual de Bloco</a></td></tr>
+<tr><td>Arquivos e janelas</td><td><code>Ctrl+w s / v</code> <code>Ctrl+w h j k l</code> <code>Ctrl+w w</code> <code>Ctrl+w q / o</code> <code>Ctrl+w =</code> <code>Ctrl+^</code> <code>gt / gT</code> <code>:qa / :qa! / :wa</code> <code>:e arquivo</code> <code>:ls</code> …</td><td><a href="buffers.html">Vários Arquivos (buffers)</a>, <a href="janelas.html">Janelas (split)</a>, <a href="abas.html">Abas</a></td></tr>
+<tr><td>Automação</td><td><code>Ctrl+z</code> <code>q{reg} … q</code> <code>@{reg} / @@</code> <code>@:</code> <code>:g/pad/cmd</code> <code>:v/pad/cmd</code> <code>:norm</code> <code>:d / :y</code> <code>:m / :t</code> <code>:sort</code> …</td><td><a href="macros.html">Macros</a>, <a href="ex-avancado.html">Comandos Ex (:g, :norm, faixas)</a>, <a href="shell.html">Integração com o Shell</a></td></tr>
+<tr><td>Configuração</td><td><code>:set opção</code> <code>:source</code> <code>:map / :nnoremap</code> <code>:autocmd</code> <code>:let / :function</code> <code>:packadd / :Plug</code> <code>vim -u NONE / --clean</code></td><td><a href="vimrc.html">.vimrc Básico</a>, <a href="opcoes.html">Opções Úteis (:set)</a>, <a href="mapeamentos.html">Mapeamentos (map)</a>, <a href="autocmd.html">Autocomandos</a>, <a href="vimscript.html">Vimscript Básico</a>, <a href="plugins.html">Plugins</a></td></tr>
+<tr><td>Programação</td><td><code>Ctrl+n / Ctrl+p</code> <code>Ctrl+x Ctrl+f</code> <code>Ctrl+x Ctrl+l</code> <code>Ctrl+x Ctrl+o</code> <code>Ctrl+]</code> <code>Ctrl+t</code> <code>do / dp</code> <code>gd</code> <code>gf</code> <code>z= / zg / zw</code> …</td><td><a href="completar.html">Autocompletar</a>, <a href="tags.html">ctags e Navegação em Código</a>, <a href="dobras.html">Dobras (folding)</a>, <a href="diff.html">vimdiff</a>, <a href="lsp.html">Vim como IDE (LSP)</a>, <a href="sessoes.html">Sessões e Undo Persistente</a>, <a href="ortografia.html">Verificação Ortográfica</a></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>De A a Z</h2>
+<p class="indice-letras"><a href="#letra-A">A</a> · <a href="#letra-B">B</a> · <a href="#letra-C">C</a> · <a href="#letra-D">D</a> · <a href="#letra-E">E</a> · <a href="#letra-F">F</a> · <a href="#letra-G">G</a> · <a href="#letra-H">H</a> · <a href="#letra-I">I</a> · <a href="#letra-J">J</a> · <a href="#letra-M">M</a> · <a href="#letra-N">N</a> · <a href="#letra-O">O</a> · <a href="#letra-P">P</a> · <a href="#letra-Q">Q</a> · <a href="#letra-R">R</a> · <a href="#letra-S">S</a> · <a href="#letra-T">T</a> · <a href="#letra-U">U</a> · <a href="#letra-V">V</a> · <a href="#letra-W">W</a> · <a href="#letra-X">X</a> · <a href="#letra-Y">Y</a> · <a href="#letra-Z">Z</a> · <a href="#letra-ctrl">Ctrl</a> · <a href="#letra-simbolos">Símbolos</a> · <a href="#letra-ex">:</a> · <a href="#letra-shell">Shell</a></p>
+<h2 id="letra-A">A</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>A</code></td><td>normal</td><td>Insere no fim da linha</td><td>1</td><td><a href="inserir.html">Inserir Texto (i, a, o)</a></td></tr>
+<tr><td><code>a</code></td><td>normal</td><td>Insere depois do cursor</td><td>1</td><td><a href="inserir.html">Inserir Texto (i, a, o)</a></td></tr>
+<tr><td><code>a" a' a`</code></td><td>visual/operador</td><td>Objeto: texto entre aspas, incluindo as aspas</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td><code>a( a[ a{ a&lt;</code></td><td>visual/operador</td><td>Objeto: bloco incluindo os delimitadores</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td><code>ap</code></td><td>visual/operador</td><td>Objeto: parágrafo com a linha vazia seguinte</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td><code>at</code></td><td>visual/operador</td><td>Objeto: a tag HTML inteira</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td><code>aw / aW</code></td><td>visual/operador</td><td>Objeto: palavra com um espaço</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+</table>
+</div>
+<h2 id="letra-B">B</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>b / B</code></td><td>normal</td><td>Volta ao começo da palavra (PALAVRA)</td><td>1</td><td><a href="palavras.html">Pular Palavras (w, b, e)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-C">C</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>C</code></td><td>normal</td><td>Troca do cursor até o fim da linha</td><td>2</td><td><a href="operadores.html">Operadores d, c, y</a></td></tr>
+<tr><td><code>cc</code></td><td>normal</td><td>Troca a linha inteira</td><td>2</td><td><a href="operadores.html">Operadores d, c, y</a></td></tr>
+<tr><td><code>ci"</code></td><td>normal</td><td>Troca o texto entre aspas</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td><code>ciw</code></td><td>normal</td><td>Troca a palavra sob o cursor</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td><code>c{mov}</code></td><td>normal</td><td>Apaga o trecho e entra em inserção</td><td>2</td><td><a href="operadores.html">Operadores d, c, y</a></td></tr>
+</table>
+</div>
+<h2 id="letra-D">D</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>D</code></td><td>normal</td><td>Apaga do cursor até o fim da linha</td><td>1</td><td><a href="apagar.html">Apagar (x, dd, D)</a></td></tr>
+<tr><td><code>dap</code></td><td>normal</td><td>Apaga o parágrafo</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td><code>daw</code></td><td>normal</td><td>Apaga a palavra e um espaço</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td><code>dd</code></td><td>normal</td><td>Apaga a linha</td><td>1</td><td><a href="apagar.html">Apagar (x, dd, D)</a></td></tr>
+<tr><td><code>do / dp</code></td><td>normal</td><td>vimdiff: traz / leva a diferença</td><td>3</td><td><a href="diff.html">vimdiff</a></td></tr>
+<tr><td><code>dt{c} / df{c}</code></td><td>normal</td><td>Apaga até antes de / até o caractere</td><td>2</td><td><a href="f-t.html">Pular para um Caractere (f, t)</a></td></tr>
+<tr><td><code>d{mov}</code></td><td>normal</td><td>Apaga (recorta) o trecho do movimento</td><td>2</td><td><a href="operadores.html">Operadores d, c, y</a></td></tr>
+</table>
+</div>
+<h2 id="letra-E">E</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>e / E</code></td><td>normal</td><td>Vai ao fim da palavra (PALAVRA)</td><td>1</td><td><a href="palavras.html">Pular Palavras (w, b, e)</a></td></tr>
+<tr><td><code>Esc</code></td><td>inserção/visual</td><td>Volta ao modo normal</td><td>1</td><td><a href="modos.html">Os Modos do Vim</a></td></tr>
+</table>
+</div>
+<h2 id="letra-F">F</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>f{c} / F{c}</code></td><td>normal</td><td>Pula até o caractere para frente / para trás</td><td>2</td><td><a href="f-t.html">Pular para um Caractere (f, t)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-G">G</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>G / {n}G</code></td><td>normal</td><td>Vai à última linha / à linha n</td><td>1</td><td><a href="linhas.html">Início, Fim e Linhas</a></td></tr>
+<tr><td><code>g_</code></td><td>normal</td><td>Último caractere visível da linha</td><td>1</td><td><a href="linhas.html">Início, Fim e Linhas</a></td></tr>
+<tr><td><code>gd</code></td><td>normal</td><td>Vai à definição local da variável</td><td>3</td><td><a href="tags.html">ctags e Navegação em Código</a></td></tr>
+<tr><td><code>ge / gE</code></td><td>normal</td><td>Volta ao fim da palavra anterior</td><td>1</td><td><a href="palavras.html">Pular Palavras (w, b, e)</a></td></tr>
+<tr><td><code>gf</code></td><td>normal</td><td>Abre o arquivo cujo nome está sob o cursor</td><td>3</td><td><a href="tags.html">ctags e Navegação em Código</a></td></tr>
+<tr><td><code>gg</code></td><td>normal</td><td>Vai à primeira linha</td><td>1</td><td><a href="linhas.html">Início, Fim e Linhas</a></td></tr>
+<tr><td><code>gi</code></td><td>normal</td><td>Volta a inserir onde parou</td><td>1</td><td><a href="inserir.html">Inserir Texto (i, a, o)</a></td></tr>
+<tr><td><code>gJ</code></td><td>normal</td><td>Junta linhas sem espaço</td><td>1</td><td><a href="apagar.html">Apagar (x, dd, D)</a></td></tr>
+<tr><td><code>gj / gk</code></td><td>normal</td><td>Desce / sobe pela linha da tela</td><td>1</td><td><a href="mover.html">Mover o Cursor (hjkl)</a></td></tr>
+<tr><td><code>gp / gP</code></td><td>normal</td><td>Cola e deixa o cursor depois do texto</td><td>2</td><td><a href="copiar-colar.html">Copiar e Colar (y, p)</a></td></tr>
+<tr><td><code>gt / gT</code></td><td>normal</td><td>Próxima / anterior aba</td><td>2</td><td><a href="abas.html">Abas</a></td></tr>
+<tr><td><code>gv</code></td><td>normal</td><td>Reseleciona a última seleção visual</td><td>2</td><td><a href="visual.html">Modo Visual</a></td></tr>
+<tr><td><code>g~ / gu / gU</code></td><td>normal</td><td>Operadores: inverte / minúsculas / maiúsculas</td><td>2</td><td><a href="operadores.html">Operadores d, c, y</a></td></tr>
+</table>
+</div>
+<h2 id="letra-H">H</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>H / M / L</code></td><td>normal</td><td>Topo / meio / base da tela</td><td>1</td><td><a href="linhas.html">Início, Fim e Linhas</a></td></tr>
+<tr><td><code>h j k l</code></td><td>normal</td><td>Esquerda, baixo, cima, direita</td><td>1</td><td><a href="mover.html">Mover o Cursor (hjkl)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-I">I</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>I</code></td><td>normal</td><td>Insere no começo da linha (primeiro não branco)</td><td>1</td><td><a href="inserir.html">Inserir Texto (i, a, o)</a></td></tr>
+<tr><td><code>i</code></td><td>normal</td><td>Insere antes do cursor</td><td>1</td><td><a href="inserir.html">Inserir Texto (i, a, o)</a></td></tr>
+<tr><td><code>I / A</code></td><td>visual de bloco</td><td>Insere antes / depois do bloco em todas as linhas</td><td>2</td><td><a href="bloco.html">Modo Visual de Bloco</a></td></tr>
+<tr><td><code>i" i' i`</code></td><td>visual/operador</td><td>Objeto: dentro das aspas</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td><code>i( i[ i{ i&lt;</code></td><td>visual/operador</td><td>Objeto: dentro do bloco</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td><code>ip / is</code></td><td>visual/operador</td><td>Objeto: o parágrafo / a frase</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td><code>it</code></td><td>visual/operador</td><td>Objeto: conteúdo da tag HTML</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+<tr><td><code>iw / iW</code></td><td>visual/operador</td><td>Objeto: a palavra (PALAVRA)</td><td>2</td><td><a href="objetos.html">Objetos de Texto</a></td></tr>
+</table>
+</div>
+<h2 id="letra-J">J</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>J</code></td><td>normal</td><td>Junta a linha de baixo com um espaço</td><td>1</td><td><a href="apagar.html">Apagar (x, dd, D)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-M">M</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>m{a-z}</code></td><td>normal</td><td>Cria uma marca</td><td>2</td><td><a href="marcas.html">Marcas e Saltos</a></td></tr>
+</table>
+</div>
+<h2 id="letra-N">N</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>n / N</code></td><td>normal</td><td>Próximo / anterior resultado da busca</td><td>2</td><td><a href="busca.html">Buscar (/ ? n *)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-O">O</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>o</code></td><td>visual</td><td>Pula para a outra ponta da seleção</td><td>2</td><td><a href="visual.html">Modo Visual</a></td></tr>
+<tr><td><code>o / O</code></td><td>normal</td><td>Abre linha abaixo / acima e insere</td><td>1</td><td><a href="inserir.html">Inserir Texto (i, a, o)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-P">P</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>p / P</code></td><td>normal</td><td>Cola depois / antes</td><td>2</td><td><a href="copiar-colar.html">Copiar e Colar (y, p)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-Q">Q</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>q{reg} … q</code></td><td>normal</td><td>Grava uma macro</td><td>3</td><td><a href="macros.html">Macros</a></td></tr>
+</table>
+</div>
+<h2 id="letra-R">R</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>R</code></td><td>normal</td><td>Modo de substituição (digita por cima)</td><td>1</td><td><a href="modos.html">Os Modos do Vim</a></td></tr>
+<tr><td><code>r{c}</code></td><td>normal</td><td>Troca um caractere</td><td>1</td><td><a href="apagar.html">Apagar (x, dd, D)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-S">S</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>s / S</code></td><td>normal</td><td>Troca o caractere / a linha</td><td>2</td><td><a href="operadores.html">Operadores d, c, y</a></td></tr>
+</table>
+</div>
+<h2 id="letra-T">T</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>t{c} / T{c}</code></td><td>normal</td><td>Pula até antes do caractere</td><td>2</td><td><a href="f-t.html">Pular para um Caractere (f, t)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-U">U</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>U</code></td><td>normal</td><td>Desfaz as alterações da última linha</td><td>1</td><td><a href="desfazer.html">Desfazer e Refazer</a></td></tr>
+<tr><td><code>u</code></td><td>normal</td><td>Desfaz</td><td>1</td><td><a href="desfazer.html">Desfazer e Refazer</a></td></tr>
+<tr><td><code>u / U</code></td><td>visual</td><td>Seleção em minúsculas / maiúsculas</td><td>2</td><td><a href="visual.html">Modo Visual</a></td></tr>
+</table>
+</div>
+<h2 id="letra-V">V</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>v / V</code></td><td>normal</td><td>Modo visual de caracteres / de linhas</td><td>2</td><td><a href="visual.html">Modo Visual</a></td></tr>
+</table>
+</div>
+<h2 id="letra-W">W</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>w / W</code></td><td>normal</td><td>Vai à próxima palavra (PALAVRA)</td><td>1</td><td><a href="palavras.html">Pular Palavras (w, b, e)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-X">X</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>x / X</code></td><td>normal</td><td>Apaga o caractere sob o cursor / à esquerda</td><td>1</td><td><a href="apagar.html">Apagar (x, dd, D)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-Y">Y</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>yiw</code></td><td>normal</td><td>Copia a palavra sob o cursor</td><td>2</td><td><a href="copiar-colar.html">Copiar e Colar (y, p)</a></td></tr>
+<tr><td><code>yy / Y</code></td><td>normal</td><td>Copia a linha</td><td>2</td><td><a href="copiar-colar.html">Copiar e Colar (y, p)</a></td></tr>
+<tr><td><code>y{mov}</code></td><td>normal</td><td>Copia o trecho do movimento</td><td>2</td><td><a href="copiar-colar.html">Copiar e Colar (y, p)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-Z">Z</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>z= / zg / zw</code></td><td>normal</td><td>Ortografia: sugestões / palavra certa / errada</td><td>3</td><td><a href="ortografia.html">Verificação Ortográfica</a></td></tr>
+<tr><td><code>zf / zo / zc / za</code></td><td>normal</td><td>Cria / abre / fecha / alterna uma dobra</td><td>3</td><td><a href="dobras.html">Dobras (folding)</a></td></tr>
+<tr><td><code>zR / zM</code></td><td>normal</td><td>Abre / fecha todas as dobras</td><td>3</td><td><a href="dobras.html">Dobras (folding)</a></td></tr>
+<tr><td><code>ZZ / ZQ</code></td><td>normal</td><td>Salva e sai / sai sem salvar</td><td>1</td><td><a href="abrir-sair.html">Abrir e Sair (sem pânico)</a></td></tr>
+</table>
+</div>
+<h2 id="letra-ctrl">Teclas com Ctrl</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>Ctrl+]</code></td><td>normal</td><td>Pula para a definição (tag) ou tópico da ajuda</td><td>3</td><td><a href="tags.html">ctags e Navegação em Código</a></td></tr>
+<tr><td><code>Ctrl+^</code></td><td>normal</td><td>Alterna entre os dois últimos arquivos</td><td>2</td><td><a href="buffers.html">Vários Arquivos (buffers)</a></td></tr>
+<tr><td><code>Ctrl+a / Ctrl+x</code></td><td>normal</td><td>Soma / subtrai 1 do número na linha</td><td>2</td><td><a href="contadores.html">Números e Repetição (.)</a></td></tr>
+<tr><td><code>Ctrl+d / Ctrl+u</code></td><td>normal</td><td>Rola meia tela para baixo / para cima</td><td>1</td><td><a href="linhas.html">Início, Fim e Linhas</a></td></tr>
+<tr><td><code>Ctrl+f / Ctrl+b</code></td><td>normal</td><td>Rola uma tela para frente / para trás</td><td>1</td><td><a href="linhas.html">Início, Fim e Linhas</a></td></tr>
+<tr><td><code>Ctrl+g</code></td><td>normal</td><td>Mostra nome do arquivo e posição</td><td>1</td><td><a href="mensagens.html">Mensagens e Erros Comuns</a></td></tr>
+<tr><td><code>Ctrl+n / Ctrl+p</code></td><td>inserção</td><td>Completa a palavra com palavras do arquivo</td><td>3</td><td><a href="completar.html">Autocompletar</a></td></tr>
+<tr><td><code>Ctrl+o</code></td><td>inserção</td><td>Executa um comando do modo normal e volta à inserção</td><td>1</td><td><a href="inserir.html">Inserir Texto (i, a, o)</a></td></tr>
+<tr><td><code>Ctrl+o / Ctrl+i</code></td><td>normal</td><td>Volta / avança na lista de saltos</td><td>2</td><td><a href="marcas.html">Marcas e Saltos</a></td></tr>
+<tr><td><code>Ctrl+r</code></td><td>normal</td><td>Refaz (desfaz o desfazer)</td><td>1</td><td><a href="desfazer.html">Desfazer e Refazer</a></td></tr>
+<tr><td><code>Ctrl+r {reg}</code></td><td>inserção/comando</td><td>Cola o conteúdo de um registrador</td><td>2</td><td><a href="registradores.html">Registradores</a></td></tr>
+<tr><td><code>Ctrl+s / Ctrl+q</code></td><td>normal</td><td>Congela / descongela o terminal (não é do Vim)</td><td>1</td><td><a href="socorro.html">Estou Preso no Vim!</a></td></tr>
+<tr><td><code>Ctrl+t</code></td><td>normal</td><td>Volta do pulo de tag</td><td>3</td><td><a href="tags.html">ctags e Navegação em Código</a></td></tr>
+<tr><td><code>Ctrl+u</code></td><td>inserção</td><td>Apaga o que foi digitado na linha</td><td>1</td><td><a href="inserir.html">Inserir Texto (i, a, o)</a></td></tr>
+<tr><td><code>Ctrl+v</code></td><td>normal</td><td>Entra no modo visual de bloco</td><td>2</td><td><a href="bloco.html">Modo Visual de Bloco</a></td></tr>
+<tr><td><code>Ctrl+w</code></td><td>inserção</td><td>Apaga a palavra antes do cursor</td><td>1</td><td><a href="inserir.html">Inserir Texto (i, a, o)</a></td></tr>
+<tr><td><code>Ctrl+w =</code></td><td>normal</td><td>Deixa as janelas do mesmo tamanho</td><td>2</td><td><a href="janelas.html">Janelas (split)</a></td></tr>
+<tr><td><code>Ctrl+w h j k l</code></td><td>normal</td><td>Vai para a janela vizinha</td><td>2</td><td><a href="janelas.html">Janelas (split)</a></td></tr>
+<tr><td><code>Ctrl+w q / o</code></td><td>normal</td><td>Fecha a janela / fecha as outras</td><td>2</td><td><a href="janelas.html">Janelas (split)</a></td></tr>
+<tr><td><code>Ctrl+w s / v</code></td><td>normal</td><td>Divide a janela na horizontal / vertical</td><td>2</td><td><a href="janelas.html">Janelas (split)</a></td></tr>
+<tr><td><code>Ctrl+w w</code></td><td>normal</td><td>Vai para a próxima janela</td><td>2</td><td><a href="janelas.html">Janelas (split)</a></td></tr>
+<tr><td><code>Ctrl+x Ctrl+f</code></td><td>inserção</td><td>Completa nome de arquivo</td><td>3</td><td><a href="completar.html">Autocompletar</a></td></tr>
+<tr><td><code>Ctrl+x Ctrl+l</code></td><td>inserção</td><td>Completa a linha inteira</td><td>3</td><td><a href="completar.html">Autocompletar</a></td></tr>
+<tr><td><code>Ctrl+x Ctrl+o</code></td><td>inserção</td><td>Omnicompletion (completar inteligente)</td><td>3</td><td><a href="completar.html">Autocompletar</a></td></tr>
+<tr><td><code>Ctrl+z</code></td><td>normal</td><td>Suspende o Vim; volte com fg</td><td>3</td><td><a href="shell.html">Integração com o Shell</a></td></tr>
+</table>
+</div>
+<h2 id="letra-simbolos">Símbolos e números</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>"+ / "*</code></td><td>normal</td><td>Registradores da área de transferência do sistema</td><td>2</td><td><a href="area-transferencia.html">Área de Transferência do Sistema</a></td></tr>
+<tr><td><code>"0</code></td><td>normal</td><td>Último texto copiado</td><td>2</td><td><a href="registradores.html">Registradores</a></td></tr>
+<tr><td><code>"1 … "9</code></td><td>normal</td><td>Últimos textos apagados</td><td>2</td><td><a href="registradores.html">Registradores</a></td></tr>
+<tr><td><code>"_</code></td><td>normal</td><td>Registrador "buraco negro": apaga sem guardar</td><td>2</td><td><a href="registradores.html">Registradores</a></td></tr>
+<tr><td><code>"{reg}</code></td><td>normal</td><td>Escolhe o registrador do próximo comando</td><td>2</td><td><a href="registradores.html">Registradores</a></td></tr>
+<tr><td><code>%</code></td><td>normal</td><td>Pula para o par de ( ) [ ] { }</td><td>2</td><td><a href="pares.html">Parênteses e Blocos (%)</a></td></tr>
+<tr><td><code>'' / ``</code></td><td>normal</td><td>Volta ao lugar de antes do último salto</td><td>2</td><td><a href="marcas.html">Marcas e Saltos</a></td></tr>
+<tr><td><code>'{a} / `{a}</code></td><td>normal</td><td>Vai à linha / posição exata da marca</td><td>2</td><td><a href="marcas.html">Marcas e Saltos</a></td></tr>
+<tr><td><code>* / #</code></td><td>normal</td><td>Busca a palavra sob o cursor (frente / trás)</td><td>2</td><td><a href="busca.html">Buscar (/ ? n *)</a></td></tr>
+<tr><td><code>.</code></td><td>normal</td><td>Repete a última alteração</td><td>2</td><td><a href="contadores.html">Números e Repetição (.)</a></td></tr>
+<tr><td><code>/texto / ?texto</code></td><td>normal</td><td>Busca para frente / para trás</td><td>2</td><td><a href="busca.html">Buscar (/ ? n *)</a></td></tr>
+<tr><td><code>0 / ^ / $</code></td><td>normal</td><td>Coluna 1 / primeiro caractere visível / fim da linha</td><td>1</td><td><a href="linhas.html">Início, Fim e Linhas</a></td></tr>
+<tr><td><code>; / ,</code></td><td>normal</td><td>Repete o último f/t / ao contrário</td><td>2</td><td><a href="f-t.html">Pular para um Caractere (f, t)</a></td></tr>
+<tr><td><code>&gt; / &lt;</code></td><td>normal</td><td>Operadores de recuo; &gt;&gt; e &lt;&lt; na linha</td><td>2</td><td><a href="operadores.html">Operadores d, c, y</a></td></tr>
+<tr><td><code>@:</code></td><td>normal</td><td>Repete o último comando Ex</td><td>3</td><td><a href="ex-avancado.html">Comandos Ex (:g, :norm, faixas)</a></td></tr>
+<tr><td><code>@{reg} / @@</code></td><td>normal</td><td>Executa a macro / repete a última</td><td>3</td><td><a href="macros.html">Macros</a></td></tr>
+<tr><td><code>{ / }</code></td><td>normal</td><td>Parágrafo anterior / próximo</td><td>1</td><td><a href="linhas.html">Início, Fim e Linhas</a></td></tr>
+<tr><td><code>~</code></td><td>normal</td><td>Inverte maiúscula/minúscula do caractere</td><td>2</td><td><a href="operadores.html">Operadores d, c, y</a></td></tr>
+</table>
+</div>
+<h2 id="letra-ex">Comandos Ex (:)</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>:!cmd</code></td><td>comando</td><td>Roda um comando do shell</td><td>3</td><td><a href="shell.html">Integração com o Shell</a></td></tr>
+<tr><td><code>:%!filtro</code></td><td>comando</td><td>Passa o arquivo por um filtro do shell</td><td>3</td><td><a href="shell.html">Integração com o Shell</a></td></tr>
+<tr><td><code>:%s/a/b/g</code></td><td>comando</td><td>Substitui no arquivo todo</td><td>2</td><td><a href="substituir.html">Substituir (:s)</a></td></tr>
+<tr><td><code>:&amp;</code></td><td>comando</td><td>Repete a última substituição</td><td>2</td><td><a href="substituir.html">Substituir (:s)</a></td></tr>
+<tr><td><code>:autocmd</code></td><td>comando</td><td>Roda comandos em eventos</td><td>3</td><td><a href="autocmd.html">Autocomandos</a></td></tr>
+<tr><td><code>:bn / :bp / :b{n} / :bd</code></td><td>comando</td><td>Próximo / anterior / buffer n / fecha buffer</td><td>2</td><td><a href="buffers.html">Vários Arquivos (buffers)</a></td></tr>
+<tr><td><code>:d / :y</code></td><td>comando</td><td>Apaga / copia linhas</td><td>3</td><td><a href="ex-avancado.html">Comandos Ex (:g, :norm, faixas)</a></td></tr>
+<tr><td><code>:diffupdate</code></td><td>comando</td><td>Recalcula as diferenças no vimdiff</td><td>3</td><td><a href="diff.html">vimdiff</a></td></tr>
+<tr><td><code>:e arquivo</code></td><td>comando</td><td>Abre outro arquivo</td><td>2</td><td><a href="buffers.html">Vários Arquivos (buffers)</a></td></tr>
+<tr><td><code>:e! </code></td><td>comando</td><td>Volta à última versão salva</td><td>1</td><td><a href="salvar.html">Salvar e Sair</a></td></tr>
+<tr><td><code>:earlier / :later</code></td><td>comando</td><td>Volta / avança no tempo do desfazer</td><td>1</td><td><a href="desfazer.html">Desfazer e Refazer</a></td></tr>
+<tr><td><code>:g/pad/cmd</code></td><td>comando</td><td>Executa cmd nas linhas que casam</td><td>3</td><td><a href="ex-avancado.html">Comandos Ex (:g, :norm, faixas)</a></td></tr>
+<tr><td><code>:h / :help</code></td><td>comando</td><td>Abre a ajuda</td><td>2</td><td><a href="ajuda.html">A Ajuda Interna (:help)</a></td></tr>
+<tr><td><code>:helpgrep</code></td><td>comando</td><td>Procura em toda a ajuda</td><td>2</td><td><a href="ajuda.html">A Ajuda Interna (:help)</a></td></tr>
+<tr><td><code>:let / :function</code></td><td>comando</td><td>Vimscript: variáveis e funções</td><td>3</td><td><a href="vimscript.html">Vimscript Básico</a></td></tr>
+<tr><td><code>:ls</code></td><td>comando</td><td>Lista os buffers</td><td>2</td><td><a href="buffers.html">Vários Arquivos (buffers)</a></td></tr>
+<tr><td><code>:m / :t</code></td><td>comando</td><td>Move / copia linhas</td><td>3</td><td><a href="ex-avancado.html">Comandos Ex (:g, :norm, faixas)</a></td></tr>
+<tr><td><code>:map / :nnoremap</code></td><td>comando</td><td>Cria mapeamentos de teclas</td><td>3</td><td><a href="mapeamentos.html">Mapeamentos (map)</a></td></tr>
+<tr><td><code>:marks</code></td><td>comando</td><td>Mostra as marcas</td><td>2</td><td><a href="marcas.html">Marcas e Saltos</a></td></tr>
+<tr><td><code>:mksession / vim -S</code></td><td>comando</td><td>Salva / restaura a sessão</td><td>3</td><td><a href="sessoes.html">Sessões e Undo Persistente</a></td></tr>
+<tr><td><code>:noh</code></td><td>comando</td><td>Apaga o destaque da busca</td><td>2</td><td><a href="busca.html">Buscar (/ ? n *)</a></td></tr>
+<tr><td><code>:norm</code></td><td>comando</td><td>Executa teclas do modo normal em cada linha</td><td>3</td><td><a href="ex-avancado.html">Comandos Ex (:g, :norm, faixas)</a></td></tr>
+<tr><td><code>:packadd / :Plug</code></td><td>comando</td><td>Carrega plugins</td><td>3</td><td><a href="plugins.html">Plugins</a></td></tr>
+<tr><td><code>:q / :q!</code></td><td>comando</td><td>Sai / sai sem salvar</td><td>1</td><td><a href="abrir-sair.html">Abrir e Sair (sem pânico)</a></td></tr>
+<tr><td><code>:qa / :qa! / :wa</code></td><td>comando</td><td>Sai de todos / sem salvar / salva todos</td><td>2</td><td><a href="buffers.html">Vários Arquivos (buffers)</a></td></tr>
+<tr><td><code>:r !cmd</code></td><td>comando</td><td>Insere a saída de um comando</td><td>3</td><td><a href="shell.html">Integração com o Shell</a></td></tr>
+<tr><td><code>:reg</code></td><td>comando</td><td>Mostra os registradores</td><td>2</td><td><a href="registradores.html">Registradores</a></td></tr>
+<tr><td><code>:resize</code></td><td>comando</td><td>Muda a altura da janela</td><td>2</td><td><a href="janelas.html">Janelas (split)</a></td></tr>
+<tr><td><code>:s/a/b/</code></td><td>comando</td><td>Substitui na linha</td><td>2</td><td><a href="substituir.html">Substituir (:s)</a></td></tr>
+<tr><td><code>:set opção</code></td><td>comando</td><td>Liga / muda uma opção</td><td>2</td><td><a href="opcoes.html">Opções Úteis (:set)</a></td></tr>
+<tr><td><code>:set spell</code></td><td>comando</td><td>Liga a verificação ortográfica</td><td>3</td><td><a href="ortografia.html">Verificação Ortográfica</a></td></tr>
+<tr><td><code>:sort</code></td><td>comando</td><td>Ordena linhas (n, u, !)</td><td>3</td><td><a href="ex-avancado.html">Comandos Ex (:g, :norm, faixas)</a></td></tr>
+<tr><td><code>:source</code></td><td>comando</td><td>Carrega um arquivo de comandos (ex.: o .vimrc)</td><td>2</td><td><a href="vimrc.html">.vimrc Básico</a></td></tr>
+<tr><td><code>:sp / :vs</code></td><td>comando</td><td>Divide a janela</td><td>2</td><td><a href="janelas.html">Janelas (split)</a></td></tr>
+<tr><td><code>:tabe / :tabnew / :tabclose</code></td><td>comando</td><td>Abre / fecha abas</td><td>2</td><td><a href="abas.html">Abas</a></td></tr>
+<tr><td><code>:tag / :ts</code></td><td>comando</td><td>Pula / lista tags</td><td>3</td><td><a href="tags.html">ctags e Navegação em Código</a></td></tr>
+<tr><td><code>:undo / :redo</code></td><td>comando</td><td>Desfaz / refaz</td><td>1</td><td><a href="desfazer.html">Desfazer e Refazer</a></td></tr>
+<tr><td><code>:v/pad/cmd</code></td><td>comando</td><td>Executa cmd nas linhas que não casam</td><td>3</td><td><a href="ex-avancado.html">Comandos Ex (:g, :norm, faixas)</a></td></tr>
+<tr><td><code>:w</code></td><td>comando</td><td>Salva</td><td>1</td><td><a href="salvar.html">Salvar e Sair</a></td></tr>
+<tr><td><code>:w !sudo tee %</code></td><td>comando</td><td>Salva arquivo de root aberto sem sudo</td><td>1</td><td><a href="salvar.html">Salvar e Sair</a></td></tr>
+<tr><td><code>:w nome</code></td><td>comando</td><td>Salva com outro nome</td><td>1</td><td><a href="salvar.html">Salvar e Sair</a></td></tr>
+<tr><td><code>:wq / :x</code></td><td>comando</td><td>Salva e sai</td><td>1</td><td><a href="salvar.html">Salvar e Sair</a></td></tr>
+<tr><td><code>:{n}</code></td><td>comando</td><td>Vai à linha n</td><td>1</td><td><a href="linhas.html">Início, Fim e Linhas</a></td></tr>
+</table>
+</div>
+<h2 id="letra-shell">No terminal (shell)</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Modo</th><th>O que faz</th><th>Nível</th><th>Aula</th></tr>
+<tr><td><code>vim +{n} arquivo</code></td><td>shell</td><td>Abre já na linha n</td><td>1</td><td><a href="abrir-sair.html">Abrir e Sair (sem pânico)</a></td></tr>
+<tr><td><code>vim --version</code></td><td>shell</td><td>Mostra versão e recursos (+clipboard…)</td><td>1</td><td><a href="instalar.html">Instalar em Qualquer Sistema</a></td></tr>
+<tr><td><code>vim -d / vimdiff</code></td><td>shell</td><td>Compara arquivos</td><td>3</td><td><a href="diff.html">vimdiff</a></td></tr>
+<tr><td><code>vim -p</code></td><td>shell</td><td>Abre arquivos em abas</td><td>2</td><td><a href="abas.html">Abas</a></td></tr>
+<tr><td><code>vim -u NONE / --clean</code></td><td>shell</td><td>Abre sem configuração</td><td>2</td><td><a href="vimrc.html">.vimrc Básico</a></td></tr>
+<tr><td><code>vim arquivo</code></td><td>shell</td><td>Abre um arquivo</td><td>1</td><td><a href="abrir-sair.html">Abrir e Sair (sem pânico)</a></td></tr>
+<tr><td><code>vimtutor</code></td><td>shell</td><td>Abre o tutorial interativo</td><td>1</td><td><a href="vimtutor.html">vimtutor</a></td></tr>
+</table>
+</div>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

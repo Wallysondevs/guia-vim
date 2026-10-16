@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — macros: gravar e repetir teclas | Guia Vim</title>
+<meta name="description" content="Aprenda macros no Vim: gravar com q, repetir com @, @@ e contagem, macros que param sozinhas, macros recursivas, editar uma macro como texto e boas práticas, com Vim simulado para praticar.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Macros</span></h1>
+
+<p class="intro">Uma <strong>macro</strong> é uma gravação de teclas. Você faz uma edição uma vez, o Vim grava cada tecla, e depois repete tudo com dois toques, em 3, 50 ou 5 000 linhas. É a ferramenta para quando o <code>.</code> não basta, porque a tarefa tem vários passos.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Gravar uma macro com <code>q</code> e repeti-la com <code>@</code>.</li>
+  <li>Repetir de novo com <code>@@</code> e muitas vezes com <code>50@a</code>.</li>
+  <li>Por que uma macro bem feita para sozinha no fim do arquivo.</li>
+  <li>Escrever macros que funcionam em qualquer linha: começar com <code>0</code> e terminar com <code>j</code>.</li>
+  <li>Ver, colar e consertar uma macro como se fosse texto.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Macros juntam tudo o que você já sabe: movimentos, operadores, inserção. Se algum comando aqui parecer estranho, reveja <a href="gramatica.html">Verbo + Movimento</a> e <a href="contadores.html">Números e Repetição (.)</a>.</p>
+</div>
+
+<hr>
+
+<h2>A ideia: gravar, parar, repetir</h2>
+<p>Uma macro tem três momentos, sempre no modo normal:</p>
+
+<ol class="passo">
+  <li><strong>Começar a gravar:</strong> <code>q</code> seguido de uma letra, que é o nome do <a href="registradores.html">registrador</a> onde a gravação vai ficar. Por exemplo, <code>qa</code>.</li>
+  <li><strong>Fazer a edição uma vez</strong>, normalmente. O rodapé mostra <code>gravando @a</code> enquanto isso.</li>
+  <li><strong>Parar:</strong> <code>q</code> de novo. Depois, <code>@a</code> repete tudo o que foi gravado.</li>
+</ol>
+
+<dl class="anatomy">
+  <dt>q</dt><dd>Liga a gravação (de <em>queue</em>, "fila": as teclas vão entrando numa fila).</dd>
+  <dt>a</dt><dd>O nome do registrador onde a macro fica guardada. Pode ser qualquer letra de <code>a</code> a <code>z</code>.</dd>
+  <dt>…</dt><dd>As teclas da edição, gravadas uma a uma.</dd>
+  <dt>q</dt><dd>Desliga a gravação.</dd>
+</dl>
+
+<dl class="anatomy">
+  <dt>@</dt><dd>Executar uma macro.</dd>
+  <dt>a</dt><dd>Qual macro: a que está no registrador <code>a</code>.</dd>
+</dl>
+
+<p>Veja uma macro que coloca um traço no começo da linha e desce para a próxima. Acompanhe o rodapé: durante a gravação aparece <code>gravando @a</code>.</p>
+
+<div class="vimdemo" data-file="frutas.txt" data-keys="qaI- &lt;Esc&gt;jq@a">
+<pre class="vim-inicial">maçã
+banana
+uva
+laranja</pre>
+</div>
+
+<p>As teclas gravadas foram <code>I</code> (inserir no começo da linha), <code>- </code> (o traço e um espaço), <kbd>Esc</kbd> (voltar ao modo normal) e <code>j</code> (descer). O <code>@a</code> repetiu tudo isso na linha de "banana" e deixou o cursor em "uva", pronto para a próxima.</p>
+
+<hr>
+
+<h2>Repetir: @@ e contagem</h2>
+<p>Depois do primeiro <code>@a</code>, você não precisa lembrar o nome: <code>@@</code> repete a <strong>última macro executada</strong>. E, como quase tudo no Vim, a macro aceita um número na frente.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>@a</code></td><td>Executa a macro <code>a</code> uma vez</td></tr>
+<tr><td><code>@@</code></td><td>Executa de novo a última macro usada</td></tr>
+<tr><td><code>3@a</code></td><td>Executa a macro <code>a</code> três vezes seguidas</td></tr>
+<tr><td><code>@:</code></td><td>Repete o último comando de linha (<code>:</code>)</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="frutas.txt" data-keys="qaI- &lt;Esc&gt;jq3@a">
+<pre class="vim-inicial">maçã
+banana
+uva
+laranja</pre>
+</div>
+
+<p>Gravamos na primeira linha e o <code>3@a</code> cuidou das outras três. A gravação inteira virou um único comando.</p>
+
+<div class="vimtry" data-file="frutas.txt">
+<pre class="vim-inicial">maçã
+banana
+uva
+laranja
+kiwi</pre>
+<pre class="vim-meta">- maçã
+- banana
+- uva
+- laranja
+- kiwi</pre>
+<p class="try-task"><strong>Missão:</strong> transforme a lista em itens com traço. Grave a macro na primeira linha (<code>qa</code>, <code>I- </code>, <kbd>Esc</kbd>, <code>j</code>, <code>q</code>) e repita nas outras com <code>@a</code>, <code>@@</code> ou <code>4@a</code>.</p>
+</div>
+
+<hr>
+
+<h2>A macro para sozinha quando dá erro</h2>
+<p>Se alguma tecla da macro falhar, a repetição <strong>para na hora</strong>. Isso parece um detalhe, mas é muito útil: o <code>j</code> no fim da macro falha na última linha do arquivo, porque não há para onde descer. Então você pode pedir um número exagerado, como <code>50@a</code> ou <code>999@a</code>, e a macro roda até o fim do arquivo e para.</p>
+
+<div class="vimdemo" data-file="frutas.txt" data-keys="qaI- &lt;Esc&gt;jq50@a">
+<pre class="vim-inicial">maçã
+banana
+uva
+laranja
+kiwi</pre>
+</div>
+
+<p>Foram pedidas 50 repetições, mas só existiam 4 linhas depois da primeira. Na última, o <code>j</code> falhou e o Vim parou, sem estragar nada.</p>
+
+<div class="warning">
+<strong>Atenção: um erro no meio também para tudo</strong>
+<p>Se a macro tem um <code>f,</code> (pular até a vírgula) e uma linha não tem vírgula, a macro para naquela linha. Isso protege o arquivo, mas pode deixar o trabalho pela metade. Confira com <code>u</code> se algo saiu estranho.</p>
+</div>
+
+<hr>
+
+<h2>Macros que funcionam em qualquer linha</h2>
+<p>A macro grava <strong>teclas</strong>, não o resultado. Se você começou a gravar com o cursor no meio da linha, ela só vai funcionar nas linhas em que o cursor também estiver no meio. Duas regras resolvem quase tudo:</p>
+
+<ol class="passo">
+  <li><strong>Comece levando o cursor a um ponto fixo:</strong> <code>0</code> (começo da linha), <code>^</code> (primeiro caractere que não é espaço) ou <code>f</code> + um caractere que toda linha tem.</li>
+  <li><strong>Termine posicionando para a próxima:</strong> normalmente <code>j</code>, para descer uma linha. Assim, a próxima execução começa no lugar certo.</li>
+</ol>
+
+<p>Exemplo: colocar aspas no valor de cada linha <code>nome=valor</code>. A macro começa com <code>0</code> e usa <code>f=</code> para achar o igual, que existe em toda linha:</p>
+
+<dl class="anatomy">
+  <dt>qa</dt><dd>Começa a gravar no registrador <code>a</code>.</dd>
+  <dt>0</dt><dd>Vai para o começo da linha: ponto de partida fixo.</dd>
+  <dt>f=</dt><dd>Pula até o sinal de igual.</dd>
+  <dt>a"&lt;Esc&gt;</dt><dd>Insere uma aspa <strong>depois</strong> do igual e volta ao modo normal.</dd>
+  <dt>A"&lt;Esc&gt;</dt><dd>Insere uma aspa no fim da linha.</dd>
+  <dt>j</dt><dd>Desce para a próxima linha.</dd>
+  <dt>q</dt><dd>Para de gravar.</dd>
+</dl>
+
+<div class="vimdemo" data-file="config.txt" data-col="4" data-keys="qa0f=a&quot;&lt;Esc&gt;A&quot;&lt;Esc&gt;jq2@a">
+<pre class="vim-inicial">nome=ana
+nome=bia
+nome=caio</pre>
+</div>
+
+<p>Repare que o cursor começou no meio de "nome", e mesmo assim deu certo: o <code>0</code> levou ao começo antes de qualquer edição.</p>
+
+<div class="vimtry" data-file="nomes.txt" data-col="3">
+<pre class="vim-inicial">ana silva
+bia souza
+caio lima
+davi rocha</pre>
+<pre class="vim-meta">Ana Silva
+Bia Souza
+Caio Lima
+Davi Rocha</pre>
+<p class="try-task"><strong>Missão:</strong> deixe as iniciais maiúsculas. Dica: <code>~</code> troca maiúscula/minúscula da letra sob o cursor e anda para a direita; <code>w</code> vai para a próxima palavra. Lembre de começar a macro com <code>0</code>, porque o cursor não está no começo.</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de repetir uma edição</h2>
+<p>Macro não é a única forma de repetir. Escolha pela complexidade da tarefa:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Ferramenta</th><th>Exemplo</th><th>Melhor quando…</th></tr>
+<tr><td><code>.</code> (ponto)</td><td><code>A;&lt;Esc&gt;</code> e depois <code>j.</code></td><td>A edição é um único comando. Veja <a href="contadores.html">Números e Repetição</a>.</td></tr>
+<tr><td><code>:s</code></td><td><code>:%s/$/;/</code></td><td>A mudança é "trocar um texto por outro". Veja <a href="substituir.html">Substituir</a>.</td></tr>
+<tr><td><code>:norm</code></td><td><code>:%norm A;</code></td><td>Os mesmos comandos em várias linhas, sem gravar. Veja <a href="ex-avancado.html">Comandos Ex</a>.</td></tr>
+<tr><td>Macro</td><td><code>qa0f=a"&lt;Esc&gt;A"&lt;Esc&gt;jq</code></td><td>Vários passos, decisões por busca (<code>f</code>, <code>/</code>) ou uso de outros registradores.</td></tr>
+<tr><td>Bloco visual</td><td><code>&lt;C-v&gt;jjI- &lt;Esc&gt;</code></td><td>Inserir o mesmo texto na mesma coluna. Veja <a href="bloco.html">Modo Visual de Bloco</a>.</td></tr>
+</table>
+</div>
+
+<p>Os quatro primeiros resolvem "pôr um ponto e vírgula no fim de cada linha". Veja o <code>:%norm</code> e a macro lado a lado:</p>
+
+<div class="vimdemo" data-file="codigo.txt" data-keys=":%norm A;&lt;CR&gt;">
+<pre class="vim-inicial">x = 1
+y = 2
+z = 3</pre>
+</div>
+
+<div class="vimdemo" data-file="codigo.txt" data-keys="qaA;&lt;Esc&gt;jq2@a">
+<pre class="vim-inicial">x = 1
+y = 2
+z = 3</pre>
+</div>
+
+<hr>
+
+<h2>Macros que usam o que você copiou</h2>
+<p>Uma macro pode copiar e colar. Um truque clássico é gerar uma lista numerada: copiar a linha, colar abaixo e somar 1 ao número com <code>&lt;C-a&gt;</code> (<kbd>Ctrl</kbd>+<kbd>A</kbd>, que soma 1 ao número sob ou depois do cursor).</p>
+
+<dl class="anatomy">
+  <dt>qa</dt><dd>Começa a gravar.</dd>
+  <dt>yy</dt><dd>Copia a linha atual.</dd>
+  <dt>p</dt><dd>Cola abaixo. O cursor vai para a cópia.</dd>
+  <dt>&lt;C-a&gt;</dt><dd>Soma 1 ao primeiro número da linha.</dd>
+  <dt>q</dt><dd>Para de gravar.</dd>
+</dl>
+
+<div class="vimdemo" data-file="lista.txt" data-keys="qayyp&lt;C-a&gt;q3@a">
+<pre class="vim-inicial">1. item</pre>
+</div>
+
+<div class="vimtry" data-file="tarefas.txt">
+<pre class="vim-inicial">1. tarefa</pre>
+<pre class="vim-meta">1. tarefa
+2. tarefa
+3. tarefa
+4. tarefa
+5. tarefa
+6. tarefa</pre>
+<p class="try-task"><strong>Missão:</strong> gere a lista até "6. tarefa" com uma macro que copia, cola e soma 1.</p>
+</div>
+
+<hr>
+
+<h2>Ver e consertar uma macro</h2>
+<p>A macro mora num registrador comum. Por isso dá para <strong>ver</strong> o que foi gravado com <code>:reg</code> (de <em>registers</em>):</p>
+
+<div class="vimdemo" data-file="x.txt" data-keys="qaA;&lt;Esc&gt;jq:reg a&lt;CR&gt;">
+<pre class="vim-inicial">a
+b</pre>
+</div>
+
+<p>O conteúdo <code>A;^[j</code> são as teclas: <code>A</code>, <code>;</code>, <kbd>Esc</kbd> (que o Vim escreve como <code>^[</code>) e <code>j</code>. A letra <code>c</code> no começo da linha indica um registrador de caracteres.</p>
+
+<h3>Consertar sem gravar de novo</h3>
+<p>Errou uma tecla no meio da gravação? Não precisa refazer tudo. Cole a macro como texto, conserte e copie de volta para o registrador:</p>
+
+<ol class="passo">
+  <li>Numa linha vazia, cole a macro: <code>"ap</code> (registrador <code>a</code>, colar).</li>
+  <li>Edite o texto colado como qualquer texto.</li>
+  <li>Volte ao começo da linha (<code>0</code>) e copie de volta, sem o fim de linha: <code>"ay$</code>.</li>
+  <li>Apague a linha de trabalho com <code>dd</code> e teste com <code>@a</code>.</li>
+</ol>
+
+<pre class="file" data-file="linha de trabalho (antes e depois)">A;^[j          ← a macro colada com "ap
+A;^[jj         ← consertada: agora desce duas linhas</pre>
+
+<div class="note">
+<strong>Nota sobre o simulador</strong>
+<p>No Vim simulado deste guia, colar uma macro com <code>"ap</code> mostra um formato interno e não o texto <code>A;^[j</code>. Pratique esse truque no Vim real. No Vim real, o <kbd>Esc</kbd> aparece como o caractere de controle <code>^[</code>; para digitá-lo ao consertar, use <kbd>Ctrl</kbd>+<kbd>V</kbd> e depois <kbd>Esc</kbd>.</p>
+</div>
+
+<p>Também dá para escrever a macro direto, com Vimscript: <code>:let @a = 'A;' .. "\&lt;Esc&gt;" .. 'j'</code>. Veja <a href="vimscript.html">Vimscript Básico</a>.</p>
+
+<h3>Acrescentar ao fim de uma macro</h3>
+<p>Gravar com a letra <strong>maiúscula</strong> acrescenta ao final da macro existente, em vez de substituir: <code>qA</code> … <code>q</code> continua a macro <code>a</code>.</p>
+
+<hr>
+
+<h2>Macros recursivas</h2>
+<p>Uma macro pode chamar a si mesma no final. Assim ela se repete até dar erro, sem você precisar contar as linhas. Para isso, o registrador precisa começar <strong>vazio</strong>, senão a chamada executaria a versão antiga:</p>
+
+<dl class="anatomy">
+  <dt>qaq</dt><dd>Grava uma macro vazia em <code>a</code>: um jeito rápido de limpar o registrador.</dd>
+  <dt>qa</dt><dd>Começa a gravar de verdade.</dd>
+  <dt>I- &lt;Esc&gt;j</dt><dd>A edição e o movimento para a próxima linha.</dd>
+  <dt>@a</dt><dd>Chama a própria macro (agora vazia, por isso nada acontece durante a gravação).</dd>
+  <dt>q</dt><dd>Para de gravar. A partir daqui, <code>@a</code> roda até o <code>j</code> falhar na última linha.</dd>
+</dl>
+
+<div class="vimdemo" data-file="frutas.txt" data-keys="qaqqaI- &lt;Esc&gt;j@aq@a">
+<pre class="vim-inicial">maçã
+banana
+uva
+laranja
+kiwi</pre>
+</div>
+
+<div class="tip">
+<strong>Dica</strong>
+<p>Na prática, <code>999@a</code> faz o mesmo e é mais fácil de entender. Use a recursiva quando quiser uma macro que funcione sozinha em qualquer arquivo.</p>
+</div>
+
+<hr>
+
+<h2>Boas práticas</h2>
+<ul>
+  <li><strong>Teste em uma linha antes de repetir em mil.</strong> Rode <code>@a</code> uma vez, confira, e só então <code>999@a</code>.</li>
+  <li><strong>Prefira movimentos que "procuram"</strong> (<code>f</code>, <code>t</code>, <code>/</code>, <code>w</code>) a contar com <code>l</code>: linhas de tamanhos diferentes quebram contagens fixas.</li>
+  <li><strong>Use sempre o mesmo registrador para rascunho</strong>, por exemplo <code>q</code> (<code>qq</code> … <code>q</code>, <code>@q</code>). Fica fácil de digitar e você não sobrescreve registradores importantes.</li>
+  <li><strong>Desfaça com <code>u</code></strong>: cada execução de macro pode ser desfeita.</li>
+  <li><strong>Aplique em uma seleção</strong> com <code>:'&lt;,'&gt;norm @a</code>, que roda a macro em cada linha selecionada (veja <a href="ex-avancado.html">Comandos Ex</a>).</li>
+</ul>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Apareceu "gravando @q" e não sei por quê</strong>
+<p><strong>O que aconteceu:</strong> você apertou <code>q</code> e outra tecla sem querer, e o Vim começou a gravar. Nada de ruim acontece, só a gravação.</p>
+<p><strong>Como resolver:</strong> aperte <code>q</code> no modo normal para parar. Se estiver no modo de inserção, aperte <kbd>Esc</kbd> antes.</p>
+</div>
+
+<div class="cenario">
+<strong>A macro funcionou na primeira linha e bagunçou as outras</strong>
+<p><strong>O que aconteceu:</strong> a gravação dependia da posição do cursor (por exemplo, <code>5l</code>) ou não terminou na linha seguinte.</p>
+<p><strong>Como resolver:</strong> desfaça com <code>u</code> (uma vez por execução) e grave de novo começando com <code>0</code> ou <code>^</code>, usando <code>f</code> ou <code>w</code> para chegar ao ponto, e terminando com <code>j</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"E353: Não há nada no registrador a"</strong>
+<p><strong>O que aconteceu:</strong> você executou <code>@a</code> sem ter gravado nada em <code>a</code>, ou gravou em outra letra.</p>
+<p><strong>Como resolver:</strong> confira com <code>:reg</code> onde está a macro. No Vim em inglês a mensagem é <code>E353: Nothing in register a</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei 100@a e o Vim "travou"</strong>
+<p><strong>O que aconteceu:</strong> a macro está rodando num arquivo grande, ou uma macro recursiva nunca encontra um erro para parar.</p>
+<p><strong>Como resolver:</strong> aperte <kbd>Ctrl</kbd>+<kbd>C</kbd> para interromper. Depois use <code>u</code> para desfazer o que foi feito.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>q{a-z}</code></td><td>Começa a gravar no registrador indicado</td></tr>
+<tr><td><code>q{A-Z}</code></td><td>Grava acrescentando ao fim da macro existente</td></tr>
+<tr><td><code>q</code></td><td>Para de gravar</td></tr>
+<tr><td><code>@{a-z}</code></td><td>Executa a macro</td></tr>
+<tr><td><code>@@</code></td><td>Repete a última macro executada</td></tr>
+<tr><td><code>{n}@a</code></td><td>Executa n vezes (para no primeiro erro)</td></tr>
+<tr><td><code>@:</code></td><td>Repete o último comando <code>:</code></td></tr>
+<tr><td><code>:reg a</code></td><td>Mostra o conteúdo da macro <code>a</code></td></tr>
+<tr><td><code>"ap</code> / <code>"ay$</code></td><td>Cola a macro como texto / copia o texto de volta</td></tr>
+<tr><td><code>:'&lt;,'&gt;norm @a</code></td><td>Executa a macro em cada linha selecionada</td></tr>
+<tr><td><code>qaq</code></td><td>Limpa o registrador <code>a</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Repetir de novo</h3>
+<p>Você acabou de rodar <code>@a</code>. Quais duas teclas repetem a última macro executada?</p>
+<div class="ex-code"><input data-answer="@@|@a" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Começar a gravar</h3>
+<p>Quais teclas começam a gravar uma macro no registrador <code>w</code>?</p>
+<div class="ex-code"><input data-answer="qw" aria-label="teclas"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. Você roda <code>999@a</code> num arquivo de 20 linhas, e a macro termina com <code>j</code>. O que acontece?</p>
+<label><input type="radio" name="q3"> O Vim cria 979 linhas novas.</label>
+<label><input type="radio" name="q3"> A macro roda até a última linha, o <code>j</code> falha e a repetição para.</label>
+<label><input type="radio" name="q3"> Aparece um erro e nada é alterado.</label>
+<label><input type="radio" name="q3"> A macro volta ao começo do arquivo e continua.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. Por que é bom começar a macro com <code>0</code>?</p>
+<label><input type="radio" name="q4"> Porque o <code>0</code> é obrigatório em toda macro.</label>
+<label><input type="radio" name="q4"> Para limpar o registrador antes de gravar.</label>
+<label><input type="radio" name="q4"> Para a macro rodar mais rápido.</label>
+<label><input type="radio" name="q4"> Para ela começar sempre do mesmo ponto, não importa onde o cursor esteja.</label>
+</div>
+
+<div class="vimtry" data-file="menu.html">
+<pre class="vim-inicial">Início
+Produtos
+Contato</pre>
+<pre class="vim-meta">&lt;li&gt;Início&lt;/li&gt;
+&lt;li&gt;Produtos&lt;/li&gt;
+&lt;li&gt;Contato&lt;/li&gt;</pre>
+<p class="try-task"><strong>Missão final:</strong> transforme cada linha num item de lista HTML, <code>&lt;li&gt;texto&lt;/li&gt;</code>, gravando uma macro na primeira linha e repetindo nas outras.</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>qa</code> grava, <code>q</code> para, <code>@a</code> executa, <code>@@</code> repete.</li>
+  <li><code>50@a</code> repete muitas vezes; a macro para sozinha quando um comando falha.</li>
+  <li>Macros boas começam num ponto fixo (<code>0</code>, <code>^</code>, <code>f</code>) e terminam com <code>j</code>.</li>
+  <li>A macro é texto num registrador: <code>:reg a</code> mostra, <code>"ap</code> cola e <code>"ay$</code> guarda de volta.</li>
+  <li>Para tarefas simples, <code>.</code>, <code>:s</code> e <code>:norm</code> costumam ser mais rápidos.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

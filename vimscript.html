@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — Vimscript básico: variáveis, condições, funções | Guia Vim</title>
+<meta name="description" content="Introdução ao Vimscript: let e escopos de variáveis (g:, b:, l:, &amp;opção, @registrador), if, for e while, funções com function!, comandos próprios, um mini-plugin comentado e as diferenças do Vim9 script.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Vimscript Básico</span></h1>
+
+<p class="intro"><strong>Vimscript</strong> é a linguagem de programação do Vim. Você já escreve Vimscript sem perceber: cada linha do <code>.vimrc</code>, como <code>set number</code>, é um comando dela. Nesta aula você vai além: variáveis, condições, repetições e funções, o suficiente para entender a configuração dos outros e criar seus próprios comandos.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Testar Vimscript na hora com <code>:echo</code> e rodar arquivos com <code>:source</code>.</li>
+  <li>Criar variáveis com <code>let</code> e entender os escopos <code>g:</code>, <code>b:</code>, <code>l:</code>, <code>&amp;opção</code> e <code>@registrador</code>.</li>
+  <li>Usar <code>if</code>, <code>for</code> e <code>while</code>.</li>
+  <li>Escrever funções e comandos próprios.</li>
+  <li>Montar um mini-plugin de verdade.</li>
+  <li>Saber o que muda no Vim9 script.</li>
+</ul>
+</div>
+
+<div class="warning">
+<strong>Precisa do Vim completo</strong>
+<p>O <code>vim-tiny</code>, instalado por padrão em algumas versões de Ubuntu e Debian, não tem Vimscript. Lá, qualquer <code>:let</code> ou <code>:echo</code> responde <code>E319</code> (veja "Quando não funciona"). Instale o pacote completo: <code>sudo apt install vim</code>. Confira com <code>vim --version</code>: deve aparecer <code>+eval</code>, e não <code>-eval</code>. O Vim simulado deste guia também não roda Vimscript; os resultados mostrados são os do Vim 9.1.</p>
+</div>
+
+<hr>
+
+<h2>Testar na hora: :echo</h2>
+<p>O jeito mais rápido de aprender é digitar expressões na linha de comando. O <code>:echo</code> calcula e mostra o resultado no rodapé:</p>
+
+<dl class="anatomy">
+  <dt>:echo</dt><dd>Mostra o valor de uma expressão no rodapé.</dd>
+  <dt>2 + 3</dt><dd>A expressão a calcular.</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Você digita</th><th>O Vim mostra</th><th>Por quê</th></tr>
+<tr><td><code>:echo 2 + 3</code></td><td><code>5</code></td><td>Conta simples</td></tr>
+<tr><td><code>:echo 10 / 3</code></td><td><code>3</code></td><td>Entre números inteiros, a divisão descarta a parte decimal</td></tr>
+<tr><td><code>:echo 10 / 3.0</code></td><td><code>3.333333</code></td><td>Com um número decimal, o resultado é decimal</td></tr>
+<tr><td><code>:echo "Olá, " .. "Ana"</code></td><td><code>Olá, Ana</code></td><td><code>..</code> junta textos</td></tr>
+<tr><td><code>:echo toupper("vim")</code></td><td><code>VIM</code></td><td>Uma função pronta</td></tr>
+<tr><td><code>:echo len([10, 20, 30])</code></td><td><code>3</code></td><td>Tamanho de uma lista</td></tr>
+<tr><td><code>:echo &amp;shiftwidth</code></td><td><code>8</code></td><td>Valor de uma opção</td></tr>
+<tr><td><code>:echo v:version</code></td><td><code>901</code></td><td>A versão do Vim (9.01)</td></tr>
+<tr><td><code>:echo expand('%')</code></td><td><code>notas.txt</code></td><td>O nome do arquivo aberto</td></tr>
+</table>
+</div>
+
+<h3>Rodar um arquivo inteiro</h3>
+<p>Para mais de uma linha, escreva num arquivo <code>.vim</code> e rode com <code>:source</code> (ou <code>:so</code>). Se o arquivo está aberto no próprio Vim, <code>:so %</code> roda ele mesmo, um ótimo jeito de testar enquanto edita:</p>
+
+<pre class="file" data-file="teste.vim">let nome = "Ana"
+echo "Olá, " .. nome .. "!"</pre>
+
+<pre class="file" data-file="rodapé do Vim depois de :so %">Olá, Ana!</pre>
+
+<hr>
+
+<h2>Variáveis: let</h2>
+
+<dl class="anatomy">
+  <dt>let</dt><dd>Cria ou muda uma variável.</dd>
+  <dt>g:contador</dt><dd>O nome, com o escopo <code>g:</code> (global) na frente.</dd>
+  <dt>= 0</dt><dd>O valor.</dd>
+</dl>
+
+<pre class="file" data-file="exemplos">let g:contador = 0
+let g:contador += 1         " soma 1 (também existem -=, *=, /= e ..=)
+echo g:contador             " mostra 1
+unlet g:contador            " apaga a variável</pre>
+
+<h3>Escopos: de quem é a variável</h3>
+<p>O prefixo antes dos dois-pontos diz onde a variável vive. Ele evita que um plugin apague a variável de outro:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Prefixo</th><th>Vale em…</th><th>Exemplo</th></tr>
+<tr><td><code>g:</code></td><td>Todo o Vim (global). É o padrão fora de funções.</td><td><code>let g:tema = "escuro"</code></td></tr>
+<tr><td><code>l:</code></td><td>Só dentro da função atual. É o padrão dentro de funções.</td><td><code>let l:total = 0</code></td></tr>
+<tr><td><code>a:</code></td><td>Argumentos da função (só leitura)</td><td><code>a:nome</code></td></tr>
+<tr><td><code>b:</code></td><td>Só no buffer (arquivo) atual</td><td><code>let b:revisado = 1</code></td></tr>
+<tr><td><code>w:</code>, <code>t:</code></td><td>Só na janela / aba atual</td><td><code>let w:nota = "x"</code></td></tr>
+<tr><td><code>s:</code></td><td>Só no arquivo de script atual (privada)</td><td><code>let s:cache = {}</code></td></tr>
+<tr><td><code>v:</code></td><td>Variáveis do próprio Vim (só leitura)</td><td><code>v:version</code>, <code>v:count</code></td></tr>
+</table>
+</div>
+
+<h3>Opções, registradores e ambiente como variáveis</h3>
+<p>Três prefixos especiais permitem ler e mudar outras partes do Vim como se fossem variáveis:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>É…</th><th>Exemplo</th></tr>
+<tr><td><code>&amp;opção</code></td><td>Uma opção do <code>:set</code></td><td><code>let &amp;shiftwidth = 4</code> é o mesmo que <code>:set shiftwidth=4</code></td></tr>
+<tr><td><code>&amp;l:opção</code></td><td>A opção só neste buffer (como <code>setlocal</code>)</td><td><code>let &amp;l:spell = 1</code></td></tr>
+<tr><td><code>@r</code></td><td>Um <a href="registradores.html">registrador</a></td><td><code>let @a = "texto"</code>, <code>echo @"</code></td></tr>
+<tr><td><code>$NOME</code></td><td>Variável de ambiente</td><td><code>echo $HOME</code></td></tr>
+</table>
+</div>
+
+<p>O <code>@</code> é a forma de escrever uma <a href="macros.html">macro</a> sem gravar: <code>let @a = 'A;' .. "\&lt;Esc&gt;" .. 'j'</code>. Entre aspas duplas, <code>"\&lt;Esc&gt;"</code> vira a tecla <kbd>Esc</kbd>.</p>
+
+<hr>
+
+<h2>Tipos de valores</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tipo</th><th>Exemplo</th><th>Observação</th></tr>
+<tr><td>Número</td><td><code>42</code>, <code>-7</code>, <code>0x1F</code></td><td>Verdadeiro/falso também são números: 0 é falso, o resto é verdadeiro</td></tr>
+<tr><td>Decimal (Float)</td><td><code>3.14</code></td><td>Precisa do ponto e de um dígito dos dois lados</td></tr>
+<tr><td>Texto (String)</td><td><code>"linha\n"</code>, <code>'C:\pasta'</code></td><td>Aspas duplas entendem <code>\n</code>, <code>\t</code>, <code>\&lt;Esc&gt;</code>; aspas simples são literais</td></tr>
+<tr><td>Lista</td><td><code>[1, "dois", 3]</code></td><td><code>lista[0]</code> é o primeiro; <code>add(lista, x)</code> acrescenta</td></tr>
+<tr><td>Dicionário</td><td><code>{'nome': 'Ana', 'idade': 30}</code></td><td><code>d.nome</code> ou <code>d['nome']</code></td></tr>
+</table>
+</div>
+
+<div class="warning">
+<strong>Comparar texto: use ==# ou ==?</strong>
+<p>O <code>==</code> entre textos segue a opção <code>ignorecase</code>: o mesmo <code>.vimrc</code> pode dar resultados diferentes em máquinas diferentes. Use <code>==#</code> para diferenciar maiúsculas e <code>==?</code> para ignorá-las. O mesmo vale para <code>!=#</code>, <code>=~#</code> etc.</p>
+</div>
+
+<pre class="file" data-file="comparações">echo "abc" ==# "ABC"     " 0 (falso)
+echo "abc" ==? "ABC"     " 1 (verdadeiro)
+echo "arquivo.py" =~# '\.py$'   " 1: =~ compara com uma expressão regular
+echo "10" + 5            " 15: texto com número vira número
+echo "abc" + 1           " 1: texto sem número vira 0</pre>
+
+<hr>
+
+<h2>Condições e repetições</h2>
+
+<h3>if</h3>
+<pre class="file" data-file="~/.vimrc">" Só liga as cores se o terminal tiver pelo menos 256
+if &amp;t_Co &gt;= 256
+  colorscheme habamax
+elseif has('gui_running')
+  colorscheme desert
+else
+  syntax off
+endif</pre>
+
+<p>O <code>has()</code> pergunta se o Vim tem um recurso. Ele é ótimo para um <code>.vimrc</code> que funciona em vários lugares: <code>has('clipboard')</code>, <code>has('win32')</code>, <code>has('mac')</code>, <code>has('patch-9.1.0')</code>.</p>
+
+<h3>for e while</h3>
+<pre class="file" data-file="repetições">" Para cada item da lista
+for linguagem in ['python', 'sh', 'javascript']
+  echo "Configurando " .. linguagem
+endfor
+
+" range(1, 3) gera [1, 2, 3]
+for n in range(1, 3)
+  call append(line('$'), "Linha número " .. n)
+endfor
+
+" Enquanto a condição for verdadeira
+let i = 0
+while i &lt; 3
+  let i += 1
+endwhile</pre>
+
+<p>O segundo laço acrescenta três linhas no fim do arquivo aberto. O <code>append(n, texto)</code> insere depois da linha <code>n</code>, e <code>line('$')</code> é o número da última linha.</p>
+
+<hr>
+
+<h2>Funções</h2>
+
+<dl class="anatomy">
+  <dt>function!</dt><dd>Cria uma função. O <code>!</code> permite substituir uma já existente (sem ele, recarregar o arquivo dá erro).</dd>
+  <dt>Saudar</dt><dd>O nome. Funções globais precisam começar com <strong>maiúscula</strong>.</dd>
+  <dt>(nome)</dt><dd>Os parâmetros. Dentro da função, eles são lidos com <code>a:</code>.</dd>
+  <dt>…</dt><dd>O corpo.</dd>
+  <dt>endfunction</dt><dd>Fim da função.</dd>
+</dl>
+
+<pre class="file" data-file="saudar.vim">function! Saudar(nome)
+  let l:texto = "Olá, " .. a:nome .. "!"
+  return l:texto
+endfunction
+
+echo Saudar("Ana")        " mostra: Olá, Ana!
+call Saudar("Bia")        " roda, mas descarta o resultado</pre>
+
+<p>Use <code>echo</code> ou <code>let</code> quando quiser o valor que a função devolve, e <code>call</code> quando ela só faz alguma coisa (como mexer no texto).</p>
+
+<h3>Funções prontas que você vai usar</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Função</th><th>Devolve / faz</th></tr>
+<tr><td><code>line('.')</code>, <code>line('$')</code></td><td>Número da linha do cursor / da última linha</td></tr>
+<tr><td><code>col('.')</code></td><td>Coluna do cursor</td></tr>
+<tr><td><code>getline(n)</code> / <code>setline(n, texto)</code></td><td>Lê / troca o texto da linha <code>n</code></td></tr>
+<tr><td><code>append(n, texto)</code></td><td>Insere uma linha depois da linha <code>n</code></td></tr>
+<tr><td><code>expand('%')</code>, <code>expand('%:p')</code></td><td>Nome do arquivo / caminho completo</td></tr>
+<tr><td><code>strftime('%d/%m/%Y')</code></td><td>A data atual formatada</td></tr>
+<tr><td><code>substitute(texto, padrão, troca, 'g')</code></td><td>Substituição dentro de um texto</td></tr>
+<tr><td><code>split(texto, ',')</code> / <code>join(lista, ', ')</code></td><td>Quebra um texto em lista / junta uma lista em texto</td></tr>
+<tr><td><code>exists('g:var')</code></td><td>1 se a variável existe</td></tr>
+<tr><td><code>input('Nome: ')</code></td><td>Pergunta algo no rodapé</td></tr>
+</table>
+</div>
+
+<h3>exe e normal!</h3>
+<p>Duas pontes entre Vimscript e os comandos que você já conhece:</p>
+<ul>
+  <li><code>execute</code> (ou <code>exe</code>) monta um comando como texto e roda: <code>exe "normal! " .. n .. "G"</code> vai para a linha guardada em <code>n</code>.</li>
+  <li><code>normal!</code> executa teclas do modo normal, ignorando seus mapeamentos: <code>normal! gg=G</code> recua o arquivo todo.</li>
+</ul>
+
+<hr>
+
+<h2>Comandos próprios</h2>
+<p>Com <code>command!</code>, você cria comandos com nome, que aparecem no <kbd>Tab</kbd> da linha de comando. O nome precisa começar com maiúscula.</p>
+
+<pre class="file" data-file="~/.vimrc">" :Hoje insere a data de hoje abaixo do cursor
+command! Hoje put =strftime('%d/%m/%Y')
+
+" :Sw salva um arquivo do sistema com sudo (veja a aula Integração com o Shell)
+command! Sw w !sudo tee % &gt; /dev/null
+
+" :Saudar Ana  mostra "Olá, Ana!"; &lt;q-args&gt; é o texto digitado depois do comando
+command! -nargs=1 Saudar echo Saudar(&lt;q-args&gt;)</pre>
+
+<hr>
+
+<h2>Um mini-plugin, linha por linha</h2>
+<p>Um plugin é só um arquivo <code>.vim</code> num lugar onde o Vim o carrega sozinho ao abrir. Este conta as palavras do arquivo, ou da seleção, e avisa no rodapé:</p>
+
+<pre class="file" data-file="~/.vim/plugin/contapalavras.vim">" contapalavras.vim — :Palavras mostra quantas palavras o arquivo tem
+
+" 1. Não carregar duas vezes (e permitir que o usuário desligue o plugin)
+if exists('g:loaded_contapalavras')
+  finish
+endif
+let g:loaded_contapalavras = 1
+
+" 2. A função: s: deixa o nome privado deste arquivo
+function! s:ContaPalavras() range
+  " a:firstline e a:lastline são a faixa recebida (o arquivo todo, por padrão)
+  let l:texto = join(getline(a:firstline, a:lastline), ' ')
+  let l:total = len(split(l:texto))
+  echo l:total .. ' palavras em ' .. (a:lastline - a:firstline + 1) .. ' linhas'
+endfunction
+
+" 3. O comando: -range=% faz valer para o arquivo todo, ou para :'&lt;,'&gt;Palavras
+command! -range=% Palavras &lt;line1&gt;,&lt;line2&gt;call s:ContaPalavras()
+
+" 4. Um atalho opcional com a tecla leader
+nnoremap &lt;leader&gt;p :Palavras&lt;CR&gt;</pre>
+
+<pre class="file" data-file="rodapé do Vim depois de :Palavras (ilustrativo)">412 palavras em 37 linhas</pre>
+
+<p>Os quatro blocos são o esqueleto de quase todo plugin: a proteção contra carregar duas vezes, a lógica numa função privada, um comando público e, às vezes, um atalho. Veja onde colocar e como instalar plugins prontos em <a href="plugins.html">Plugins</a>.</p>
+
+<hr>
+
+<h2>Vim9 script</h2>
+<p>O Vim 9 trouxe uma segunda versão da linguagem, o <strong>Vim9 script</strong>, mais parecida com linguagens modernas e bem mais rápida. O Vimscript clássico continua funcionando, e é o que você encontra na maioria dos <code>.vimrc</code> e tutoriais. Um arquivo vira Vim9 quando começa com <code>vim9script</code>:</p>
+
+<pre class="file" data-file="saudar9.vim">vim9script
+
+def Saudar(nome: string): string
+  var texto = "Olá, " .. nome .. "!"
+  return texto
+enddef
+
+echo Saudar("Ana")</pre>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Clássico</th><th>Vim9 script</th></tr>
+<tr><td><code>function!</code> … <code>endfunction</code></td><td><code>def</code> … <code>enddef</code></td></tr>
+<tr><td><code>let x = 1</code></td><td><code>var x = 1</code> (ou <code>const</code>)</td></tr>
+<tr><td>Argumentos com <code>a:nome</code></td><td>Só <code>nome</code></td></tr>
+<tr><td>Tipos não são declarados</td><td>Tipos opcionais: <code>nome: string</code>, <code>: number</code></td></tr>
+<tr><td>Comentário com <code>"</code></td><td>Comentário com <code>#</code></td></tr>
+<tr><td>Interpretado linha a linha</td><td>Compilado: muito mais rápido em funções pesadas</td></tr>
+</table>
+</div>
+
+<p>Para configurar o Vim, o clássico basta. Vale aprender o Vim9 se você for escrever plugins com bastante lógica. O Neovim não usa Vim9 script; ele prefere Lua (veja <a href="neovim.html">Neovim</a>).</p>
+
+<hr>
+
+<h2>Formas diferentes de fazer</h2>
+<p>Exemplo: "colocar a data de hoje no arquivo".</p>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Como</th><th>Quando usar</th></tr>
+<tr><td>Shell</td><td><code>:r !date +\%d/\%m/\%Y</code></td><td>Uma vez, e você já conhece o <code>date</code>. Veja <a href="shell.html">Shell</a>.</td></tr>
+<tr><td>Expressão</td><td><code>:put =strftime('%d/%m/%Y')</code></td><td>Sem depender de programas externos.</td></tr>
+<tr><td>Comando próprio</td><td><code>command! Hoje put =strftime('%d/%m/%Y')</code> e depois <code>:Hoje</code></td><td>Você faz isso sempre.</td></tr>
+<tr><td>Inserção</td><td>No modo de inserção: <kbd>Ctrl</kbd>+<kbd>R</kbd> <code>=strftime('%d/%m/%Y')</code> <kbd>Enter</kbd></td><td>No meio de uma frase que você está digitando.</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"E319: Sorry, the command is not available in this version"</strong>
+<p><strong>O que aconteceu:</strong> você está no <code>vim-tiny</code>, que não tem Vimscript. Foi conferido no <code>vim.tiny</code> do Ubuntu 26.04: <code>:let x = 1</code> e até <code>:echo 2+3</code> dão este erro. Num Vim completo em português, a mensagem é <code>E319: Desculpe, esse comando não está disponível nesta versão</code>.</p>
+<p><strong>Como resolver:</strong> <code>sudo apt install vim</code> (ou o pacote equivalente do seu sistema).</p>
+</div>
+
+<div class="cenario">
+<strong>"E121: Variável indefinida"</strong>
+<p><strong>O que aconteceu:</strong> o nome está errado, a variável ainda não foi criada, ou está em outro escopo. Por exemplo, ler <code>contador</code> dentro de uma função quando ela foi criada como <code>g:contador</code> fora: dentro da função, sem prefixo, o Vim procura <code>l:contador</code>.</p>
+<p><strong>Como resolver:</strong> use o prefixo certo, ou teste antes com <code>exists('g:contador')</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"E128: Nome da função deve começar com maiúscula"</strong>
+<p><strong>O que aconteceu:</strong> funções globais precisam de nome com maiúscula, como <code>Saudar</code>, para não colidir com as funções do Vim.</p>
+<p><strong>Como resolver:</strong> renomeie para maiúscula, ou deixe privada com <code>s:</code> (<code>s:saudar</code>).</p>
+</div>
+
+<div class="cenario">
+<strong>"E122: Função Saudar já existe, adicione ! para substituí-la"</strong>
+<p><strong>O que aconteceu:</strong> o arquivo foi carregado de novo (por exemplo, com <code>:so %</code>) e a função foi declarada com <code>function</code>, sem <code>!</code>.</p>
+<p><strong>Como resolver:</strong> use <code>function!</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"E117: Função desconhecida"</strong>
+<p><strong>O que aconteceu:</strong> erro de digitação, ou você chamou uma função <code>s:</code> de fora do arquivo onde ela foi criada.</p>
+<p><strong>Como resolver:</strong> confira o nome. Funções privadas só podem ser chamadas pelo próprio arquivo (por isso o plugin acima usa um <code>command!</code> para expô-la).</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:echo {expr}</code></td><td>Mostra um valor</td></tr>
+<tr><td><code>:let {var} = {expr}</code> / <code>:unlet</code></td><td>Cria ou muda / apaga uma variável</td></tr>
+<tr><td><code>:if</code> … <code>:elseif</code> … <code>:else</code> … <code>:endif</code></td><td>Condição</td></tr>
+<tr><td><code>:for x in lista</code> … <code>:endfor</code></td><td>Repetição por lista</td></tr>
+<tr><td><code>:while</code> … <code>:endwhile</code></td><td>Repetição por condição</td></tr>
+<tr><td><code>:function!</code> … <code>:endfunction</code></td><td>Cria uma função</td></tr>
+<tr><td><code>:call F()</code></td><td>Chama uma função descartando o resultado</td></tr>
+<tr><td><code>:command! Nome …</code></td><td>Cria um comando</td></tr>
+<tr><td><code>:execute</code> / <code>:normal!</code></td><td>Roda um texto como comando / teclas do modo normal</td></tr>
+<tr><td><code>:source arquivo</code> / <code>:so %</code></td><td>Executa um arquivo de Vimscript</td></tr>
+<tr><td><code>:help eval</code>, <code>:help function-list</code></td><td>Manual completo e lista de funções</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Mudar uma opção como variável</h3>
+<p>Complete para ligar os números de linha usando <code>let</code>:</p>
+<div class="ex-code">let <input data-answer="&amp;number|&amp;nu" aria-label="opção"> = 1</div>
+</div>
+
+<div class="exercise">
+<h3>2. Juntar textos</h3>
+<p>Complete para mostrar "Vim 9":</p>
+<div class="ex-code">echo "Vim" <input data-answer="..|." aria-label="operador"> " 9"</div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. Quanto mostra <code>:echo 7 / 2</code>?</p>
+<label><input type="radio" name="q3"> <code>3.5</code></label>
+<label><input type="radio" name="q3"> <code>4</code></label>
+<label><input type="radio" name="q3"> <code>3</code></label>
+<label><input type="radio" name="q3"> Um erro</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">4. Dentro de uma função, como você lê o argumento <code>nome</code>?</p>
+<label><input type="radio" name="q4"> <code>a:nome</code></label>
+<label><input type="radio" name="q4"> <code>g:nome</code></label>
+<label><input type="radio" name="q4"> <code>$nome</code></label>
+<label><input type="radio" name="q4"> <code>@nome</code></label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">5. Por que plugins começam com <code>if exists('g:loaded_...') | finish | endif</code>?</p>
+<label><input type="radio" name="q5"> Para conferir se o Vim tem Vimscript.</label>
+<label><input type="radio" name="q5"> Para baixar atualizações.</label>
+<label><input type="radio" name="q5"> Para rodar mais rápido na primeira vez.</label>
+<label><input type="radio" name="q5"> Para não carregar duas vezes e permitir que o usuário desligue o plugin.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>:echo</code> testa expressões na hora; <code>:so %</code> roda o arquivo aberto.</li>
+  <li><code>let</code> cria variáveis; o prefixo diz o escopo (<code>g:</code>, <code>l:</code>, <code>a:</code>, <code>b:</code>, <code>s:</code>), e <code>&amp;opção</code> e <code>@r</code> dão acesso a opções e registradores.</li>
+  <li>Compare textos com <code>==#</code> ou <code>==?</code>, nunca com <code>==</code> puro.</li>
+  <li><code>function!</code> com nome maiúsculo (ou <code>s:</code>), <code>command!</code> para comandos próprios.</li>
+  <li>Plugin = arquivo em <code>~/.vim/plugin/</code> com proteção, função, comando e atalho.</li>
+  <li>O Vim9 script (<code>vim9script</code>, <code>def</code>, <code>var</code>) é mais rápido; o clássico continua valendo.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — os modos do Vim | Guia Vim</title>
+<meta name="description" content="Os modos do Vim explicados: normal, inserção, visual, linha de comando e substituição. Como saber em que modo você está, como entrar e sair de cada um e por que o Esc é a tecla mais importante.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Os Modos do Vim</span></h1>
+
+<p class="intro">No Vim, a mesma tecla faz coisas diferentes dependendo do <strong>modo</strong> em que você está. A letra <kbd>x</kbd> apaga um caractere no modo normal e escreve um "x" no modo de inserção. Entender os modos é entender o Vim: o resto são detalhes.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Os cinco modos que você vai usar: normal, inserção, visual, linha de comando e substituição.</li>
+  <li>Como saber em que modo você está, só olhando o rodapé.</li>
+  <li>Como entrar em cada modo e como sair dele.</li>
+  <li>Por que o <kbd>Esc</kbd> resolve quase todo susto.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>O que é um modo</h2>
+<p>Pense numa calculadora com uma tecla <kbd>Shift</kbd>: com ela ligada, a tecla <kbd>sin</kbd> vira <kbd>sin⁻¹</kbd>. O Vim funciona assim, mas com modos inteiros. Você passa a maior parte do tempo no <strong>modo normal</strong>, dando comandos, e entra nos outros modos só pelo tempo necessário.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Modo</th><th>Para quê</th><th>Como aparece no rodapé</th></tr>
+<tr><td><strong>Normal</strong></td><td>Mover o cursor e dar comandos (apagar, copiar, colar…)</td><td>Rodapé sem nome de modo</td></tr>
+<tr><td><strong>Inserção</strong></td><td>Escrever texto</td><td><code>-- INSERÇÃO --</code></td></tr>
+<tr><td><strong>Visual</strong></td><td>Selecionar texto para depois agir sobre ele</td><td><code>-- VISUAL --</code>, <code>-- VISUAL/LINHA --</code> ou <code>-- VISUAL/BLOCO --</code></td></tr>
+<tr><td><strong>Linha de comando</strong></td><td>Comandos longos: salvar, sair, substituir, buscar</td><td>O cursor pula para o rodapé, depois de <code>:</code>, <code>/</code> ou <code>?</code></td></tr>
+<tr><td><strong>Substituição</strong></td><td>Escrever por cima do texto existente</td><td><code>-- SUBSTITUIÇÃO --</code></td></tr>
+</table>
+</div>
+
+<p>No Vim em inglês, os nomes são <code>-- INSERT --</code>, <code>-- VISUAL --</code>, <code>-- VISUAL LINE --</code>, <code>-- VISUAL BLOCK --</code> e <code>-- REPLACE --</code>.</p>
+
+<hr>
+
+<h2>Modo normal: onde tudo começa</h2>
+<p>O Vim sempre abre no modo normal. Nele, cada tecla é um comando, e o rodapé não mostra nome de modo. Quando você começa um comando de mais de uma tecla, ele aparece no meio do rodapé enquanto espera o resto:</p>
+
+<div class="vimdemo" data-file="exemplo.txt" data-keys="2d">
+<pre class="vim-inicial">uma linha
+outra linha
+mais uma</pre>
+</div>
+
+<p>Depois de <kbd>2</kbd> e <kbd>d</kbd>, o rodapé mostra <code>2d</code>: o Vim está esperando saber <em>o que</em> apagar. Se você apertar <kbd>d</kbd> de novo, ele apaga 2 linhas. Se apertar <kbd>Esc</kbd>, desiste e nada acontece. Esse estado de "comando pela metade" às vezes é chamado de modo operador pendente.</p>
+
+<hr>
+
+<h2>Modo de inserção: escrever</h2>
+<p>Para escrever, você entra no modo de inserção. A forma mais comum é a tecla <kbd>i</kbd> (de <em>insert</em>), que começa a escrever <strong>antes</strong> do cursor:</p>
+
+<dl class="anatomy">
+  <dt>i</dt><dd>Entra no modo de inserção, antes do caractere sob o cursor.</dd>
+  <dt>texto</dt><dd>Tudo o que você digitar agora vira texto.</dd>
+  <dt>Esc</dt><dd>Volta ao modo normal.</dd>
+</dl>
+
+<div class="vimdemo" data-file="frase.txt" data-col="4" data-keys="iuso &lt;Esc&gt;">
+<pre class="vim-inicial">Eu Vim</pre>
+</div>
+
+<p>Durante a digitação, o rodapé mostra <code>-- INSERÇÃO --</code> e o cursor vira uma barra fina, entre os caracteres. Ao apertar <kbd>Esc</kbd>, o rodapé fica vazio e o cursor volta a ser um bloco, uma posição para a esquerda.</p>
+
+<p>Há outras teclas que entram no modo de inserção, cada uma num lugar diferente:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Começa a escrever…</th><th>Lembrete</th></tr>
+<tr><td><code>i</code></td><td>antes do cursor</td><td><em>insert</em></td></tr>
+<tr><td><code>a</code></td><td>depois do cursor</td><td><em>append</em>, acrescentar</td></tr>
+<tr><td><code>I</code></td><td>no começo da linha</td><td><em>Insert</em> grande</td></tr>
+<tr><td><code>A</code></td><td>no fim da linha</td><td><em>Append</em> grande</td></tr>
+<tr><td><code>o</code></td><td>numa linha nova, abaixo</td><td><em>open</em>, abrir linha</td></tr>
+<tr><td><code>O</code></td><td>numa linha nova, acima</td><td><em>Open</em> grande</td></tr>
+</table>
+</div>
+
+<p>A aula <a href="inserir.html">Inserir Texto</a> mostra cada uma em detalhes.</p>
+
+<div class="vimtry" data-file="frase.txt" data-col="4">
+<pre class="vim-inicial">Eu  Vim todo dia.</pre>
+<pre class="vim-meta">Eu uso Vim todo dia.</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está no segundo espaço. Aperte <kbd>i</kbd>, escreva <code>uso</code> e volte ao modo normal com <kbd>Esc</kbd>. Observe o rodapé mudar.</p>
+</div>
+
+<hr>
+
+<h2>Modo visual: selecionar</h2>
+<p>O modo visual serve para marcar um trecho e depois dizer o que fazer com ele, como fazemos com o mouse em outros editores. Há três tipos:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Seleciona</th><th>Rodapé</th></tr>
+<tr><td><code>v</code></td><td>Caracteres, do ponto inicial até o cursor</td><td><code>-- VISUAL --</code></td></tr>
+<tr><td><code>V</code></td><td>Linhas inteiras</td><td><code>-- VISUAL/LINHA --</code></td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>v</kbd></td><td>Um retângulo (colunas)</td><td><code>-- VISUAL/BLOCO --</code></td></tr>
+</table>
+</div>
+
+<p>Veja o <code>v</code> seguido de <code>e</code> (fim da palavra): a seleção cresce até onde o cursor vai.</p>
+
+<div class="vimdemo" data-file="frase.txt" data-col="10" data-keys="ve">
+<pre class="vim-inicial">Mantenha REMOVA este texto</pre>
+</div>
+
+<p>Com o trecho selecionado, uma tecla de comando age sobre ele: <code>d</code> apaga, <code>y</code> copia, <code>c</code> troca. Depois do comando, o Vim volta sozinho ao modo normal. Para desistir da seleção, aperte <kbd>Esc</kbd>. O número no meio do rodapé é o tamanho da seleção.</p>
+
+<div class="vimtry" data-file="frase.txt" data-col="10">
+<pre class="vim-inicial">Mantenha REMOVA este texto</pre>
+<pre class="vim-meta">Mantenha este texto</pre>
+<p class="try-task"><strong>Missão:</strong> apague "REMOVA" e o espaço depois dele usando o modo visual. Aperte <kbd>v</kbd>, <kbd>e</kbd> (até o fim da palavra), <kbd>l</kbd> (um caractere a mais, o espaço) e <kbd>d</kbd>.</p>
+</div>
+
+<p>Tudo sobre seleção está em <a href="visual.html">Modo Visual</a> e <a href="bloco.html">Modo Visual de Bloco</a>.</p>
+
+<hr>
+
+<h2>Modo de linha de comando: comandos longos</h2>
+<p>Ao apertar <kbd>:</kbd> no modo normal, o cursor desce para o rodapé e você escreve um comando inteiro, como <code>:wq</code> ou <code>:set number</code>. Ele só roda quando você aperta <kbd>Enter</kbd>.</p>
+
+<div class="vimdemo" data-file="exemplo.txt" data-keys=":set number">
+<pre class="vim-inicial">uma linha
+outra linha</pre>
+</div>
+
+<p>Aqui o comando ainda não foi executado: falta o <kbd>Enter</kbd>. Clique em <strong>Tudo</strong> para ver o rodapé com <code>:set number</code> esperando. Com <kbd>Enter</kbd> as linhas ganhariam números; com <kbd>Esc</kbd> o comando seria cancelado.</p>
+
+<p>A busca usa o mesmo rodapé: <kbd>/</kbd> procura para a frente e <kbd>?</kbd> para trás. Veja em <a href="busca.html">Buscar</a>.</p>
+
+<hr>
+
+<h2>Modo de substituição: escrever por cima</h2>
+<p>O <kbd>R</kbd> (de <em>Replace</em>, substituir) faz cada letra digitada <strong>tomar o lugar</strong> da letra sob o cursor, como a tecla <kbd>Insert</kbd> de outros editores. Ótimo para corrigir números e datas sem mudar o tamanho do texto.</p>
+
+<div class="vimdemo" data-file="placar.txt" data-col="9" data-keys="R21 x 13&lt;Esc&gt;">
+<pre class="vim-inicial">Placar: 00 x 00</pre>
+</div>
+
+<div class="vimtry" data-file="data.txt" data-col="16">
+<pre class="vim-inicial">Reunião no dia 01/01/2026</pre>
+<pre class="vim-meta">Reunião no dia 15/10/2026</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está no primeiro dígito da data. Aperte <kbd>R</kbd>, digite <code>15/10</code> por cima e volte com <kbd>Esc</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>Como passar de um modo para outro</h2>
+<p>Todos os caminhos passam pelo modo normal. Você nunca vai, por exemplo, direto do visual para a inserção sem passar por ele (ou por um comando que faz isso por você).</p>
+
+<ol class="passo">
+  <li><strong>Normal → Inserção:</strong> <code>i</code>, <code>a</code>, <code>o</code>, <code>I</code>, <code>A</code>, <code>O</code> (ou <code>c</code> + movimento, que apaga e já entra).</li>
+  <li><strong>Normal → Visual:</strong> <code>v</code>, <code>V</code> ou <kbd>Ctrl</kbd>+<kbd>v</kbd>.</li>
+  <li><strong>Normal → Linha de comando:</strong> <code>:</code>, <code>/</code> ou <code>?</code>.</li>
+  <li><strong>Normal → Substituição:</strong> <code>R</code>.</li>
+  <li><strong>Qualquer modo → Normal:</strong> <kbd>Esc</kbd>. Na linha de comando, o <kbd>Enter</kbd> também volta, executando o comando.</li>
+</ol>
+
+<div class="tip">
+<strong>Por que apertar Esc duas vezes não faz mal</strong>
+<p>No modo normal, o <kbd>Esc</kbd> não faz nada, só cancela um comando pela metade. Por isso, na dúvida, aperte <kbd>Esc</kbd> duas vezes: de qualquer modo, você termina no modo normal, sem efeito colateral.</p>
+</div>
+
+<div class="tip">
+<strong>O Esc é longe demais?</strong>
+<p><kbd>Ctrl</kbd>+<kbd>[</kbd> faz exatamente o mesmo que <kbd>Esc</kbd>. Muita gente também troca o <kbd>Caps Lock</kbd> pelo <kbd>Esc</kbd> nas configurações do sistema, ou cria um atalho como <code>jk</code> (veja <a href="mapeamentos.html">Mapeamentos</a>).</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Não sei em que modo estou</strong>
+<p><strong>Como confirmar:</strong> olhe o canto inferior esquerdo. <code>-- INSERÇÃO --</code>, <code>-- VISUAL --</code> e <code>-- SUBSTITUIÇÃO --</code> dizem o modo; rodapé sem nome de modo é o modo normal.</p>
+<p><strong>Como resolver:</strong> <kbd>Esc</kbd> duas vezes leva ao modo normal de qualquer jeito.</p>
+</div>
+
+<div class="cenario">
+<strong>O rodapé mostra "gravando @q"</strong>
+<p><strong>O que aconteceu:</strong> você apertou <kbd>q</kbd> e outra tecla, e o Vim começou a gravar uma macro. Não é um modo de edição, mas tudo o que você digitar está sendo gravado.</p>
+<p><strong>Como resolver:</strong> aperte <kbd>q</kbd> de novo, no modo normal, para parar. Macros são ótimas, e têm uma aula própria: <a href="macros.html">Macros</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>Apareceu ":" e a tela parou de mostrar o texto</strong>
+<pre class="term">Entrando no modo Ex.  Digite "visual" para ir para o modo Normal.
+:</pre>
+<p><strong>O que aconteceu:</strong> você apertou <kbd>Q</kbd> maiúsculo (ou <code>gQ</code>) e entrou no <strong>modo Ex</strong>, uma relíquia do editor <code>ex</code>, em que o Vim aceita só comandos de linha.</p>
+<p><strong>Como resolver:</strong> digite <code>visual</code> e aperte <kbd>Enter</kbd>, como a própria mensagem diz.</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei Esc e o cursor andou para a esquerda</strong>
+<p><strong>O que aconteceu:</strong> é normal. No modo de inserção o cursor fica <em>entre</em> caracteres; no modo normal, <em>sobre</em> um. Ao sair, o Vim o coloca sobre o último caractere digitado.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Modo</th><th>Entrar</th><th>Sair</th><th>Rodapé</th></tr>
+<tr><td>Normal</td><td><kbd>Esc</kbd></td><td>—</td><td>(sem nome)</td></tr>
+<tr><td>Inserção</td><td><code>i a o I A O</code></td><td><kbd>Esc</kbd></td><td><code>-- INSERÇÃO --</code></td></tr>
+<tr><td>Visual</td><td><code>v</code></td><td><kbd>Esc</kbd> ou <code>v</code></td><td><code>-- VISUAL --</code></td></tr>
+<tr><td>Visual de linha</td><td><code>V</code></td><td><kbd>Esc</kbd> ou <code>V</code></td><td><code>-- VISUAL/LINHA --</code></td></tr>
+<tr><td>Visual de bloco</td><td><kbd>Ctrl</kbd>+<kbd>v</kbd></td><td><kbd>Esc</kbd></td><td><code>-- VISUAL/BLOCO --</code></td></tr>
+<tr><td>Linha de comando</td><td><code>: / ?</code></td><td><kbd>Enter</kbd> ou <kbd>Esc</kbd></td><td>o que você digita</td></tr>
+<tr><td>Substituição</td><td><code>R</code></td><td><kbd>Esc</kbd></td><td><code>-- SUBSTITUIÇÃO --</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">1. O rodapé está vazio, sem nome de modo. Em que modo você está?</p>
+<label><input type="radio" name="q1"> Inserção</label>
+<label><input type="radio" name="q1"> Visual</label>
+<label><input type="radio" name="q1"> Substituição</label>
+<label><input type="radio" name="q1"> Normal</label>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">2. Qual tecla seleciona linhas inteiras?</p>
+<label><input type="radio" name="q2"> <code>v</code></label>
+<label><input type="radio" name="q2"> <code>V</code></label>
+<label><input type="radio" name="q2"> <code>R</code></label>
+<label><input type="radio" name="q2"> <code>:</code></label>
+</div>
+
+<div class="exercise">
+<h3>3. Escrever no fim da linha</h3>
+<p>Qual tecla entra no modo de inserção já no fim da linha?</p>
+<div class="ex-code"><input data-answer="A" aria-label="tecla"></div>
+</div>
+
+<div class="exercise">
+<h3>4. Desistir</h3>
+<p>Você digitou <code>d</code> e mudou de ideia. Que tecla cancela?</p>
+<div class="ex-code"><input data-answer="Esc|esc|ESC" aria-label="tecla"></div>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Normal é a base: as teclas são comandos. Os outros modos são visitas rápidas.</li>
+  <li>O rodapé diz o modo: <code>-- INSERÇÃO --</code>, <code>-- VISUAL --</code>, <code>-- SUBSTITUIÇÃO --</code>…</li>
+  <li><code>i a o</code> escrevem, <code>v V Ctrl+v</code> selecionam, <code>:</code> abre comandos, <code>R</code> escreve por cima.</li>
+  <li><kbd>Esc</kbd> sempre volta ao normal; apertar duas vezes é seguro.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

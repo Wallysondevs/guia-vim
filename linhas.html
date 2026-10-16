@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — início, fim e linhas (0, ^, $, gg, G) | Guia Vim</title>
+<meta name="description" content="Aprenda a saltar no Vim: começo e fim da linha com 0, ^, $ e g_, primeira e última linha com gg e G, ir para uma linha com 42G ou :42, H M L e rolar a tela com Ctrl-d e Ctrl-u.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Início, Fim e Linhas</span></h1>
+
+<p class="intro">Com <code>h j k l</code> e <code>w b e</code> você anda aos poucos. Mas muitas vezes o destino é óbvio: o começo da linha, o fim da linha, a primeira linha do arquivo, a linha 42 que apareceu numa mensagem de erro. Para isso o Vim tem saltos de uma ou duas teclas.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Ir ao começo da linha com <code>0</code> e <code>^</code>, e ao fim com <code>$</code> e <code>g_</code>.</li>
+  <li>Ir à primeira linha com <code>gg</code> e à última com <code>G</code>.</li>
+  <li>Ir direto a uma linha com <code>42G</code> ou <code>:42</code>.</li>
+  <li>Saltar para o topo, meio e fim da tela com <code>H</code>, <code>M</code> e <code>L</code>.</li>
+  <li>Rolar a tela com <kbd>Ctrl</kbd>+<kbd>d</kbd>, <kbd>Ctrl</kbd>+<kbd>u</kbd>, <kbd>Ctrl</kbd>+<kbd>f</kbd> e <kbd>Ctrl</kbd>+<kbd>b</kbd>.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Tudo aqui é do <strong>modo normal</strong>. Se o rodapé mostrar <code>-- INSERÇÃO --</code>, aperte <kbd>Esc</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>Dentro da linha: 0, ^, $ e g_</h2>
+<p>Linhas de código e de configuração costumam começar com espaços (o recuo) e às vezes terminam com espaços sobrando. Por isso o Vim tem dois "começos" e dois "fins":</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Vai para</th><th>Como lembrar</th></tr>
+<tr><td><code>0</code></td><td>A primeira coluna, mesmo que seja um espaço</td><td>Coluna zero.</td></tr>
+<tr><td><code>^</code></td><td>O primeiro caractere que não é espaço</td><td>Nas expressões regulares, <code>^</code> é "começo".</td></tr>
+<tr><td><code>$</code></td><td>O último caractere da linha, mesmo que seja espaço</td><td>Nas expressões regulares, <code>$</code> é "fim".</td></tr>
+<tr><td><code>g_</code></td><td>O último caractere que não é espaço</td><td>O prefixo <code>g</code> mais o "chão" <code>_</code>.</td></tr>
+</table>
+</div>
+
+<p>A linha abaixo tem 3 espaços no começo e 3 no fim. Acompanhe a régua:</p>
+
+<div class="vimdemo" data-file="recuo.txt" data-keys="$0^g_">
+<pre class="vim-inicial">   recuo e texto   </pre>
+</div>
+
+<p>A sequência foi: <code>$</code> parou no último espaço (coluna 19), <code>0</code> voltou à coluna 1, <code>^</code> foi para o "r" de "recuo" (coluna 4) e <code>g_</code> parou no "o" de "texto" (coluna 16).</p>
+
+<div class="tip">
+<strong>Qual usar no dia a dia?</strong>
+<p>Para o começo, prefira <code>^</code>: quase sempre você quer o começo do texto, não do recuo. Para o fim, <code>$</code> resolve na maioria das vezes.</p>
+</div>
+
+<div class="vimtry" data-file="lista.txt" data-line="2">
+<pre class="vim-inicial">compras:
+    - arroz
+    - feijão;</pre>
+<pre class="vim-meta">compras:
+    arroz
+    feijão</pre>
+<p class="try-task"><strong>Missão:</strong> tire os traços do começo dos itens (o traço e o espaço depois dele) e o <code>;</code> do fim de "feijão". Use <code>^</code> para ir ao traço, <code>x</code> para apagar e <code>$</code> para o fim da linha.</p>
+</div>
+
+<hr>
+
+<h2>No arquivo: gg e G</h2>
+<p>Para ir à <strong>primeira linha</strong>, digite <code>gg</code>. Para a <strong>última</strong>, <code>G</code> (maiúsculo).</p>
+
+<dl class="anatomy">
+  <dt>gg</dt><dd>Vai para a primeira linha do arquivo.</dd>
+  <dt>G</dt><dd>Vai para a última linha. "G" de <em>go</em>, "ir".</dd>
+</dl>
+
+<div class="vimdemo" data-file="notas.txt" data-set="number" data-keys="Ggg">
+<pre class="vim-inicial">Notas da reunião
+- prazo: sexta
+- responsável: Ana
+- orçamento aprovado
+- revisar contrato
+- marcar retorno
+fim das notas</pre>
+</div>
+
+<hr>
+
+<h2>Ir para uma linha: 42G, 42gg ou :42</h2>
+<p>Mensagens de erro de programas costumam dizer o número da linha ("erro na linha 42"). Para ir até ela, ponha o número antes do <code>G</code>:</p>
+
+<dl class="anatomy">
+  <dt>12</dt><dd>O número da linha de destino.</dd>
+  <dt>G</dt><dd>Com número antes, vai para aquela linha em vez da última.</dd>
+</dl>
+
+<p>Outra forma é o comando de linha <code>:12</code> seguido de <kbd>Enter</kbd>. O <code>:</code> abre a linha de comando no rodapé, onde você digita o número.</p>
+
+<div class="vimdemo" data-file="script.sh" data-set="number" data-keys="12G:5&lt;CR&gt;">
+<pre class="vim-inicial">#!/usr/bin/env bash
+# backup diário
+set -euo pipefail
+
+origem="$HOME/Documentos"
+destino="/mnt/backup"
+data=$(date +%F)
+
+echo "Iniciando backup de $data"
+mkdir -p "$destino/$data"
+rsync -a "$origem/" "$destino/$data/"
+echo "Erro aqui"
+echo "Backup concluído"</pre>
+</div>
+
+<p>Primeiro <code>12G</code> levou à linha 12. Depois <code>:5</code> e <kbd>Enter</kbd> levaram à linha 5. Os dois saltos param no primeiro caractere que não é espaço.</p>
+
+<h3>Abrir o arquivo já na linha certa</h3>
+<p>Direto do terminal, <code>+42</code> abre o arquivo com o cursor na linha 42, e <code>+/texto</code> abre na primeira linha que contém o texto:</p>
+
+<pre class="term">$ vim +12 script.sh
+$ vim +/Erro script.sh</pre>
+
+<h3>Onde estou? Ctrl-g</h3>
+<p>Se a régua estiver escondida, <kbd>Ctrl</kbd>+<kbd>g</kbd> mostra o nome do arquivo, o total de linhas e em que ponto você está:</p>
+
+<div class="vimdemo" data-file="script.sh" data-keys="6G&lt;C-g&gt;">
+<pre class="vim-inicial">#!/usr/bin/env bash
+# backup diário
+set -euo pipefail
+
+origem="$HOME/Documentos"
+destino="/mnt/backup"
+data=$(date +%F)
+
+echo "Iniciando backup de $data"
+mkdir -p "$destino/$data"
+rsync -a "$origem/" "$destino/$data/"
+echo "Erro aqui"
+echo "Backup concluído"</pre>
+</div>
+
+<p>A mensagem <code>"script.sh" 13 linhas --46%--</code> quer dizer: arquivo "script.sh", 13 linhas no total, e o cursor (na linha 6) está a 46% do caminho.</p>
+
+<div class="vimtry" data-file="config.txt" data-set="number">
+<pre class="vim-inicial">opcao1 = sim
+opcao2 = sim;
+opcao3 = não
+opcao4 = sim
+opcao5 = não
+opcao6 = sim
+opcao7 = não
+opcao8 = sim
+opcao9 = sim;
+opcao10 = não</pre>
+<pre class="vim-meta">opcao1 = sim
+opcao2 = sim
+opcao3 = não
+opcao4 = sim
+opcao5 = não
+opcao6 = sim
+opcao7 = não
+opcao8 = sim
+opcao9 = sim
+opcao10 = não</pre>
+<p class="try-task"><strong>Missão:</strong> o validador reclamou de um <code>;</code> nas linhas 2 e 9. Vá a cada uma com <code>2G</code> e <code>9G</code> (ou <code>:2</code> e <code>:9</code>), salte ao fim com <code>$</code> e apague com <code>x</code>.</p>
+</div>
+
+<hr>
+
+<h2>Na tela: H, M e L</h2>
+<p>Estes três saltos não olham o arquivo, olham a <strong>janela</strong>: vão para a linha que está no topo, no meio ou no fim do que aparece na tela.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Vai para</th><th>Origem do nome</th></tr>
+<tr><td><code>H</code></td><td>Primeira linha visível</td><td><em>High</em>, alto</td></tr>
+<tr><td><code>M</code></td><td>Linha do meio da tela</td><td><em>Middle</em>, meio</td></tr>
+<tr><td><code>L</code></td><td>Última linha visível</td><td><em>Low</em>, baixo</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="dias.txt" data-set="number" data-keys="LMH">
+<pre class="vim-inicial">segunda
+terça
+quarta
+quinta
+sexta
+sábado
+domingo</pre>
+</div>
+
+<p>Num arquivo pequeno como este, que cabe inteiro na tela, <code>H</code> e <code>L</code> coincidem com a primeira e a última linha. Num arquivo de 500 linhas, eles levam ao topo e ao pé do que você está vendo.</p>
+
+<hr>
+
+<h2>Rolar a tela: Ctrl-d, Ctrl-u, Ctrl-f, Ctrl-b</h2>
+<p>Para ler um arquivo longo, você rola a tela. Estes comandos movem a tela <strong>e</strong> o cursor:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Atalho</th><th>Rola</th><th>Origem do nome</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>d</kbd></td><td>Meia tela para baixo</td><td><em>down</em></td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>u</kbd></td><td>Meia tela para cima</td><td><em>up</em></td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>f</kbd></td><td>Uma tela inteira para baixo</td><td><em>forward</em>, avançar</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>b</kbd></td><td>Uma tela inteira para cima</td><td><em>backward</em>, voltar</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>e</kbd> / <kbd>Ctrl</kbd>+<kbd>y</kbd></td><td>Uma linha (o cursor fica onde está, se puder)</td><td>—</td></tr>
+<tr><td><code>zz</code></td><td>Centraliza a linha do cursor na tela</td><td>—</td></tr>
+<tr><td><code>zt</code> / <code>zb</code></td><td>Põe a linha do cursor no topo / no fim da tela</td><td><em>top</em> / <em>bottom</em></td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>No simulador</strong>
+<p>Os arquivos das missões são curtos e cabem na tela, por isso o Vim simulado não rola com <kbd>Ctrl</kbd>+<kbd>d</kbd> e similares. Experimente no seu Vim com um arquivo grande, por exemplo <code>vim /etc/services</code>, que tem centenas de linhas (saia com <code>:q</code>).</p>
+</div>
+
+<div class="warning">
+<strong>Atenção no navegador</strong>
+<p>Em vários navegadores, <kbd>Ctrl</kbd>+<kbd>f</kbd> abre a busca da página e <kbd>Ctrl</kbd>+<kbd>b</kbd> abre favoritos. No Vim de verdade, dentro do terminal, eles funcionam normalmente.</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de ir para a linha 42</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que acontece</th><th>Quando usar</th></tr>
+<tr><td><code>42G</code></td><td>Salta para a linha 42</td><td>A forma mais curta.</td></tr>
+<tr><td><code>42gg</code></td><td>Igual ao <code>42G</code></td><td>Se você acha <code>gg</code> mais fácil de lembrar.</td></tr>
+<tr><td><code>:42</code> + <kbd>Enter</kbd></td><td>Comando de linha para a linha 42</td><td>Fácil de lembrar; aparece no rodapé enquanto você digita.</td></tr>
+<tr><td><code>vim +42 arquivo</code></td><td>Abre o arquivo já na linha 42</td><td>Direto do terminal, depois de ver um erro.</td></tr>
+<tr><td><code>41j</code> a partir da linha 1</td><td>Desce 41 linhas</td><td>Não: é fácil errar a conta.</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Digitei 42 e nada aconteceu</strong>
+<p><strong>O que aconteceu:</strong> o número sozinho é só uma contagem esperando um comando. Ele aparece no canto direito do rodapé.</p>
+<p><strong>Como resolver:</strong> complete com <code>G</code> (ficando <code>42G</code>) ou aperte <kbd>Esc</kbd> e use <code>:42</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei G e fui parar no fim do arquivo</strong>
+<p><strong>O que aconteceu:</strong> <code>G</code> sem número vai para a última linha.</p>
+<p><strong>Como resolver:</strong> volte com <code>gg</code>, ou com <kbd>Ctrl</kbd>+<kbd>o</kbd>, que desfaz o salto (veja <a href="marcas.html">Marcas e Saltos</a>).</p>
+</div>
+
+<div class="cenario">
+<strong>0 e ^ parecem fazer a mesma coisa</strong>
+<p><strong>O que aconteceu:</strong> a linha não tem recuo. Sem espaços no começo, os dois levam ao mesmo lugar.</p>
+<p><strong>Como resolver:</strong> nada. A diferença só aparece em linhas com recuo, como em código.</p>
+</div>
+
+<div class="cenario">
+<strong>Escrevi :42 e apareceu "E492: Não é um comando do editor"</strong>
+<p><strong>O que aconteceu:</strong> sobrou algum caractere depois do número, como <code>:42a</code>.</p>
+<p><strong>Como resolver:</strong> digite só os dígitos depois do <code>:</code>. Para conferir o que foi digitado, a linha de comando fica visível no rodapé antes do <kbd>Enter</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Vai para</th></tr>
+<tr><td><code>0</code></td><td>Primeira coluna da linha</td></tr>
+<tr><td><code>^</code></td><td>Primeiro caractere que não é espaço</td></tr>
+<tr><td><code>$</code></td><td>Último caractere da linha</td></tr>
+<tr><td><code>g_</code></td><td>Último caractere que não é espaço</td></tr>
+<tr><td><code>gg</code></td><td>Primeira linha do arquivo</td></tr>
+<tr><td><code>G</code></td><td>Última linha do arquivo</td></tr>
+<tr><td><code>42G</code> / <code>42gg</code> / <code>:42</code></td><td>Linha 42</td></tr>
+<tr><td><code>50%</code></td><td>Linha que está na metade do arquivo</td></tr>
+<tr><td><code>H</code> / <code>M</code> / <code>L</code></td><td>Topo / meio / fim da tela</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>d</kbd> / <kbd>Ctrl</kbd>+<kbd>u</kbd></td><td>Meia tela para baixo / para cima</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>f</kbd> / <kbd>Ctrl</kbd>+<kbd>b</kbd></td><td>Tela inteira para baixo / para cima</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>g</kbd></td><td>Mostra nome do arquivo, total de linhas e posição</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Erro na linha 87</h3>
+<p>Complete para ir à linha 87:</p>
+<div class="ex-code"><input data-answer="87G|87gg|:87" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Começo do texto</h3>
+<p>Numa linha com recuo, qual tecla leva ao primeiro caractere que não é espaço?</p>
+<div class="ex-code"><input data-answer="^" aria-label="tecla"></div>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">3. Qual comando leva à última linha do arquivo?</p>
+<label><input type="radio" name="q3"> <code>gg</code></label>
+<label><input type="radio" name="q3"> <code>$</code></label>
+<label><input type="radio" name="q3"> <code>L</code></label>
+<label><input type="radio" name="q3"> <code>G</code></label>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Você está lendo um log comprido e quer descer meia tela. Qual atalho usar?</p>
+<label><input type="radio" name="q4"> <kbd>Ctrl</kbd>+<kbd>u</kbd></label>
+<label><input type="radio" name="q4"> <kbd>Ctrl</kbd>+<kbd>d</kbd></label>
+<label><input type="radio" name="q4"> <code>M</code></label>
+<label><input type="radio" name="q4"> <code>G</code></label>
+</div>
+
+<div class="vimtry" data-file="codigo.py" data-set="number" data-max-keys="8">
+<pre class="vim-inicial">def main():
+    print("início")
+    #print("debug 1")
+    calcular()
+    #print("debug 2")
+    print("fim")</pre>
+<pre class="vim-meta">def main():
+    print("início")
+    print("debug 1")
+    calcular()
+    print("debug 2")
+    print("fim")</pre>
+<p class="try-task"><strong>Missão final:</strong> as linhas 3 e 5 foram comentadas com <code>#</code>. Tire os dois <code>#</code> usando no máximo 8 teclas. Lembre que o <code>G</code> já para no primeiro caractere que não é espaço.</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>0</code> e <code>^</code> levam ao começo da linha (com e sem recuo); <code>$</code> e <code>g_</code>, ao fim.</li>
+  <li><code>gg</code> primeira linha, <code>G</code> última, <code>42G</code> ou <code>:42</code> linha 42.</li>
+  <li><code>H M L</code> saltam para o topo, meio e fim da tela.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>d</kbd>/<kbd>u</kbd> rolam meia tela; <kbd>Ctrl</kbd>+<kbd>f</kbd>/<kbd>b</kbd>, uma tela inteira.</li>
+  <li><code>vim +42 arquivo</code> abre já na linha certa.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

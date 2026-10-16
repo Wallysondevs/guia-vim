@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — autocomandos: fazer algo automaticamente | Guia Vim</title>
+<meta name="description" content="Aprenda autocmd no Vim: eventos como BufWritePre e FileType, padrões de arquivo, augroup com autocmd! para não duplicar, e receitas prontas: tirar espaços no fim ao salvar, configurar por linguagem e voltar à última posição.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Autocomandos</span></h1>
+
+<p class="intro">Um <strong>autocomando</strong> é uma regra do tipo "quando acontecer <em>tal coisa</em>, faça <em>isto</em>": quando eu salvar, tire os espaços do fim das linhas; quando abrir um arquivo Python, use recuo de 4 espaços. Você escreve a regra uma vez no <code>.vimrc</code> e o Vim cuida do resto.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Ler e escrever um <code>autocmd</code>: evento, padrão e comando.</li>
+  <li>Os eventos mais úteis: <code>BufWritePre</code>, <code>FileType</code>, <code>BufReadPost</code>, <code>BufNewFile</code>.</li>
+  <li>Por que todo autocomando deve ficar dentro de um <code>augroup</code> com <code>autocmd!</code>.</li>
+  <li>Receitas prontas para o seu <code>.vimrc</code>.</li>
+  <li>Como listar e investigar autocomandos.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Autocomandos ficam no <a href="vimrc.html">.vimrc</a> e usam um pouco de <a href="vimscript.html">Vimscript</a>. Eles precisam do Vim completo (o pacote <code>vim</code>); o <code>vim-tiny</code> que vem em alguns sistemas não tem esse recurso.</p>
+</div>
+
+<div class="warning">
+<strong>Esta aula é para o Vim real</strong>
+<p>O Vim simulado deste guia não roda autocomandos. Onde aparece uma demonstração, ela mostra o comando que o autocomando executa.</p>
+</div>
+
+<hr>
+
+<h2>Anatomia de um autocomando</h2>
+
+<dl class="anatomy">
+  <dt>autocmd</dt><dd>Cria uma regra automática (pode ser abreviado como <code>au</code>).</dd>
+  <dt>BufWritePre</dt><dd>O <strong>evento</strong>: quando ela dispara. Aqui, logo antes de gravar o arquivo (<em>buffer write, pre</em>).</dd>
+  <dt>*.py</dt><dd>O <strong>padrão</strong>: para quais arquivos. Aqui, os que terminam em <code>.py</code>. Use <code>*</code> para todos.</dd>
+  <dt>%s/\s\+$//e</dt><dd>O <strong>comando</strong>: qualquer comando <code>:</code>. Aqui, uma <a href="substituir.html">substituição</a> que apaga espaços no fim das linhas.</dd>
+</dl>
+
+<pre class="file" data-file="~/.vimrc">autocmd BufWritePre *.py %s/\s\+$//e</pre>
+
+<p>Lendo em voz alta: "antes de gravar qualquer arquivo <code>.py</code>, troque os espaços do fim das linhas por nada". Veja o que essa substituição faz num arquivo. A opção <code>list</code> está ligada para mostrar o fim de cada linha como <code>$</code>, assim você enxerga os espaços sobrando:</p>
+
+<div class="vimdemo" data-file="app.py" data-set="list" data-keys=":%s/\s\+$//e&lt;CR&gt;">
+<pre class="vim-inicial">nome = "ana"   
+idade = 30  
+cidade = "Recife" </pre>
+</div>
+
+<p>O <code>e</code> no fim do <code>:s</code> é importante num autocomando: ele diz "se não achar nada, fique quieto". Sem ele, todo arquivo já limpo mostraria <code>E486: Padrão não encontrado</code> a cada vez que você salvasse.</p>
+
+<hr>
+
+<h2>Os eventos mais usados</h2>
+<p>O Vim tem mais de cem eventos (veja <code>:help autocmd-events</code>). Estes resolvem a maioria dos casos:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Evento</th><th>Dispara quando…</th><th>Uso típico</th></tr>
+<tr><td><code>BufReadPost</code></td><td>Um arquivo existente acabou de ser lido</td><td>Voltar à última posição do cursor</td></tr>
+<tr><td><code>BufNewFile</code></td><td>Você abre um arquivo que ainda não existe</td><td>Inserir um modelo</td></tr>
+<tr><td><code>BufWritePre</code></td><td>Antes de gravar</td><td>Limpar espaços, formatar</td></tr>
+<tr><td><code>BufWritePost</code></td><td>Depois de gravar</td><td>Recarregar a configuração, rodar um teste</td></tr>
+<tr><td><code>FileType</code></td><td>O Vim descobriu o tipo do arquivo (python, markdown…)</td><td>Opções por linguagem</td></tr>
+<tr><td><code>BufEnter</code> / <code>BufLeave</code></td><td>Você entra ou sai de um buffer</td><td>Mudar a pasta atual, salvar ao sair</td></tr>
+<tr><td><code>InsertEnter</code> / <code>InsertLeave</code></td><td>Entra ou sai do modo de inserção</td><td>Mudar a aparência da linha do cursor</td></tr>
+<tr><td><code>VimEnter</code> / <code>VimLeave</code></td><td>O Vim terminou de abrir / vai fechar</td><td>Abrir um painel, salvar a sessão</td></tr>
+<tr><td><code>TextYankPost</code></td><td>Logo depois de copiar com <code>y</code></td><td>Copiar também para outro lugar</td></tr>
+</table>
+</div>
+
+<h3>O padrão</h3>
+<p>Para eventos de arquivo, o padrão é um curinga de nome: <code>*.md</code>, <code>*.{js,ts}</code>, <code>/etc/*</code>, <code>*</code>. Para o <code>FileType</code>, o padrão é o <strong>nome do tipo</strong>, sem asterisco: <code>python</code>, <code>markdown</code>, <code>sh</code>. Para saber o tipo do arquivo aberto, use <code>:set filetype?</code>.</p>
+
+<hr>
+
+<h2>O problema da duplicação, e o augroup</h2>
+<p>Cada vez que o <code>.vimrc</code> é lido, o <code>autocmd</code> cria uma regra <strong>nova</strong>, mesmo que igual a uma existente. Se você recarrega a configuração com <code>:source ~/.vimrc</code> três vezes, a substituição passa a rodar três vezes a cada gravação. Com comandos mais pesados, o Vim fica lento sem motivo aparente.</p>
+
+<p>A solução é colocar os autocomandos num <strong>grupo</strong> e limpar o grupo antes de recriá-los:</p>
+
+<dl class="anatomy">
+  <dt>augroup meu_vimrc</dt><dd>Começa (ou reabre) um grupo com esse nome.</dd>
+  <dt>autocmd!</dt><dd>Com <code>!</code> e sem mais nada: apaga todos os autocomandos <strong>deste grupo</strong>.</dd>
+  <dt>autocmd …</dt><dd>Recria as regras, agora sem duplicar.</dd>
+  <dt>augroup END</dt><dd>Fecha o grupo.</dd>
+</dl>
+
+<pre class="file" data-file="~/.vimrc">augroup meu_vimrc
+  autocmd!
+  autocmd BufWritePre *.py,*.js,*.sh %s/\s\+$//e
+augroup END</pre>
+
+<div class="warning">
+<strong>Sempre use um augroup</strong>
+<p>Trate o par <code>augroup</code> + <code>autocmd!</code> como parte obrigatória da sintaxe. Ele não custa nada e evita um dos problemas mais comuns e difíceis de perceber no Vim.</p>
+</div>
+
+<hr>
+
+<h2>Receitas</h2>
+
+<h3>Opções por linguagem com FileType</h3>
+<p>Python pede 4 espaços de recuo; Makefile exige tabulação de verdade; texto em Markdown fica melhor com quebra de linha visual e corretor ortográfico. Use <code>setlocal</code>, e não <code>set</code>, para a opção valer só naquele arquivo:</p>
+
+<pre class="file" data-file="~/.vimrc">filetype plugin indent on
+
+augroup por_linguagem
+  autocmd!
+  " Python: recuo de 4 espaços
+  autocmd FileType python setlocal shiftwidth=4 softtabstop=4 expandtab
+  " Makefile precisa de tabs de verdade
+  autocmd FileType make setlocal noexpandtab
+  " Markdown: quebra de linha na tela e verificação ortográfica em português
+  autocmd FileType markdown setlocal wrap linebreak spell spelllang=pt_br
+  " YAML: 2 espaços
+  autocmd FileType yaml setlocal shiftwidth=2 expandtab
+augroup END</pre>
+
+<p>A primeira linha liga a detecção de tipos. Ela já vem ligada quando você usa o Vim sem <code>.vimrc</code> (pelo <code>defaults.vim</code>), mas é bom deixá-la explícita no seu arquivo.</p>
+
+<h3>Voltar para onde você parou</h3>
+<p>Ao reabrir um arquivo, o Vim pode levar o cursor à posição em que ele estava quando você saiu. Ele guarda essa posição na marca <code>"</code> (veja <a href="marcas.html">Marcas e Saltos</a>):</p>
+
+<pre class="file" data-file="~/.vimrc">augroup ultima_posicao
+  autocmd!
+  " Pula para a marca '" se ela existir e não for uma mensagem de commit
+  autocmd BufReadPost *
+    \ if line("'\"") &gt;= 1 &amp;&amp; line("'\"") &lt;= line("$") &amp;&amp; &amp;ft !~# 'commit'
+    \ |   exe "normal! g`\""
+    \ | endif
+augroup END</pre>
+
+<p>As linhas que começam com <code>\</code> continuam a linha de cima. Esta receita é a mesma que o <code>defaults.vim</code> do Vim 9 já usa, então ela só é necessária se você criou um <code>.vimrc</code> sem carregar o <code>defaults.vim</code>.</p>
+
+<h3>Modelo para arquivos novos</h3>
+<p>Todo script novo começar com o cabeçalho certo:</p>
+
+<pre class="file" data-file="~/.vim/modelos/script.sh">#!/usr/bin/env bash
+set -euo pipefail
+</pre>
+
+<pre class="file" data-file="~/.vimrc">augroup modelos
+  autocmd!
+  " Ao criar um .sh que não existe, lê o modelo para a linha 0 (o topo)
+  autocmd BufNewFile *.sh 0r ~/.vim/modelos/script.sh
+augroup END</pre>
+
+<h3>Recarregar o .vimrc ao salvá-lo</h3>
+<pre class="file" data-file="~/.vimrc">augroup recarrega_vimrc
+  autocmd!
+  autocmd BufWritePost $MYVIMRC source $MYVIMRC
+augroup END</pre>
+
+<p>Aqui o <code>augroup</code> é indispensável: cada recarga lê o arquivo de novo, e sem o <code>autocmd!</code> as regras se multiplicariam a cada gravação.</p>
+
+<h3>Limpar espaços sem o cursor pular</h3>
+<p>O <code>%s</code> deixa o cursor na última linha alterada, o que irrita ao salvar. Uma pequena função guarda a posição da tela e devolve depois (as funções são explicadas em <a href="vimscript.html">Vimscript Básico</a>):</p>
+
+<pre class="file" data-file="~/.vimrc">function! s:LimpaEspacos()
+  let l:visao = winsaveview()
+  keeppatterns %s/\s\+$//e
+  call winrestview(l:visao)
+endfunction
+
+augroup limpa_espacos
+  autocmd!
+  autocmd BufWritePre * call s:LimpaEspacos()
+augroup END</pre>
+
+<p>O <code>keeppatterns</code> impede que essa substituição vire a "última busca", que o <code>n</code> repetiria.</p>
+
+<hr>
+
+<h2>Listar e investigar</h2>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Mostra</th></tr>
+<tr><td><code>:autocmd</code></td><td>Todos os autocomandos (a lista é longa)</td></tr>
+<tr><td><code>:autocmd BufWritePre</code></td><td>Só os do evento <code>BufWritePre</code></td></tr>
+<tr><td><code>:autocmd meu_vimrc</code></td><td>Só os do grupo <code>meu_vimrc</code></td></tr>
+<tr><td><code>:verbose autocmd FileType python</code></td><td>Os do <code>FileType python</code> e o arquivo onde cada um foi criado</td></tr>
+<tr><td><code>:autocmd! meu_vimrc</code></td><td>Apaga todos os autocomandos do grupo</td></tr>
+<tr><td><code>:doautocmd BufWritePre</code></td><td>Dispara o evento na mão, para testar</td></tr>
+</table>
+</div>
+
+<pre class="file" data-file="saída de :autocmd meu_vimrc (ilustrativa; o cabeçalho não tem tradução)">--- Autocommands ---
+meu_vimrc  BufWritePre
+    *.py,*.js,*.sh
+              %s/\s\+$//e</pre>
+
+<hr>
+
+<h2>Formas diferentes de configurar por linguagem</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Exemplo</th><th>Quando usar</th></tr>
+<tr><td><code>autocmd FileType</code></td><td><code>autocmd FileType python setlocal sw=4</code></td><td>Poucas opções, tudo num lugar só.</td></tr>
+<tr><td>Arquivo de tipo</td><td><code>setlocal sw=4</code> dentro de <code>~/.vim/after/ftplugin/python.vim</code></td><td>Muitas opções por linguagem. Mais organizado, e dispensa o augroup.</td></tr>
+<tr><td>Modeline</td><td>Linha <code># vim: set sw=4 et:</code> no fim do arquivo</td><td>Um arquivo específico que precisa de algo diferente.</td></tr>
+<tr><td>EditorConfig</td><td>Arquivo <code>.editorconfig</code> no projeto + <code>packadd! editorconfig</code></td><td>Projetos em equipe, com pessoas usando editores diferentes. O Vim 9.1 já traz o pacote.</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>O comando roda duas, três, dez vezes</strong>
+<p><strong>O que aconteceu:</strong> o <code>.vimrc</code> foi recarregado e o autocomando não estava num <code>augroup</code> com <code>autocmd!</code>.</p>
+<p><strong>Como confirmar:</strong> <code>:autocmd BufWritePre</code> mostra a mesma regra repetida.</p>
+<p><strong>Como resolver:</strong> envolva no par <code>augroup</code>/<code>autocmd!</code> e reinicie o Vim.</p>
+</div>
+
+<div class="cenario">
+<strong>"E216: Evento inexistente"</strong>
+<p><strong>O que aconteceu:</strong> erro de digitação no nome do evento, como <code>BufWritPre</code>. No Vim em inglês: <code>E216: No such event</code>.</p>
+<p><strong>Como resolver:</strong> confira o nome em <code>:help autocmd-events</code>. Maiúsculas não importam (<code>bufwritepre</code> funciona), mas cada letra precisa estar lá.</p>
+</div>
+
+<div class="cenario">
+<strong>Toda vez que salvo aparece "E486: Padrão não encontrado"</strong>
+<p><strong>O que aconteceu:</strong> a substituição do autocomando não tem a flag <code>e</code>, e o arquivo não tinha nada para trocar.</p>
+<p><strong>Como resolver:</strong> acrescente <code>e</code> ao fim: <code>%s/\s\+$//e</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>O FileType python não faz efeito</strong>
+<p><strong>O que aconteceu:</strong> a detecção de tipos está desligada, ou o arquivo não foi reconhecido como Python.</p>
+<p><strong>Como confirmar:</strong> <code>:set filetype?</code> deve responder <code>filetype=python</code>.</p>
+<p><strong>Como resolver:</strong> coloque <code>filetype plugin indent on</code> no começo do <code>.vimrc</code>. Para um arquivo sem extensão, defina na mão: <code>:set filetype=python</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Mudei uma opção no FileType e ela afetou todos os arquivos</strong>
+<p><strong>O que aconteceu:</strong> foi usado <code>set</code> em vez de <code>setlocal</code>. O <code>set</code> muda o valor global, que os próximos arquivos herdam.</p>
+<p><strong>Como resolver:</strong> troque por <code>setlocal</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>autocmd {evento} {padrão} {comando}</code></td><td>Cria um autocomando</td></tr>
+<tr><td><code>augroup {nome}</code> … <code>augroup END</code></td><td>Agrupa autocomandos</td></tr>
+<tr><td><code>autocmd!</code> (dentro do grupo)</td><td>Limpa o grupo antes de recriar</td></tr>
+<tr><td><code>:autocmd {evento}</code></td><td>Lista os autocomandos de um evento</td></tr>
+<tr><td><code>:verbose autocmd {evento}</code></td><td>Lista e mostra onde foram definidos</td></tr>
+<tr><td><code>:doautocmd {evento}</code></td><td>Dispara um evento manualmente</td></tr>
+<tr><td><code>setlocal</code></td><td>Muda uma opção só no buffer atual</td></tr>
+<tr><td><code>:help autocmd-events</code></td><td>Lista de todos os eventos</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Antes de salvar</h3>
+<p>Qual evento dispara logo antes de gravar o arquivo?</p>
+<div class="ex-code">autocmd <input data-answer="BufWritePre|bufwritepre|BufWrite" aria-label="evento"> * %s/\s\+$//e</div>
+</div>
+
+<div class="exercise">
+<h3>2. Recuo de 2 espaços para JavaScript</h3>
+<div class="ex-code">autocmd FileType <input data-answer="javascript" aria-label="tipo"> setlocal shiftwidth=2 expandtab</div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. Para que serve o <code>autocmd!</code> logo depois de <code>augroup nome</code>?</p>
+<label><input type="radio" name="q3"> Para forçar o autocomando a rodar mesmo com erros.</label>
+<label><input type="radio" name="q3"> Para apagar as regras antigas do grupo e não duplicá-las ao recarregar o .vimrc.</label>
+<label><input type="radio" name="q3"> Para que o grupo valha só no arquivo atual.</label>
+<label><input type="radio" name="q3"> Para desligar todos os autocomandos do Vim.</label>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">4. Qual é o padrão correto para um autocomando <code>FileType</code> de arquivos Markdown?</p>
+<label><input type="radio" name="q4"> <code>*.md</code></label>
+<label><input type="radio" name="q4"> <code>*markdown*</code></label>
+<label><input type="radio" name="q4"> <code>markdown</code></label>
+<label><input type="radio" name="q4"> <code>FileType=md</code></label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">5. Por que usar a flag <code>e</code> em <code>%s/\s\+$//e</code> num autocomando?</p>
+<label><input type="radio" name="q5"> Para não mostrar erro quando não houver espaços para tirar.</label>
+<label><input type="radio" name="q5"> Para trocar só a primeira ocorrência.</label>
+<label><input type="radio" name="q5"> Para pedir confirmação a cada troca.</label>
+<label><input type="radio" name="q5"> Para ignorar maiúsculas e minúsculas.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>autocmd {evento} {padrão} {comando}</code>: quando o evento acontecer em arquivos do padrão, rode o comando.</li>
+  <li><code>BufWritePre</code> (antes de salvar), <code>FileType</code> (por linguagem), <code>BufReadPost</code> e <code>BufNewFile</code> resolvem a maioria dos casos.</li>
+  <li>Sempre dentro de <code>augroup nome</code> + <code>autocmd!</code> + <code>augroup END</code>.</li>
+  <li>Em autocomandos de tipo, use <code>setlocal</code>; em substituições, a flag <code>e</code>.</li>
+  <li><code>:verbose autocmd</code> mostra o que está ativo e de onde veio.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

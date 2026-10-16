@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — salvar e sair (:w, :wq, :q!) | Guia Vim</title>
+<meta name="description" content="Aprenda a salvar e sair do Vim: :w, :w nome, :wq, :x, ZZ, :q!, :e!, :saveas, como ler a mensagem de gravação e resolver E37, E32, E45 e E212, inclusive para arquivos do sistema.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Salvar e Sair</span></h1>
+
+<p class="intro">Salvar e sair são <strong>comandos de linha</strong>: você aperta <kbd>:</kbd> (dois-pontos), digita o comando no rodapé e confirma com <kbd>Enter</kbd>. Depois desta aula, "como sair do Vim" deixa de ser piada.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Salvar com <code>:w</code>, salvar e sair com <code>:wq</code>, <code>:x</code> ou <code>ZZ</code>.</li>
+  <li>Sair <strong>sem</strong> salvar com <code>:q!</code>, e descartar as alterações sem sair com <code>:e!</code>.</li>
+  <li>Salvar com outro nome: <code>:w nome</code> e <code>:saveas nome</code>.</li>
+  <li>Ler a mensagem <code>"notas.txt" 3L, 45B gravado(s)</code>.</li>
+  <li>Resolver os erros E37, E32, E45 e E212, inclusive em arquivos do sistema.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Os comandos com <kbd>:</kbd> são digitados a partir do <strong>modo normal</strong>. Se você estiver escrevendo texto, aperte <kbd>Esc</kbd> antes. Enquanto você digita, o comando aparece no rodapé; <kbd>Esc</kbd> cancela sem executar.</p>
+</div>
+
+<hr>
+
+<h2>:w — salvar</h2>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Abre a linha de comando no rodapé.</dd>
+  <dt>w</dt><dd><em>write</em>, gravar: salva o arquivo.</dd>
+  <dt>Enter</dt><dd>Executa o comando.</dd>
+</dl>
+
+<div class="vimdemo" data-file="notas.txt" data-keys="x:w&lt;CR&gt;">
+<pre class="vim-inicial">#Lista do mercado
+arroz
+feijão</pre>
+</div>
+
+<p>O <code>x</code> apagou o <code>#</code> e o <code>:w</code> salvou. Nas missões (as caixas "Experimente"), a barra de título mostra um <code>+</code> antes do nome enquanto há alterações não salvas, e ele some depois do <code>:w</code>.</p>
+
+<h3>Lendo a mensagem de gravação</h3>
+<p>Depois de salvar, o rodapé mostra <code>"notas.txt" 3L, 31B gravado(s)</code>:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Pedaço</th><th>Significado</th></tr>
+<tr><td><code>"notas.txt"</code></td><td>O arquivo gravado.</td></tr>
+<tr><td><code>[Novo]</code></td><td>Aparece quando o arquivo não existia antes.</td></tr>
+<tr><td><code>3L</code></td><td>3 linhas (<em>lines</em>).</td></tr>
+<tr><td><code>31B</code></td><td>31 bytes. Letras com acento ocupam 2 bytes cada, e cada fim de linha conta 1.</td></tr>
+<tr><td><code>gravado(s)</code></td><td>Deu certo. No Vim em inglês: <code>written</code>.</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="saudacao.txt" data-save="1">
+<pre class="vim-inicial">Olá, mumdo</pre>
+<pre class="vim-meta">Olá, mundo</pre>
+<p class="try-task"><strong>Missão:</strong> troque o segundo "m" de "mumdo" por "n" (use <code>x</code> para apagar e <code>i</code> para inserir) e salve com <code>:w</code>. A missão só conta depois de salvar.</p>
+</div>
+
+<hr>
+
+<h2>Salvar e sair: :wq, :x e ZZ</h2>
+<p>Três formas, quase iguais:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th><th>Diferença</th></tr>
+<tr><td><code>:wq</code></td><td>Salva e sai (<em>write</em> + <em>quit</em>)</td><td>Grava sempre, mesmo sem alterações.</td></tr>
+<tr><td><code>:x</code></td><td>Salva e sai</td><td>Só grava se houve alteração. Sem alteração, o arquivo nem é tocado.</td></tr>
+<tr><td><code>ZZ</code></td><td>O mesmo que <code>:x</code></td><td>Sem <kbd>:</kbd> nem <kbd>Enter</kbd>: duas teclas no modo normal.</td></tr>
+</table>
+</div>
+
+<p>A diferença entre <code>:wq</code> e <code>:x</code> importa quando outro programa observa a data de modificação do arquivo (um <code>make</code>, um servidor que recarrega a configuração): <code>:wq</code> atualiza a data mesmo sem mudanças.</p>
+
+<div class="vimtry" data-file="compras.txt" data-save="1">
+<pre class="vim-inicial">arroz
+LIXO
+feijão</pre>
+<pre class="vim-meta">arroz
+feijão</pre>
+<p class="try-task"><strong>Missão:</strong> apague a linha "LIXO" com <code>dd</code> e saia salvando com <code>:wq</code> (ou <code>:x</code>, ou <code>ZZ</code>). Depois de sair, o botão Reiniciar abre o arquivo de novo.</p>
+</div>
+
+<hr>
+
+<h2>Sair sem salvar: :q e :q!</h2>
+<p>O <code>:q</code> (<em>quit</em>) sai, mas só se não houver nada pendente. Se você alterou o arquivo e não salvou, o Vim protege seu trabalho e recusa:</p>
+
+<div class="vimdemo" data-file="notas.txt" data-keys="dd:q&lt;CR&gt;">
+<pre class="vim-inicial">linha importante
+outra linha</pre>
+</div>
+
+<p>A mensagem <code>E37: Alterações não foram gravadas (adicione ! para forçar)</code> oferece duas saídas: salvar antes (<code>:wq</code>) ou forçar a saída descartando tudo com o <code>!</code>:</p>
+
+<dl class="anatomy">
+  <dt>:q</dt><dd>Sair.</dd>
+  <dt>!</dt><dd>"Faça mesmo assim": descarta as alterações não salvas.</dd>
+</dl>
+
+<div class="warning">
+<strong>:q! não pede confirmação</strong>
+<p>Tudo o que não foi salvo se perde na hora. O <code>ZQ</code>, no modo normal, faz o mesmo que <code>:q!</code>.</p>
+</div>
+
+<div class="vimtry" data-file="rascunho.txt">
+<pre class="vim-inicial">Este é um rascunho.
+Faça o que quiser com ele.</pre>
+<p class="try-task"><strong>Treino livre:</strong> apague e escreva à vontade. Tente sair com <code>:q</code> e leia o erro. Depois saia de verdade com <code>:q!</code>. Use Reiniciar para recomeçar quantas vezes quiser.</p>
+</div>
+
+<hr>
+
+<h2>:e! — desistir das alterações sem sair</h2>
+<p>Bagunçou o arquivo e quer voltar à versão salva, mas continuar no Vim? O <code>:e!</code> (<em>edit</em>, com <code>!</code>) recarrega o arquivo do disco e descarta tudo o que não foi salvo.</p>
+
+<div class="vimdemo" data-file="notas.txt" data-keys="dddd:e!&lt;CR&gt;">
+<pre class="vim-inicial">linha 1
+linha 2
+linha 3</pre>
+</div>
+
+<p>Depois de duas linhas apagadas, o <code>:e!</code> trouxe o arquivo de volta como estava no disco, e o rodapé mostra o nome, as linhas e os bytes lidos.</p>
+
+<hr>
+
+<h2>Salvar com outro nome</h2>
+<p>Há duas formas, e a diferença é importante:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th><th>Depois, você continua editando…</th></tr>
+<tr><td><code>:w copia.txt</code></td><td>Grava uma cópia com outro nome</td><td>…o arquivo <strong>original</strong></td></tr>
+<tr><td><code>:saveas novo.txt</code></td><td>Grava com outro nome e troca de arquivo</td><td>…o arquivo <strong>novo</strong></td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="relatorio.txt" data-keys=":w relatorio-backup.txt&lt;CR&gt;">
+<pre class="vim-inicial">Relatório anual
+Receita: 100</pre>
+</div>
+
+<p>A mensagem tem <code>[Novo]</code> porque <code>relatorio-backup.txt</code> não existia. O título da janela continua <code>relatorio.txt</code>: é nele que você segue trabalhando.</p>
+
+<div class="note">
+<strong>No simulador</strong>
+<p>O <code>:saveas</code> não existe no Vim simulado. No seu Vim, ele funciona como descrito na tabela.</p>
+</div>
+
+<hr>
+
+<h2>Arquivos do sistema: E45 e E212</h2>
+<p>Ao abrir um arquivo que pertence ao administrador, como <code>/etc/hosts</code>, você consegue ler e até alterar, mas o <code>:w</code> falha:</p>
+
+<pre class="term">$ vim /etc/hosts</pre>
+
+<p>Na primeira alteração o Vim avisa <code>W10: Aviso: Modificando um arquivo somente-leitura</code>. No <code>:w</code>, aparece <code>E45: opção 'readonly' está definida (adicione ! para forçar)</code>. Com <code>:w!</code>, o Vim tenta, mas o sistema não deixa: <code>E212: Impossível abrir arquivo para escrita</code>.</p>
+
+<h3>A forma recomendada: sudoedit</h3>
+<p>Saia sem salvar (<code>:q!</code>) e abra o arquivo do jeito certo:</p>
+
+<pre class="term">$ sudoedit /etc/hosts</pre>
+
+<p>O <code>sudoedit</code> (ou <code>sudo -e</code>) faz uma cópia temporária, abre no seu editor com as <strong>suas</strong> configurações e, quando você salva e sai, grava no lugar original com permissão de administrador. Para escolher o Vim como editor: <code>export EDITOR=vim</code> no seu <code>~/.bashrc</code>.</p>
+
+<h3>O truque :w !sudo tee</h3>
+<p>Se você já fez muitas alterações e não quer perdê-las, existe um truque famoso:</p>
+
+<dl class="anatomy">
+  <dt>:w !</dt><dd>Em vez de gravar no arquivo, envia o texto para um comando (repare no espaço antes do <code>!</code>).</dd>
+  <dt>sudo tee %</dt><dd><code>tee</code> grava o que recebe num arquivo; <code>sudo</code> dá permissão; <code>%</code> é o nome do arquivo atual.</dd>
+  <dt>&gt; /dev/null</dt><dd>Joga fora a cópia que o <code>tee</code> mostraria na tela.</dd>
+</dl>
+
+<pre class="file" data-file="digite no Vim">:w !sudo tee % &gt; /dev/null</pre>
+
+<p>O <code>sudo</code> pede a sua senha no próprio terminal. Em seguida, como o arquivo mudou "por fora", o Vim pode avisar <code>W12: Aviso: arquivo "/etc/hosts" foi alterado e o buffer também foi alterado no Vim</code> e perguntar <code>[O]K, (C)arregar arquivo</code>. Responda <kbd>C</kbd> para recarregar.</p>
+
+<div class="warning">
+<strong>Cuidado com o truque</strong>
+<p><code>:w !sudo tee</code> não é o mesmo que <code>:w! sudo tee</code>: sem o espaço, o Vim tenta gravar um arquivo chamado "sudo". O truque também não funciona em todo lugar (no Neovim, por exemplo, o <code>sudo</code> não consegue pedir a senha). Prefira o <code>sudoedit</code>.</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de terminar a edição</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Você quer…</th><th>Teclas</th></tr>
+<tr><td>Salvar e continuar</td><td><code>:w</code></td></tr>
+<tr><td>Salvar e sair</td><td><code>:wq</code>, <code>:x</code> ou <code>ZZ</code></td></tr>
+<tr><td>Sair sem alterações</td><td><code>:q</code></td></tr>
+<tr><td>Sair descartando alterações</td><td><code>:q!</code> ou <code>ZQ</code></td></tr>
+<tr><td>Voltar à versão salva sem sair</td><td><code>:e!</code></td></tr>
+<tr><td>Guardar uma cópia</td><td><code>:w outro-nome.txt</code></td></tr>
+<tr><td>Passar a trabalhar com outro nome</td><td><code>:saveas outro-nome.txt</code></td></tr>
+<tr><td>Vários arquivos abertos</td><td><code>:wa</code> (salva todos), <code>:qa</code> (sai de todos), <code>:wqa</code>, <code>:qa!</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>E37: Alterações não foram gravadas (adicione ! para forçar)</strong>
+<p><strong>O que aconteceu:</strong> você tentou sair com <code>:q</code> tendo alterações não salvas.</p>
+<p><strong>Como resolver:</strong> <code>:wq</code> para salvar e sair, ou <code>:q!</code> para sair descartando.</p>
+</div>
+
+<div class="cenario">
+<strong>E32: Nenhum nome de arquivo</strong>
+<p><strong>O que aconteceu:</strong> você abriu o Vim sem nome de arquivo (só <code>vim</code>), escreveu algo e tentou <code>:w</code>. O Vim não sabe onde gravar.</p>
+<p><strong>Como resolver:</strong> dê o nome no comando: <code>:w notas.txt</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>E45: opção 'readonly' está definida (adicione ! para forçar)</strong>
+<p><strong>O que aconteceu:</strong> o arquivo foi aberto como somente leitura: com <code>view</code>, <code>vim -R</code>, a opção "Abrir somente-leitura" do aviso de arquivo de troca, ou porque você não tem permissão de escrita.</p>
+<p><strong>Como resolver:</strong> se o arquivo é seu, <code>:w!</code> grava mesmo assim. Se é do sistema, veja a seção acima.</p>
+</div>
+
+<div class="cenario">
+<strong>E212: Impossível abrir arquivo para escrita</strong>
+<p><strong>O que aconteceu:</strong> o sistema recusou a gravação: o arquivo pertence a outro usuário, ou a pasta do caminho não existe (<code>:w projetos/novo.txt</code> sem a pasta <code>projetos</code>).</p>
+<p><strong>Como resolver:</strong> para arquivo do sistema, <code>sudoedit</code> ou o truque do <code>tee</code>. Para pasta inexistente, crie-a sem sair: <code>:!mkdir -p projetos</code> e depois <code>:w</code> de novo.</p>
+</div>
+
+<div class="cenario">
+<strong>Salvei com :w outro.txt, mas continuei editando o arquivo antigo</strong>
+<p><strong>O que aconteceu:</strong> é assim mesmo: <code>:w nome</code> grava uma cópia.</p>
+<p><strong>Como resolver:</strong> se queria trocar de arquivo, use <code>:saveas nome</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Saí com :q! e perdi o que fiz</strong>
+<p><strong>O que aconteceu:</strong> o <code>!</code> descarta tudo o que não foi salvo, e numa saída normal o Vim apaga o arquivo de troca.</p>
+<p><strong>Como resolver:</strong> infelizmente, o que não foi salvo não volta. Crie o hábito de <code>:w</code> frequente; o <a href="sessoes.html">desfazer persistente</a> ajuda a recuperar versões salvas antigas.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:w</code></td><td>Salva</td></tr>
+<tr><td><code>:w nome</code></td><td>Grava uma cópia com outro nome</td></tr>
+<tr><td><code>:w!</code></td><td>Salva mesmo com o arquivo marcado como somente leitura</td></tr>
+<tr><td><code>:saveas nome</code></td><td>Salva com outro nome e passa a editá-lo</td></tr>
+<tr><td><code>:wq</code></td><td>Salva e sai</td></tr>
+<tr><td><code>:x</code> / <code>ZZ</code></td><td>Salva (se houve alteração) e sai</td></tr>
+<tr><td><code>:q</code></td><td>Sai (recusa se houver alteração não salva)</td></tr>
+<tr><td><code>:q!</code> / <code>ZQ</code></td><td>Sai descartando as alterações</td></tr>
+<tr><td><code>:e!</code></td><td>Recarrega a versão salva, descartando as alterações</td></tr>
+<tr><td><code>:wa</code> / <code>:qa</code> / <code>:wqa</code></td><td>Salva / sai / salva e sai de todos os arquivos abertos</td></tr>
+<tr><td><code>:w !sudo tee % &gt; /dev/null</code></td><td>Grava um arquivo do sistema usando sudo</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Salvar e sair</h3>
+<p>Complete o comando que salva e sai:</p>
+<div class="ex-code">:<input data-answer="wq|x|xit|wq!" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Desistir</h3>
+<p>Complete o comando que sai descartando as alterações:</p>
+<div class="ex-code">:<input data-answer="q!|quit!|qa!" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Sem dois-pontos</h3>
+<p>Quais duas teclas do modo normal salvam (se preciso) e saem?</p>
+<div class="ex-code"><input data-answer="ZZ" aria-label="teclas"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">4. O que significa <code>"agenda.txt" [Novo] 12L, 340B gravado(s)</code>?</p>
+<label><input type="radio" name="q4"> Que o arquivo tem 12 alterações e 340 erros.</label>
+<label><input type="radio" name="q4"> Que faltam 12 linhas para gravar.</label>
+<label><input type="radio" name="q4"> Que um arquivo novo, de 12 linhas e 340 bytes, foi gravado.</label>
+<label><input type="radio" name="q4"> Que o Vim criou um backup.</label>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">5. Você editou <code>/etc/hosts</code> como usuário comum e o <code>:w</code> deu E45. Qual é o caminho mais seguro?</p>
+<label><input type="radio" name="q5"> <code>:w!</code> até funcionar.</label>
+<label><input type="radio" name="q5"> Sair com <code>:q!</code> e abrir com <code>sudoedit /etc/hosts</code>.</label>
+<label><input type="radio" name="q5"> Apagar o arquivo e criar outro.</label>
+<label><input type="radio" name="q5"> <code>:saveas /etc/hosts</code>.</label>
+</div>
+
+<div class="vimtry" data-file="config.ini" data-save="1">
+<pre class="vim-inicial">[servidor]
+porta=8O80
+debug=sim</pre>
+<pre class="vim-meta">[servidor]
+porta=8080
+debug=nao</pre>
+<p class="try-task"><strong>Missão final:</strong> a porta tem a letra "O" no lugar de um zero, e o debug deve ficar "nao". Corrija as duas linhas e salve com <code>:w</code> (ou <code>:wq</code>).</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>:w</code> salva; <code>:wq</code>, <code>:x</code> e <code>ZZ</code> salvam e saem.</li>
+  <li><code>:q</code> sai; com alterações pendentes ele recusa (E37). <code>:q!</code> sai descartando.</li>
+  <li><code>:e!</code> volta à versão salva sem sair.</li>
+  <li><code>:w nome</code> grava uma cópia; <code>:saveas nome</code> troca de arquivo.</li>
+  <li>Arquivo do sistema: <code>sudoedit</code>, ou em último caso <code>:w !sudo tee % &gt; /dev/null</code>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

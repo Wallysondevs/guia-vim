@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — inserir texto com i, a, o | Guia Vim</title>
+<meta name="description" content="Aprenda a entrar no modo de inserção do Vim com i, a, I, A, o e O, a sair com Esc, a apagar enquanto digita com Ctrl-w e Ctrl-u, a usar gi e a colar texto sem virar escada.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Inserir Texto (i, a, o)</span></h1>
+
+<p class="intro">Para escrever no Vim, você entra no <strong>modo de inserção</strong>. A diferença para outros editores é que existem seis jeitos de entrar, e cada um começa a escrever num lugar diferente: antes do cursor, depois dele, no começo da linha, no fim, numa linha nova abaixo ou acima. Escolher o certo poupa movimentos.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Entrar no modo de inserção com <code>i</code>, <code>a</code>, <code>I</code>, <code>A</code>, <code>o</code> e <code>O</code>, e sair com <kbd>Esc</kbd>.</li>
+  <li>Inserir várias vezes o mesmo texto com um número: <code>3ix</code>.</li>
+  <li>Corrigir enquanto digita: <kbd>Backspace</kbd>, <kbd>Ctrl</kbd>+<kbd>w</kbd> e <kbd>Ctrl</kbd>+<kbd>u</kbd>.</li>
+  <li>Voltar a escrever onde parou com <code>gi</code>.</li>
+  <li>Colar texto de fora do Vim sem que o recuo vire uma "escada".</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>i e a: antes ou depois do cursor</h2>
+<p>O cursor do modo normal fica <strong>sobre</strong> um caractere. Por isso existem duas teclas:</p>
+
+<dl class="anatomy">
+  <dt>i</dt><dd><em>insert</em>, inserir: começa a escrever <strong>antes</strong> do caractere do cursor.</dd>
+  <dt>a</dt><dd><em>append</em>, acrescentar: começa a escrever <strong>depois</strong> do caractere do cursor.</dd>
+</dl>
+
+<p>Nas duas demonstrações o cursor está no <code>b</code>. Veja onde o <code>X</code> entra em cada uma:</p>
+
+<div class="vimdemo" data-file="i.txt" data-col="2" data-keys="iX&lt;Esc&gt;">
+<pre class="vim-inicial">abc</pre>
+</div>
+
+<div class="vimdemo" data-file="a.txt" data-col="2" data-keys="aX&lt;Esc&gt;">
+<pre class="vim-inicial">abc</pre>
+</div>
+
+<p>Com <code>i</code> ficou <code>aXbc</code>; com <code>a</code>, <code>abXc</code>. Repare em três detalhes enquanto avança as teclas:</p>
+<ul>
+  <li>Ao entrar no modo de inserção, o rodapé mostra <code>-- INSERÇÃO --</code> e o cursor vira uma barra fina, entre dois caracteres.</li>
+  <li>O <kbd>Esc</kbd> volta ao modo normal e a mensagem some.</li>
+  <li>Ao sair com <kbd>Esc</kbd>, o cursor volta uma posição para a esquerda e fica sobre o último caractere digitado.</li>
+</ul>
+
+<div class="vimtry" data-file="frase.txt">
+<pre class="vim-inicial">O Vm é ót</pre>
+<pre class="vim-meta">O Vim é ótimo</pre>
+<p class="try-task"><strong>Missão:</strong> complete a frase para "O Vim é ótimo". Leve o cursor até o <code>m</code> de "Vm", use <code>i</code> para inserir a letra que falta e <kbd>Esc</kbd>. Depois complete "ót" (dica: <code>A</code>, explicado logo abaixo, escreve no fim da linha).</p>
+</div>
+
+<hr>
+
+<h2>I e A: começo e fim da linha</h2>
+<p>As versões maiúsculas não dependem de onde o cursor está na linha:</p>
+
+<dl class="anatomy">
+  <dt>I</dt><dd>Começa a escrever antes do primeiro caractere que não é espaço, como um <code>^</code> seguido de <code>i</code>.</dd>
+  <dt>A</dt><dd>Começa a escrever depois do último caractere da linha, como um <code>$</code> seguido de <code>a</code>.</dd>
+</dl>
+
+<div class="vimdemo" data-file="codigo.py" data-col="8" data-keys="I#&lt;Esc&gt;A  # desativado&lt;Esc&gt;">
+<pre class="vim-inicial">    print("teste")</pre>
+</div>
+
+<p>O cursor estava no meio da linha. O <code>I</code> foi para antes do <code>p</code> (ignorando o recuo) e o <code>A</code> foi para o fim. Esse par é muito usado para comentar uma linha ou acrescentar um <code>;</code> no fim.</p>
+
+<div class="vimtry" data-file="codigo.c">
+<pre class="vim-inicial">int a = 1
+int b = 2</pre>
+<pre class="vim-meta">int a = 1;
+int b = 2;</pre>
+<p class="try-task"><strong>Missão:</strong> acrescente <code>;</code> no fim das duas linhas. Use <code>A</code>, digite <code>;</code> e <kbd>Esc</kbd>; depois desça e repita.</p>
+</div>
+
+<hr>
+
+<h2>o e O: linha nova</h2>
+<p>Para começar uma linha nova você não precisa ir ao fim da linha e apertar <kbd>Enter</kbd>:</p>
+
+<dl class="anatomy">
+  <dt>o</dt><dd><em>open</em>, abrir: cria uma linha nova <strong>abaixo</strong> e já entra no modo de inserção.</dd>
+  <dt>O</dt><dd>Cria uma linha nova <strong>acima</strong> e entra no modo de inserção.</dd>
+</dl>
+
+<div class="vimdemo" data-file="passos.txt" data-line="2" data-keys="o3. Instalar&lt;Esc&gt;kO1. Baixar&lt;Esc&gt;">
+<pre class="vim-inicial">Passos:
+2. Conferir o arquivo
+4. Testar</pre>
+</div>
+
+<div class="vimtry" data-file="mercado.txt">
+<pre class="vim-inicial">2. arroz</pre>
+<pre class="vim-meta">1. café
+2. arroz
+3. feijão</pre>
+<p class="try-task"><strong>Missão:</strong> transforme a lista em "1. café", "2. arroz", "3. feijão". Use <code>O</code> para criar a linha de cima e <code>o</code> para a de baixo.</p>
+</div>
+
+<hr>
+
+<h2>Os seis lugares, num só quadro</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Começa a escrever…</th><th>Origem do nome</th></tr>
+<tr><td><code>i</code></td><td>antes do cursor</td><td><em>insert</em></td></tr>
+<tr><td><code>a</code></td><td>depois do cursor</td><td><em>append</em></td></tr>
+<tr><td><code>I</code></td><td>no começo da linha (depois do recuo)</td><td><em>Insert</em> maiúsculo</td></tr>
+<tr><td><code>A</code></td><td>no fim da linha</td><td><em>Append</em> maiúsculo</td></tr>
+<tr><td><code>o</code></td><td>numa linha nova abaixo</td><td><em>open</em></td></tr>
+<tr><td><code>O</code></td><td>numa linha nova acima</td><td><em>Open</em> maiúsculo</td></tr>
+<tr><td><code>gI</code></td><td>na coluna 1, antes até do recuo</td><td>—</td></tr>
+<tr><td><code>gi</code></td><td>onde você parou de inserir da última vez</td><td>—</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Repetir o texto: 3ix</h2>
+<p>Um número antes de <code>i</code>, <code>a</code>, <code>o</code> e companhia repete <strong>tudo o que você digitar</strong>, assim que apertar <kbd>Esc</kbd>.</p>
+
+<dl class="anatomy">
+  <dt>10</dt><dd>Quantas vezes repetir.</dd>
+  <dt>i</dt><dd>Entrar no modo de inserção.</dd>
+  <dt>-</dt><dd>O texto digitado (aqui, um traço).</dd>
+  <dt>&lt;Esc&gt;</dt><dd>Ao sair, o Vim repete o texto: 10 traços.</dd>
+</dl>
+
+<div class="vimdemo" data-file="titulo.txt" data-keys="o&lt;Esc&gt;10i-&lt;Esc&gt;">
+<pre class="vim-inicial">Capítulo 1
+Era uma vez um editor de texto.</pre>
+</div>
+
+<p>Primeiro, <code>o</code> e <kbd>Esc</kbd> abriram uma linha vazia embaixo do título. Depois, <code>10i-</code> e <kbd>Esc</kbd> encheram essa linha de traços. Repare que, durante a digitação, só um traço aparece. Os outros 9 surgem no <kbd>Esc</kbd>. Isso funciona com <code>o</code> também: <code>3o- [ ] tarefa&lt;Esc&gt;</code> cria três linhas de tarefa.</p>
+
+<hr>
+
+<h2>Corrigir enquanto digita</h2>
+<p>Dentro do modo de inserção, três atalhos apagam o que você acabou de escrever, sem precisar sair:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Atalho (no modo de inserção)</th><th>Apaga</th></tr>
+<tr><td><kbd>Backspace</kbd></td><td>O caractere antes do cursor</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd></td><td>A palavra antes do cursor (<em>word</em>)</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>u</kbd></td><td>Tudo o que você digitou nesta linha desde que entrou no modo de inserção</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="nota.txt" data-keys="A errado&lt;C-w&gt;certo&lt;Esc&gt;">
+<pre class="vim-inicial">O resultado está</pre>
+</div>
+
+<p>Depois de digitar " errado", o <kbd>Ctrl</kbd>+<kbd>w</kbd> apagou a palavra inteira de uma vez e deu lugar a "certo". Esses mesmos atalhos funcionam no terminal (bash), então vale aprender.</p>
+
+<div class="warning">
+<strong>Cuidado no navegador</strong>
+<p>No simulador desta página, prefira <kbd>Backspace</kbd>: em muitos navegadores <kbd>Ctrl</kbd>+<kbd>w</kbd> fecha a aba antes de a página conseguir impedir. No Vim de verdade, dentro do terminal, não há esse problema.</p>
+</div>
+
+<hr>
+
+<h2>gi: voltar a escrever onde parou</h2>
+<p>Você estava escrevendo, apertou <kbd>Esc</kbd>, foi conferir algo em outra parte do arquivo e quer continuar. Em vez de voltar e escolher entre <code>i</code> e <code>a</code>, use <code>gi</code>: ele volta ao ponto exato onde você saiu do modo de inserção e já entra nele.</p>
+
+<div class="vimdemo" data-file="carta.txt" data-line="2" data-keys="A e feliz&lt;Esc&gt;gggi.&lt;Esc&gt;">
+<pre class="vim-inicial">Querida Ana,
+espero que esteja bem</pre>
+</div>
+
+<p>A sequência: <code>A</code> acrescentou " e feliz" no fim da linha 2, <code>gg</code> foi para a linha 1 e <code>gi</code> voltou exatamente para depois de "feliz", onde o ponto final foi digitado.</p>
+
+<hr>
+
+<h2>Colar texto de fora sem virar escada</h2>
+<p>Ao colar código no terminal com <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>v</kbd>, o terminal "digita" o texto para o Vim letra por letra. Se o recuo automático estiver ligado, o Vim recua cada linha <strong>e</strong> o texto colado traz o próprio recuo. O resultado é uma escada:</p>
+
+<pre class="file" data-file="o que você colou">def soma(a, b):
+    resultado = a + b
+    return resultado</pre>
+
+<pre class="file" data-file="o que apareceu">def soma(a, b):
+        resultado = a + b
+                return resultado</pre>
+
+<p>Em terminais modernos, o Vim 9 já detecta a colagem sozinho (é a "colagem entre colchetes", <em>bracketed paste</em>) e isso não acontece. Se acontecer, por exemplo dentro de um <code>tmux</code> antigo ou de uma conexão SSH, use uma destas saídas:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Como</th></tr>
+<tr><td>Modo de colagem</td><td><code>:set paste</code>, cole, depois <code>:set nopaste</code></td></tr>
+<tr><td>Área de transferência do Vim</td><td>No modo normal, <code>"+p</code> (precisa de um Vim com suporte, veja <a href="area-transferencia.html">Área de Transferência</a>)</td></tr>
+<tr><td>Consertar depois</td><td>Selecione as linhas e reindente (veja <a href="operadores.html">Operadores</a>)</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>As setas escrevem A, B, C, D em linhas novas</strong>
+<p><strong>O que aconteceu:</strong> você abriu o <code>vi</code> mínimo do Debian ou do Ubuntu (<code>vim.tiny</code>), que funciona em modo compatível com o vi de 1976. No modo de inserção desse modo, as setas chegam como <kbd>Esc</kbd> seguido de letras.</p>
+<p><strong>Como resolver:</strong> use <kbd>Esc</kbd> e <code>h j k l</code>, ou instale o Vim completo (<code>sudo apt install vim</code>). Veja <a href="instalar.html">Instalar</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>O rodapé não mostra -- INSERÇÃO --</strong>
+<p><strong>O que aconteceu:</strong> no mesmo modo compatível, a opção <code>showmode</code> vem desligada. O Vim entra no modo de inserção, só não avisa.</p>
+<p><strong>Como resolver:</strong> <code>:set showmode</code>, ou use o Vim completo, que já vem com ela ligada.</p>
+</div>
+
+<div class="cenario">
+<strong>O Esc demora para sair do modo de inserção</strong>
+<p><strong>O que aconteceu:</strong> no terminal, o <kbd>Esc</kbd> também é o começo de sequências de teclas especiais (como as setas). O Vim espera um instante para saber se vem mais alguma coisa.</p>
+<p><strong>Como resolver:</strong> o Vim completo já reduz essa espera para 0,1 segundo. Dentro do <code>tmux</code>, ponha <code>set -sg escape-time 10</code> no <code>~/.tmux.conf</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>O texto entrou uma letra antes (ou depois) do que eu queria</strong>
+<p><strong>O que aconteceu:</strong> você usou <code>i</code> quando queria <code>a</code>, ou o contrário.</p>
+<p><strong>Como resolver:</strong> <kbd>Esc</kbd> e <code>u</code> para desfazer (veja <a href="desfazer.html">Desfazer e Refazer</a>), depois use a outra tecla. Para o fim da linha, use <code>A</code> e não pense mais nisso.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>i</code> / <code>a</code></td><td>Inserir antes / depois do cursor</td></tr>
+<tr><td><code>I</code> / <code>A</code></td><td>Inserir no começo (sem recuo) / no fim da linha</td></tr>
+<tr><td><code>o</code> / <code>O</code></td><td>Linha nova abaixo / acima</td></tr>
+<tr><td><code>gI</code></td><td>Inserir na coluna 1</td></tr>
+<tr><td><code>gi</code></td><td>Inserir onde parou da última vez</td></tr>
+<tr><td><code>3ix&lt;Esc&gt;</code></td><td>Inserir "x" três vezes</td></tr>
+<tr><td><kbd>Esc</kbd> ou <kbd>Ctrl</kbd>+<kbd>[</kbd></td><td>Voltar ao modo normal</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> / <kbd>Ctrl</kbd>+<kbd>u</kbd></td><td>(na inserção) Apagar a palavra / a linha digitada</td></tr>
+<tr><td><code>:set paste</code></td><td>Colar texto sem recuo automático</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Fim da linha</h3>
+<p>Qual tecla começa a escrever no fim da linha, de onde o cursor estiver?</p>
+<div class="ex-code"><input data-answer="A" aria-label="tecla"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Linha nova acima</h3>
+<p>Qual tecla cria uma linha nova acima da atual e entra no modo de inserção?</p>
+<div class="ex-code"><input data-answer="O" aria-label="tecla"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Vinte asteriscos</h3>
+<p>Complete para inserir 20 asteriscos (<code>*</code>):</p>
+<div class="ex-code"><input data-answer="20i*|20a*" aria-label="teclas"> e depois <kbd>Esc</kbd></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. O cursor está sobre o "o" de "Olá". Você digita <code>a</code>, depois <code>!</code> e <kbd>Esc</kbd>. Como fica?</p>
+<label><input type="radio" name="q4"> <code>!Olá</code></label>
+<label><input type="radio" name="q4"> <code>O!lá</code></label>
+<label><input type="radio" name="q4"> <code>Olá!</code></label>
+<label><input type="radio" name="q4"> <code>a!Olá</code></label>
+</div>
+
+<div class="vimtry" data-file="menu.html">
+<pre class="vim-inicial">&lt;ul&gt;
+&lt;li&gt;café&lt;/li&gt;
+&lt;/ul&gt;</pre>
+<pre class="vim-meta">&lt;ul&gt;
+  &lt;li&gt;café&lt;/li&gt;
+  &lt;li&gt;pão&lt;/li&gt;
+&lt;/ul&gt;</pre>
+<p class="try-task"><strong>Missão final:</strong> recue a linha do café com dois espaços (use <code>I</code>) e crie, logo abaixo dela, a linha <code>  &lt;li&gt;pão&lt;/li&gt;</code> (use <code>o</code>), também com dois espaços no começo.</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>i</code> antes, <code>a</code> depois, <code>I</code> começo, <code>A</code> fim, <code>o</code> abaixo, <code>O</code> acima.</li>
+  <li><kbd>Esc</kbd> volta ao modo normal; o cursor recua uma posição.</li>
+  <li>Um número antes repete o texto digitado: <code>10i-&lt;Esc&gt;</code>.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>w</kbd> e <kbd>Ctrl</kbd>+<kbd>u</kbd> apagam palavra e linha sem sair da inserção.</li>
+  <li><code>gi</code> volta a escrever onde você parou.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

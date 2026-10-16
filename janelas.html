@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — dividir a tela em janelas (split) | Guia Vim</title>
+<meta name="description" content="Como dividir a tela do Vim: :sp, :vs, Ctrl-w s/v/w/h/j/k/l/q/o/=/_/|, redimensionar com :resize, abrir arquivos lado a lado e os erros E444 e E445.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Janelas (split)</span></h1>
+
+<p class="intro">Uma <strong>janela</strong> é um pedaço da tela que mostra um buffer. Dividindo a tela, você vê dois arquivos lado a lado, ou duas partes do mesmo arquivo: o começo e o fim de um texto longo, um HTML e o CSS dele, um código e o teste dele.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Dividir a tela na horizontal (<code>:sp</code>) e na vertical (<code>:vs</code>).</li>
+  <li>Pular entre janelas com <kbd>Ctrl</kbd>+<kbd>w</kbd> e uma direção.</li>
+  <li>Fechar uma janela, ficar só com uma e igualar os tamanhos.</li>
+  <li>Mudar o tamanho de uma janela.</li>
+  <li>Os erros <code>E444</code> e <code>E445</code>.</li>
+</ul>
+</div>
+
+<div class="warning">
+<strong>O simulador tem uma janela só</strong>
+<p>As telas desta aula mostram o que aparece no Vim de verdade. Para praticar, use o Vim do seu sistema. Se precisar, reveja <a href="buffers.html">Vários Arquivos (buffers)</a>: janela e buffer são coisas diferentes.</p>
+</div>
+
+<hr>
+
+<h2>Dividir na horizontal: <code>:sp</code></h2>
+<p><code>:sp</code> (de <em>split</em>, "dividir") corta a janela atual em duas, uma em cima da outra. Sem nome de arquivo, as duas mostram o <strong>mesmo</strong> buffer.</p>
+
+<dl class="anatomy">
+  <dt>:sp</dt><dd>Divide a janela atual na horizontal.</dd>
+  <dt>estilo.css</dt><dd>Opcional: o arquivo que vai aparecer na janela nova. Sem ele, a janela nova mostra o mesmo buffer.</dd>
+</dl>
+
+<pre class="term" data-title="estilo.css — Vim">h1 { color: green; }                     « janela nova, em cima: o cursor está aqui
+~
+estilo.css                                        1,1           Tudo
+&lt;h1&gt;Olá&lt;/h1&gt;                                    « a janela antiga, embaixo
+&lt;p&gt;Texto&lt;/p&gt;
+index.html                                        2,1           Tudo
+"estilo.css" 1L, 21B</pre>
+
+<p>Cada janela ganha uma <strong>linha de status</strong> com o nome do arquivo e a posição do cursor. A janela nova aparece <strong>em cima</strong> e fica ativa.</p>
+
+<h2>Dividir na vertical: <code>:vs</code></h2>
+<p><code>:vs</code> (de <em>vertical split</em>) divide lado a lado. A janela nova fica à <strong>esquerda</strong>.</p>
+
+<pre class="term" data-title="estilo.css — Vim">h1 { color: green; } |&lt;h1&gt;Olá&lt;/h1&gt;
+~                    |&lt;p&gt;Texto&lt;/p&gt;
+~                    |~
+~                    |~
+estilo.css  1,1  Tudo index.html 2,1  Tudo
+"estilo.css" 1L, 21B</pre>
+
+<p>A barra <code>|</code> separa as janelas. Em telas largas, a divisão vertical é a mais confortável para comparar dois arquivos.</p>
+
+<div class="tip">
+<strong>Quer as janelas novas embaixo e à direita?</strong>
+<p>Coloque <code>set splitbelow splitright</code> no seu <a href="vimrc.html">.vimrc</a>. Muita gente acha mais natural.</p>
+</div>
+
+<h3>Outras formas de abrir janelas</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>O que faz</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>s</kbd></td><td>Igual a <code>:sp</code> (mesmo buffer)</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>v</kbd></td><td>Igual a <code>:vs</code> (mesmo buffer)</td></tr>
+<tr><td><code>:new</code> / <code>:vnew</code></td><td>Janela nova com um buffer vazio</td></tr>
+<tr><td><code>:sb 3</code></td><td>Divide e mostra o buffer 3</td></tr>
+<tr><td><code>vim -o a.txt b.txt</code></td><td>Já abre os arquivos em janelas empilhadas</td></tr>
+<tr><td><code>vim -O a.txt b.txt</code></td><td>Já abre lado a lado</td></tr>
+</table>
+</div>
+
+<pre class="term">$ vim -O index.html estilo.css</pre>
+
+<hr>
+
+<h2>Pular entre janelas: <kbd>Ctrl</kbd>+<kbd>w</kbd></h2>
+<p>Todos os comandos de janela começam com <kbd>Ctrl</kbd>+<kbd>w</kbd> (de <em>window</em>). Aperte e solte, depois aperte a próxima tecla.</p>
+
+<dl class="anatomy">
+  <dt>Ctrl+w</dt><dd>"Vou dar um comando de janela."</dd>
+  <dt>l</dt><dd>A direção: as mesmas teclas de mover o cursor. <kbd>h</kbd> esquerda, <kbd>j</kbd> baixo, <kbd>k</kbd> cima, <kbd>l</kbd> direita.</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Vai para</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>h</kbd> <kbd>j</kbd> <kbd>k</kbd> <kbd>l</kbd></td><td>A janela à esquerda / abaixo / acima / à direita</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>w</kbd></td><td>A próxima janela, em ciclo. Ótimo com duas janelas.</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>p</kbd></td><td>A janela anterior (a última em que você estava)</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>t</kbd> / <kbd>b</kbd></td><td>A primeira (<em>top</em>) / a última (<em>bottom</em>)</td></tr>
+</table>
+</div>
+
+<p>Com <code>mouse=a</code> (o padrão do <code>defaults.vim</code> em terminais que aceitam mouse), um clique numa janela também a ativa, e arrastar a linha de status muda o tamanho.</p>
+
+<hr>
+
+<h2>Fechar janelas</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:q</code> ou <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>q</kbd></td><td>Fecha a janela atual. Se for a última, sai do Vim.</td></tr>
+<tr><td><code>:close</code> ou <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>c</kbd></td><td>Fecha a janela, mas nunca a última.</td></tr>
+<tr><td><code>:only</code> ou <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>o</kbd></td><td>Fecha todas as outras e fica só com a atual.</td></tr>
+<tr><td><code>:qa</code></td><td>Fecha tudo e sai do Vim.</td></tr>
+</table>
+</div>
+
+<p>Fechar uma janela <strong>não</strong> fecha o buffer: ele continua na lista do <code>:ls</code>. Por isso o <code>:q</code> numa janela com o mesmo buffer de outra não pede para salvar.</p>
+
+<hr>
+
+<h2>Mudar o tamanho</h2>
+
+<dl class="anatomy">
+  <dt>:resize</dt><dd>Muda a altura da janela atual.</dd>
+  <dt>+5</dt><dd>Quanto: <code>+5</code> aumenta 5 linhas, <code>-5</code> diminui, <code>20</code> fixa em 20 linhas.</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>=</kbd></td><td>Deixa todas as janelas do mesmo tamanho</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>_</kbd></td><td>Maximiza a altura da janela atual</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>|</kbd></td><td>Maximiza a largura da janela atual</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>+</kbd> / <kbd>-</kbd></td><td>Uma linha a mais / a menos (<code>5</code> <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>+</kbd> = 5 linhas)</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>&gt;</kbd> / <kbd>&lt;</kbd></td><td>Uma coluna a mais / a menos</td></tr>
+<tr><td><code>:resize 20</code></td><td>Altura de 20 linhas</td></tr>
+<tr><td><code>:vertical resize 80</code></td><td>Largura de 80 colunas</td></tr>
+</table>
+</div>
+
+<h3>Reorganizar</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>x</kbd></td><td>Troca a janela atual com a seguinte</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>r</kbd></td><td>Gira as janelas</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>H</kbd> <kbd>J</kbd> <kbd>K</kbd> <kbd>L</kbd></td><td>Leva a janela para a ponta esquerda / de baixo / de cima / direita (vira uma divisão inteira)</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>T</kbd></td><td>Leva a janela para uma <a href="abas.html">aba</a> nova</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de ver dois arquivos</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Como</th><th>Quando usar</th></tr>
+<tr><td>Janelas lado a lado</td><td><code>:vs b.txt</code></td><td>Você precisa ver os dois ao mesmo tempo.</td></tr>
+<tr><td>Buffers alternados</td><td><code>:e b.txt</code> e <kbd>Ctrl</kbd>+<kbd>^</kbd></td><td>Tela pequena; você só precisa de um por vez.</td></tr>
+<tr><td>Abas</td><td><code>:tabe b.txt</code> e <code>gt</code></td><td>Cada tarefa com o seu arranjo de janelas (veja <a href="abas.html">Abas</a>).</td></tr>
+<tr><td>Mesmo arquivo em duas janelas</td><td><code>:sp</code></td><td>Ver o começo e o fim de um arquivo longo.</td></tr>
+<tr><td>Comparar diferenças</td><td><code>vimdiff a b</code></td><td>Achar o que mudou (veja <a href="diff.html">vimdiff</a>).</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"E444: Não posso fechar a última janela"</strong>
+<p><strong>O que aconteceu:</strong> você usou <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>c</kbd> ou <code>:close</code> na única janela. Esses comandos nunca fecham a última.</p>
+<p><strong>Como resolver:</strong> para sair do Vim, use <code>:q</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"E445: Outra janela contém alterações"</strong>
+<p><strong>O que aconteceu:</strong> você pediu <code>:only</code>, mas outra janela mostra um buffer modificado e não salvo.</p>
+<p><strong>Como resolver:</strong> salve tudo com <code>:wa</code> e repita, ou use <code>:only!</code> (a alteração continua no buffer escondido).</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei Ctrl+w e o terminal fechou a aba!</strong>
+<p><strong>O que aconteceu:</strong> em alguns terminais e navegadores (por exemplo, um terminal web), <kbd>Ctrl</kbd>+<kbd>w</kbd> é o atalho de fechar a aba, e o programa pega a tecla antes do Vim.</p>
+<p><strong>Como resolver:</strong> use os comandos com dois-pontos, que fazem o mesmo: <code>:wincmd w</code>, <code>:wincmd l</code> e assim por diante.</p>
+</div>
+
+<div class="cenario">
+<strong>Digitei no arquivo errado</strong>
+<p><strong>O que aconteceu:</strong> com duas janelas, é fácil esquecer qual está ativa. A ativa é a que tem o cursor; a linha de status dela aparece em destaque.</p>
+<p><strong>Como resolver:</strong> <code>u</code> desfaz na janela onde você está. Depois pule para a certa com <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>w</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:sp [arq]</code> / <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>s</kbd></td><td>Divide na horizontal</td></tr>
+<tr><td><code>:vs [arq]</code> / <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>v</kbd></td><td>Divide na vertical</td></tr>
+<tr><td><code>:new</code> / <code>:vnew</code></td><td>Janela com buffer vazio</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>h</kbd><kbd>j</kbd><kbd>k</kbd><kbd>l</kbd> / <kbd>w</kbd></td><td>Pular para outra janela</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>q</kbd> / <kbd>c</kbd> / <kbd>o</kbd></td><td>Fechar / fechar sem sair / ficar só com esta</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>=</kbd> <kbd>_</kbd> <kbd>|</kbd></td><td>Igualar / maximizar altura / maximizar largura</td></tr>
+<tr><td><code>:resize N</code> / <code>:vertical resize N</code></td><td>Altura / largura</td></tr>
+<tr><td><code>vim -o</code> / <code>vim -O</code></td><td>Abrir arquivos já divididos</td></tr>
+<tr><td><code>set splitbelow splitright</code></td><td>Janelas novas embaixo / à direita</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Lado a lado</h3>
+<p>Complete para abrir <code>estilo.css</code> numa janela à esquerda da atual:</p>
+<div class="ex-code">:<input data-answer="vs|vsplit|vsp" aria-label="comando"> estilo.css</div>
+</div>
+
+<div class="exercise">
+<h3>2. Só esta</h3>
+<p>Depois de <kbd>Ctrl</kbd>+<kbd>w</kbd>, qual tecla fecha todas as outras janelas?</p>
+<div class="ex-code">Ctrl+w <input data-answer="o" aria-label="tecla"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Mesmo tamanho</h3>
+<p>Depois de <kbd>Ctrl</kbd>+<kbd>w</kbd>, qual tecla deixa todas as janelas iguais?</p>
+<div class="ex-code">Ctrl+w <input data-answer="=" aria-label="tecla"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">4. Você fechou uma janela com <code>:q</code>. O que aconteceu com o buffer dela?</p>
+<label><input type="radio" name="q4"> Foi apagado do disco.</label>
+<label><input type="radio" name="q4"> Foi salvo automaticamente.</label>
+<label><input type="radio" name="q4"> Continua aberto na lista de buffers.</label>
+<label><input type="radio" name="q4"> O Vim fechou por inteiro.</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">5. Há duas janelas, uma em cima da outra, e o cursor está na de cima. Como vai para a de baixo?</p>
+<label><input type="radio" name="q5"> <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>j</kbd></label>
+<label><input type="radio" name="q5"> <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>k</kbd></label>
+<label><input type="radio" name="q5"> <code>:bn</code></label>
+<label><input type="radio" name="q5"> <code>gt</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>:sp</code> divide na horizontal e <code>:vs</code> na vertical; com nome de arquivo, abre-o na janela nova.</li>
+  <li>Tudo de janela começa com <kbd>Ctrl</kbd>+<kbd>w</kbd>: <kbd>h</kbd><kbd>j</kbd><kbd>k</kbd><kbd>l</kbd> para pular, <kbd>w</kbd> para alternar.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>o</kbd> deixa só a atual; <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>=</kbd> iguala os tamanhos.</li>
+  <li>Fechar a janela não fecha o buffer.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

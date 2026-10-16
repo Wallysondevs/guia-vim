@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — refatorar com macros e :g | Guia Vim</title>
+<meta name="description" content="Laboratório de Vim: renomear variáveis com * e ., transformar CSV em SQL com macro, numerar listas, ordenar sem duplicados com :sort u e limpar logs com :g/DEBUG/d.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Refatorar com Macros e :g</span></h1>
+
+<p class="intro">Tarefas repetitivas são onde o Vim mais brilha. Você faz a edição uma vez e manda o Vim repetir: com o ponto (<code>.</code>), com uma macro ou com um comando que age em todas as linhas que combinam com um padrão. Neste laboratório você resolve cinco tarefas comuns de quem programa ou cuida de dados.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Renomear uma variável em todo o arquivo com <code>*</code>, <code>cw</code>, <code>n</code> e <code>.</code>.</li>
+  <li>Gravar uma macro que transforma uma linha de CSV num <code>INSERT</code> de SQL e repeti-la.</li>
+  <li>Numerar uma lista com uma macro e <kbd>Ctrl</kbd>+<kbd>A</kbd>.</li>
+  <li>Ordenar e tirar repetidos com <code>:sort u</code>.</li>
+  <li>Apagar ou manter só as linhas que combinam com um padrão, com <code>:g</code> e <code>:v</code>.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Este projeto usa <a href="contadores.html">Números e Repetição (.)</a>, <a href="macros.html">Macros</a>, <a href="busca.html">Buscar</a> e <a href="ex-avancado.html">Comandos Ex</a>.</p>
+</div>
+
+<h2>O roteiro</h2>
+<ol class="passo">
+  <li>Renomear <code>total</code> para <code>soma</code> num trecho de código.</li>
+  <li>Transformar linhas de CSV em comandos SQL.</li>
+  <li>Numerar uma lista de compras.</li>
+  <li>Ordenar uma lista e tirar os repetidos.</li>
+  <li>Limpar um arquivo de log.</li>
+</ol>
+
+<hr>
+
+<h2>Etapa 1: renomear uma variável</h2>
+<p>A variável <code>total</code> aparece 4 vezes. Trocar à mão é fácil de esquecer uma. O caminho do Vim:</p>
+
+<dl class="anatomy">
+  <dt>*</dt><dd>Busca a palavra sob o cursor, inteira (não acha <code>subtotal</code>), e pula para a próxima ocorrência.</dd>
+  <dt>cwsoma&lt;Esc&gt;</dt><dd>Troca essa ocorrência por <code>soma</code>.</dd>
+  <dt>n</dt><dd>Vai para a próxima ocorrência da busca.</dd>
+  <dt>.</dt><dd>Repete a última alteração: troca por <code>soma</code> de novo.</dd>
+</dl>
+
+<p>Depois é só alternar <code>n</code> e <code>.</code>. A vantagem sobre substituir tudo de uma vez é que você <strong>vê</strong> cada troca e pode pular uma com outro <code>n</code>.</p>
+
+<div class="vimdemo" data-file="conta.py" data-keys="*cwsoma&lt;Esc&gt;n.n.n.">
+<pre class="vim-inicial">total = 0
+for preco in precos:
+    total = total + preco
+print(total)</pre>
+</div>
+
+<p>No último <code>n</code>, a busca chega ao fim do arquivo e volta para o começo. O rodapé avisa com <code>busca atingiu FIM; continuando do TOPO</code>.</p>
+
+<div class="vimtry" data-file="conta.py">
+<pre class="vim-inicial">total = 0
+for preco in precos:
+    total = total + preco
+print(total)</pre>
+<pre class="vim-meta">soma = 0
+for preco in precos:
+    soma = soma + preco
+print(soma)</pre>
+<p class="try-task"><strong>Missão:</strong> renomeie todas as ocorrências de <code>total</code> para <code>soma</code>.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p>Com repetição: <code>*cwsoma&lt;Esc&gt;n.n.n.</code>. De uma vez só: <code>:%s/\&lt;total\&gt;/soma/g&lt;Enter&gt;</code>, em que <code>\&lt;</code> e <code>\&gt;</code> marcam começo e fim de palavra, para não mexer em <code>subtotal</code>.</p>
+</details>
+
+<div class="note">
+<strong>No Vim de verdade existe um atalho a mais: cgn</strong>
+<p>Depois do <code>*</code>, o comando <code>cgn</code> troca a <strong>próxima ocorrência</strong> da busca. Repetido com <code>.</code>, ele já pula e troca sozinho, sem precisar do <code>n</code>: <code>*</code>, <code>cgnsoma&lt;Esc&gt;</code>, <code>...</code>. Ele não funciona no Vim simulado deste guia.</p>
+</div>
+
+<hr>
+
+<h2>Etapa 2: de CSV para SQL com uma macro</h2>
+<p>Você recebeu uma planilha exportada em CSV e precisa inserir os dados num banco. Cada linha vira um comando:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Antes</th><th>Depois</th></tr>
+<tr><td><code>1,Ana,Recife</code></td><td><code>INSERT INTO clientes VALUES (1, 'Ana', 'Recife');</code></td></tr>
+</table>
+</div>
+
+<p>Uma <strong>macro</strong> grava as teclas que você aperta para repetir depois. Grave a transformação da primeira linha, terminando com o cursor na linha seguinte, e repita para as outras.</p>
+
+<dl class="anatomy">
+  <dt>qa</dt><dd>Começa a gravar no registrador <code>a</code>. O rodapé mostra <code>gravando @a</code>.</dd>
+  <dt>IINSERT INTO clientes VALUES (&lt;Esc&gt;</dt><dd><code>I</code> insere no começo da linha; o resto é o texto; <kbd>Esc</kbd> volta ao modo normal.</dd>
+  <dt>f,a '&lt;Esc&gt;</dt><dd>Vai até a primeira vírgula e acrescenta espaço e aspa: <code>1, 'Ana</code>.</dd>
+  <dt>f,i'&lt;Esc&gt;</dt><dd>Vai até a próxima vírgula e fecha a aspa antes dela: <code>'Ana',</code>.</dd>
+  <dt>f,a '&lt;Esc&gt;</dt><dd>Na mesma vírgula, abre a aspa do terceiro campo: <code>, 'Recife</code>.</dd>
+  <dt>A');&lt;Esc&gt;</dt><dd>Acrescenta no fim da linha: <code>');</code>.</dd>
+  <dt>j</dt><dd>Desce para a próxima linha. Assim a macro fica pronta para a linha seguinte.</dd>
+  <dt>q</dt><dd>Para de gravar.</dd>
+  <dt>2@a</dt><dd>Executa a macro <code>a</code> duas vezes, uma para cada linha que falta.</dd>
+</dl>
+
+<div class="vimdemo" data-file="clientes.csv" data-keys="qaIINSERT INTO clientes VALUES (&lt;Esc&gt;f,a '&lt;Esc&gt;f,i'&lt;Esc&gt;f,a '&lt;Esc&gt;A');&lt;Esc&gt;jq2@a">
+<pre class="vim-inicial">1,Ana,Recife
+2,Bruno,Natal
+3,Carla,Olinda</pre>
+</div>
+
+<div class="vimtry" data-file="clientes.csv">
+<pre class="vim-inicial">1,Ana,Recife
+2,Bruno,Natal
+3,Carla,Olinda</pre>
+<pre class="vim-meta">INSERT INTO clientes VALUES (1, 'Ana', 'Recife');
+INSERT INTO clientes VALUES (2, 'Bruno', 'Natal');
+INSERT INTO clientes VALUES (3, 'Carla', 'Olinda');</pre>
+<p class="try-task"><strong>Missão:</strong> transforme as três linhas em comandos <code>INSERT</code>. Grave a macro na primeira linha e repita nas outras.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>qaIINSERT INTO clientes VALUES (&lt;Esc&gt;f,a '&lt;Esc&gt;f,i'&lt;Esc&gt;f,a '&lt;Esc&gt;A');&lt;Esc&gt;jq</code> e depois <code>2@a</code>. Se errar no meio da gravação, aperte <code>q</code>, <code>u</code> até voltar ao começo e grave de novo.</p>
+<p>Alternativa com uma substituição só, usando <code>\v</code> (modo "muito mágico", em que parênteses agrupam sem barra): <code>:%s/\v(\d+),(\w+),(\w+)/INSERT INTO clientes VALUES (\1, '\2', '\3');/&lt;Enter&gt;</code>. Os grupos <code>\1</code>, <code>\2</code> e <code>\3</code> são o que cada parêntese capturou. Veja <a href="regex.html">Expressões Regulares do Vim</a>.</p>
+</details>
+
+<div class="tip">
+<strong>Macro boa termina pronta para a próxima</strong>
+<p>O <code>j</code> no fim da gravação é o segredo: cada execução deixa o cursor onde a próxima precisa começar. Com 1000 linhas, <code>999@a</code> resolve; se a macro falhar numa linha (por exemplo, faltou uma vírgula), ela para ali e você vê o problema.</p>
+</div>
+
+<hr>
+
+<h2>Etapa 3: numerar uma lista</h2>
+<p>Agora a lista de compras precisa de números: <code>1.</code>, <code>2.</code>, <code>3.</code>… A ideia: numerar a primeira linha à mão e gravar uma macro que copia o número da linha atual para a de baixo e soma 1 com <kbd>Ctrl</kbd>+<kbd>A</kbd>.</p>
+
+<dl class="anatomy">
+  <dt>I1. &lt;Esc&gt;</dt><dd>Numera a primeira linha à mão.</dd>
+  <dt>qa</dt><dd>Começa a gravar.</dd>
+  <dt>0yf&lt;espaço&gt;</dt><dd>Vai para o começo da linha e copia até o primeiro espaço, inclusive: <code>1. </code>.</dd>
+  <dt>j0P</dt><dd>Desce, vai para o começo e cola antes do cursor: <code>1. leite</code>.</dd>
+  <dt>0&lt;Ctrl-A&gt;</dt><dd>Volta ao começo e soma 1 ao número: <code>2. leite</code>.</dd>
+  <dt>q2@a</dt><dd>Para de gravar e repete duas vezes.</dd>
+</dl>
+
+<div class="vimdemo" data-file="compras.txt" data-keys="I1. &lt;Esc&gt;qa0yf j0P0&lt;C-a&gt;q2@a">
+<pre class="vim-inicial">pão
+leite
+ovos
+café</pre>
+</div>
+
+<div class="vimtry" data-file="compras.txt">
+<pre class="vim-inicial">pão
+leite
+ovos
+café</pre>
+<pre class="vim-meta">1. pão
+2. leite
+3. ovos
+4. café</pre>
+<p class="try-task"><strong>Missão:</strong> numere a lista de 1 a 4.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>I1. &lt;Esc&gt;qa0yf j0P0&lt;Ctrl-A&gt;q2@a</code> (depois do <code>yf</code> vem um espaço). Com só 4 linhas, digitar os números à mão também serve; a macro compensa quando são 50.</p>
+</details>
+
+<div class="note">
+<strong>Dois atalhos do Vim de verdade</strong>
+<p>No Vim real há formas ainda mais curtas, que não funcionam no simulador: selecionar as linhas já começando com <code>0.</code> e apertar <code>g</code><kbd>Ctrl</kbd>+<kbd>A</kbd> (numera em sequência), ou <code>:%s/^/\=line('.') . '. '/</code>, que usa Vimscript para escrever o número de cada linha.</p>
+</div>
+
+<hr>
+
+<h2>Etapa 4: ordenar e tirar repetidos</h2>
+<p>O comando <code>:sort</code> ordena as linhas. A letra <code>u</code> (de <em>unique</em>) junto dele remove as linhas repetidas.</p>
+
+<dl class="anatomy">
+  <dt>:sort</dt><dd>Ordena todas as linhas (ou só as de uma faixa, como <code>:5,20sort</code>).</dd>
+  <dt>u</dt><dd>Mantém só uma cópia de cada linha igual.</dd>
+</dl>
+
+<div class="vimtry" data-file="frutas.txt">
+<pre class="vim-inicial">uva
+banana
+maçã
+banana
+abacaxi
+uva</pre>
+<pre class="vim-meta">abacaxi
+banana
+maçã
+uva</pre>
+<p class="try-task"><strong>Missão:</strong> deixe a lista em ordem alfabética e sem repetidos.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>:sort u&lt;Enter&gt;</code>. Outras variações: <code>:sort!</code> ordena ao contrário, <code>:sort n</code> ordena pelo número, e <code>:sort i</code> ignora maiúsculas.</p>
+</details>
+
+<hr>
+
+<h2>Etapa 5: limpar um log com :g</h2>
+<p>O <code>:g</code> (de <em>global</em>) executa um comando em todas as linhas que combinam com um padrão. O caso mais comum é apagar: <code>:g/padrão/d</code>.</p>
+
+<dl class="anatomy">
+  <dt>:g</dt><dd>Para cada linha do arquivo…</dd>
+  <dt>/DEBUG/</dt><dd>…que contém "DEBUG"…</dd>
+  <dt>d</dt><dd>…execute <code>d</code> (apagar a linha).</dd>
+</dl>
+
+<div class="vimdemo" data-file="app.log" data-keys=":g/DEBUG/d&lt;CR&gt;">
+<pre class="vim-inicial">10:00 INFO servidor iniciado
+10:01 DEBUG conexão aberta
+10:01 DEBUG lendo config
+10:02 ERRO disco cheio
+10:03 DEBUG conexão fechada
+10:04 INFO servidor parado</pre>
+</div>
+
+<p>Como foram 3 linhas apagadas, o rodapé avisa <code>3 linhas a menos</code>.</p>
+
+<div class="vimtry" data-file="app.log">
+<pre class="vim-inicial">10:00 INFO servidor iniciado
+10:01 DEBUG conexão aberta
+10:01 DEBUG lendo config
+10:02 ERRO disco cheio
+10:03 DEBUG conexão fechada
+10:04 INFO servidor parado</pre>
+<pre class="vim-meta">10:00 INFO servidor iniciado
+10:02 ERRO disco cheio
+10:04 INFO servidor parado</pre>
+<p class="try-task"><strong>Missão:</strong> apague todas as linhas de DEBUG.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>:g/DEBUG/d&lt;Enter&gt;</code>.</p>
+</details>
+
+<h3>O contrário: manter só o que interessa</h3>
+<p>O <code>:v</code> (ou <code>:g!</code>) age nas linhas que <strong>não</strong> combinam. <code>:v/ERRO/d</code> apaga tudo que não é erro.</p>
+
+<div class="vimtry" data-file="app.log">
+<pre class="vim-inicial">10:00 INFO servidor iniciado
+10:01 DEBUG conexão aberta
+10:01 DEBUG lendo config
+10:02 ERRO disco cheio
+10:03 DEBUG conexão fechada
+10:04 INFO servidor parado</pre>
+<pre class="vim-meta">10:02 ERRO disco cheio</pre>
+<p class="try-task"><strong>Missão:</strong> deixe no arquivo só as linhas de ERRO.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>:v/ERRO/d&lt;Enter&gt;</code>. Também vale <code>:g!/ERRO/d</code>.</p>
+</details>
+
+<div class="tip">
+<strong>:g com outros comandos</strong>
+<p>O comando depois do padrão pode ser qualquer comando Ex. <code>:g/TODO/normal A !</code> acrescenta " !" no fim de cada linha com TODO, e <code>:g/^/m0</code> inverte a ordem do arquivo. Veja <a href="ex-avancado.html">Comandos Ex</a>.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>A macro funcionou na primeira linha e estragou as outras</strong>
+<p><strong>O que aconteceu:</strong> a gravação dependia da posição do cursor. Por exemplo, você usou <code>l</code> três vezes para chegar à vírgula, e na linha seguinte o primeiro campo tinha outro tamanho.</p>
+<p><strong>Como resolver:</strong> desfaça com <code>u</code> e grave de novo usando movimentos que "procuram" (<code>f,</code>, <code>w</code>, <code>0</code>, <code>$</code>, <code>/texto</code>) em vez de contar caracteres.</p>
+</div>
+
+<div class="cenario">
+<strong>O rodapé mostra "gravando @a" e não some</strong>
+<p><strong>O que aconteceu:</strong> você apertou <code>q</code> e uma letra sem querer, e o Vim está gravando tudo.</p>
+<p><strong>Como resolver:</strong> aperte <code>q</code> (no modo normal) para parar. Nada é alterado no texto.</p>
+</div>
+
+<div class="cenario">
+<strong>O ponto repetiu a coisa errada</strong>
+<p><strong>O que aconteceu:</strong> o <code>.</code> repete a última <strong>alteração</strong>. Se entre o <code>cw</code> e o <code>.</code> você fez outra edição (até um <code>x</code>), é ela que será repetida.</p>
+<p><strong>Como resolver:</strong> <code>u</code> e refaça o <code>cwsoma&lt;Esc&gt;</code> uma vez antes de voltar ao <code>n.</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência do projeto</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tarefa</th><th>Teclas</th></tr>
+<tr><td>Renomear vendo cada troca</td><td><code>*</code>, <code>cw</code>novo<kbd>Esc</kbd>, depois <code>n.</code> repetido</td></tr>
+<tr><td>Renomear tudo de uma vez</td><td><code>:%s/\&lt;velho\&gt;/novo/g</code></td></tr>
+<tr><td>Gravar / parar / executar macro</td><td><code>qa</code> … <code>q</code>, <code>@a</code>, <code>10@a</code>, <code>@@</code></td></tr>
+<tr><td>Somar 1 a um número</td><td><kbd>Ctrl</kbd>+<kbd>A</kbd> (subtrair: <kbd>Ctrl</kbd>+<kbd>X</kbd>)</td></tr>
+<tr><td>Ordenar sem repetidos</td><td><code>:sort u</code></td></tr>
+<tr><td>Apagar linhas com padrão</td><td><code>:g/padrão/d</code></td></tr>
+<tr><td>Apagar linhas sem padrão</td><td><code>:v/padrão/d</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Apagar as linhas vazias do arquivo</h3>
+<div class="ex-code">:<input data-answer="g/^$/d|g/^$/delete|g /^$/d" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Executar a macro <code>q</code> 15 vezes</h3>
+<div class="ex-code"><input data-answer="15@q" aria-label="teclas"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. Por que a macro do CSV termina com <code>j</code> antes do <code>q</code>?</p>
+<label><input type="radio" name="q3"> Porque toda macro precisa terminar com <code>j</code>.</label>
+<label><input type="radio" name="q3"> Para salvar o arquivo.</label>
+<label><input type="radio" name="q3"> Para deixar o cursor na próxima linha, pronto para a próxima execução.</label>
+<label><input type="radio" name="q3"> Para sair do modo de inserção.</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">4. O que <code>:v/ERRO/d</code> faz?</p>
+<label><input type="radio" name="q4"> Apaga todas as linhas que <strong>não</strong> contêm "ERRO".</label>
+<label><input type="radio" name="q4"> Apaga todas as linhas que contêm "ERRO".</label>
+<label><input type="radio" name="q4"> Mostra as linhas com "ERRO".</label>
+<label><input type="radio" name="q4"> Troca "ERRO" por "d".</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>*</code> + <code>cw</code> + <code>n.</code> renomeia vendo cada troca; <code>:%s/\&lt;x\&gt;/y/g</code> troca tudo de uma vez.</li>
+  <li>Macros (<code>qa</code> … <code>q</code>, <code>@a</code>) repetem qualquer sequência de teclas; termine a gravação pronto para a próxima linha.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>A</kbd> dentro de uma macro cria numerações.</li>
+  <li><code>:sort u</code> ordena e tira repetidos; <code>:g/padrão/d</code> e <code>:v/padrão/d</code> limpam arquivos inteiros.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

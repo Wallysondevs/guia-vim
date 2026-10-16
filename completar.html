@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — autocompletar palavras, linhas e arquivos | Guia Vim</title>
+<meta name="description" content="Autocompletar no Vim sem plugins: Ctrl-n e Ctrl-p, Ctrl-x Ctrl-l para linhas, Ctrl-x Ctrl-f para arquivos, omnicompletion, as opções complete e completeopt e os problemas mais comuns.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Autocompletar</span></h1>
+
+<p class="intro">O Vim completa palavras sozinho, sem nenhum plugin. Você digita o começo de uma palavra que já existe no arquivo, aperta <kbd>Ctrl</kbd>+<kbd>N</kbd> e ele termina para você. Isso evita erros de digitação em nomes longos, como <code>calcular_total_do_pedido</code>, e economiza muitas teclas.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Completar palavras com <kbd>Ctrl</kbd>+<kbd>N</kbd> e <kbd>Ctrl</kbd>+<kbd>P</kbd>, e de onde vêm as sugestões.</li>
+  <li>Navegar, aceitar e cancelar no menu de sugestões.</li>
+  <li>Os modos especiais do <kbd>Ctrl</kbd>+<kbd>X</kbd>: linhas inteiras, nomes de arquivos, dicionário e "omni".</li>
+  <li>Ajustar o comportamento com as opções <code>complete</code> e <code>completeopt</code>.</li>
+  <li>O que fazer quando o menu não aparece ou sugere coisas demais.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Modo certo</strong>
+<p>Tudo nesta aula acontece no <strong>modo de inserção</strong> (<code>-- INSERÇÃO --</code> no rodapé). Você está digitando texto e, no meio da palavra, pede ajuda ao Vim. Reveja em <a href="inserir.html">Inserir Texto</a>.</p>
+</div>
+
+<div class="note">
+<strong>Sobre o simulador</strong>
+<p>O Vim simulado deste guia não tem autocompletar. Nesta aula as telas são desenhos do Vim real; pratique no seu terminal com <code>vim</code>.</p>
+</div>
+
+<hr>
+
+<h2>Ctrl+N: completar com palavras do arquivo</h2>
+<p>O <kbd>Ctrl</kbd>+<kbd>N</kbd> (de <em>next</em>, "próxima") procura no arquivo palavras que começam com o que você digitou e coloca a primeira no lugar. Se houver mais de uma, abre um menu.</p>
+
+<dl class="anatomy">
+  <dt>comp</dt><dd>O começo da palavra que você digitou, ainda no modo de inserção.</dd>
+  <dt>Ctrl+N</dt><dd>Pede ao Vim: "complete com a <strong>próxima</strong> palavra que começa assim". A busca vai do cursor para baixo e dá a volta pelo começo do arquivo.</dd>
+</dl>
+
+<p>Imagine este arquivo, com o cursor no fim da linha 3, depois de digitar <code>comp</code>:</p>
+
+<div class="vimdemo" data-file="notas.txt" data-line="3" data-col="4">
+<pre class="vim-inicial">O computador novo computa rápido.
+Preciso comprar um mouse.
+comp</pre>
+</div>
+
+<p>Ao apertar <kbd>Ctrl</kbd>+<kbd>N</kbd>, o Vim já escreve a primeira sugestão e mostra as outras num menu, logo abaixo do cursor:</p>
+
+<pre class="term" data-title="notas.txt — Vim">O computador novo computa rápido.
+Preciso comprar um mouse.
+computador
+computador      « sugestão escolhida
+computa
+comprar
+~
+-- Completar palavra-chave (^N^P) correspondência 1 de 3</pre>
+
+<p>No rodapé, o Vim diz que tipo de completar está ativo e qual sugestão está escolhida: <code>correspondência 1 de 3</code>. Se o seu Vim estiver em inglês, aparece <code>-- Keyword completion (^N^P) match 1 of 3</code>.</p>
+
+<h3>Navegar no menu</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>O que faz</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>N</kbd> ou <kbd>↓</kbd></td><td>Vai para a próxima sugestão (e a escreve no texto)</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>P</kbd> ou <kbd>↑</kbd></td><td>Volta para a sugestão anterior</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>Aceita a sugestão e fecha o menu (de <em>yes</em>)</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>Cancela: volta ao que você tinha digitado (de <em>end</em>)</td></tr>
+<tr><td>Continuar digitando</td><td>Aceita a sugestão atual e segue escrevendo</td></tr>
+<tr><td><kbd>Esc</kbd></td><td>Aceita a sugestão atual e sai do modo de inserção</td></tr>
+</table>
+</div>
+
+<p>Depois da última sugestão, mais um <kbd>Ctrl</kbd>+<kbd>N</kbd> volta ao texto original (<code>comp</code>), e o rodapé mostra <code>De volta ao original</code>. Mais um, e o ciclo recomeça.</p>
+
+<h3>Ctrl+P: a palavra mais próxima para cima</h3>
+<p>O <kbd>Ctrl</kbd>+<kbd>P</kbd> (de <em>previous</em>, "anterior") faz a mesma coisa, mas procura <strong>para cima</strong> a partir do cursor. Na prática, ele costuma achar primeiro a palavra que você usou há pouco, por isso muita gente prefere o <kbd>Ctrl</kbd>+<kbd>P</kbd> para nomes de variáveis que acabou de criar.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Com o texto acima e <code>comp</code> na linha 3</th><th>Primeira sugestão</th><th>Por quê</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>N</kbd></td><td><code>computador</code></td><td>Desce a partir do cursor, chega ao fim, volta ao começo do arquivo e encontra "computador" primeiro.</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>P</kbd></td><td><code>comprar</code></td><td>Sobe a partir do cursor; "comprar", na linha 2, é a mais próxima.</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>De onde vêm as sugestões: a opção complete</h2>
+<p>O <kbd>Ctrl</kbd>+<kbd>N</kbd> não olha só o arquivo atual. A opção <code>complete</code> diz onde procurar. Veja o valor no seu Vim:</p>
+
+<pre class="term" data-title="notas.txt — Vim">:set complete?
+  complete=.,w,b,u,t,i</pre>
+
+<dl class="anatomy">
+  <dt>.</dt><dd>O arquivo atual.</dd>
+  <dt>w</dt><dd>Arquivos abertos em outras janelas (de <em>window</em>).</dd>
+  <dt>b</dt><dd>Outros arquivos carregados (buffers; veja <a href="buffers.html">Vários Arquivos</a>).</dd>
+  <dt>u</dt><dd>Buffers descarregados (que já foram abertos).</dd>
+  <dt>t</dt><dd>O arquivo de <a href="tags.html">tags</a>, se existir.</dd>
+  <dt>i</dt><dd>Arquivos incluídos (por exemplo <code>#include</code> em C).</dd>
+</dl>
+
+<p>Em projetos grandes, o <code>i</code> e o <code>t</code> podem deixar o completar lento. Se isso acontecer, tire-os no seu <code>.vimrc</code>:</p>
+
+<pre class="file" data-file="~/.vimrc">" completar só com o arquivo atual e os outros arquivos abertos
+set complete=.,w,b,u</pre>
+
+<hr>
+
+<h2>Ctrl+X: os modos especiais</h2>
+<p>O <kbd>Ctrl</kbd>+<kbd>X</kbd> entra num "submodo" de completar: ele espera uma segunda tecla que diz <strong>o que</strong> completar. O rodapé mostra as opções disponíveis.</p>
+
+<pre class="term" data-title="config.py — Vim">-- modo ^X (^]^D^E^F^I^K^L^N^O^Ps^U^V^Y)</pre>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Completa</th><th>Exemplo de uso</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>Linhas inteiras que começam igual</td><td>Repetir uma linha de configuração</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>Nomes de arquivos e pastas</td><td>Escrever um caminho: <code>./imagens/lo</code> → <code>./imagens/logo.png</code></td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>Palavras só do arquivo atual</td><td>Quando o <kbd>Ctrl</kbd>+<kbd>N</kbd> comum traz coisa demais</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Palavras de um dicionário</td><td>Precisa da opção <code>dictionary</code> configurada</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>]</kbd></td><td>Nomes do arquivo de tags</td><td>Funções do projeto (veja <a href="tags.html">ctags</a>)</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>"Omni": completar inteligente da linguagem</td><td>Propriedades de CSS, tags de HTML</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>s</kbd></td><td>Sugestões de ortografia</td><td>Com <code>:set spell</code> (veja <a href="ortografia.html">Ortografia</a>)</td></tr>
+</table>
+</div>
+
+<h3>Linhas inteiras: Ctrl+X Ctrl+L</h3>
+<p>Útil quando você repete linhas parecidas. Digite o começo da linha e peça o resto:</p>
+
+<dl class="anatomy">
+  <dt>no</dt><dd>O começo da linha, digitado no modo de inserção.</dd>
+  <dt>Ctrl+X</dt><dd>Entra no submodo de completar.</dd>
+  <dt>Ctrl+L</dt><dd>Completa com uma <strong>linha inteira</strong> (de <em>line</em>) que comece com "no".</dd>
+</dl>
+
+<div class="vimdemo" data-file="dados.py" data-line="3" data-col="2">
+<pre class="vim-inicial">nome = "Ana"
+idade = 30
+no</pre>
+</div>
+
+<p>Depois de <kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>L</kbd>, a linha 3 vira <code>nome = "Ana"</code>. Conferimos esse resultado no Vim real.</p>
+
+<h3>Nomes de arquivos: Ctrl+X Ctrl+F</h3>
+<p>O <kbd>Ctrl</kbd>+<kbd>F</kbd> (de <em>file</em>) completa caminhos a partir da pasta em que você abriu o Vim. É ótimo para escrever caminhos em scripts e páginas HTML sem errar o nome.</p>
+
+<pre class="term" data-title="index.html — Vim">&lt;img src="imagens/logo.png"&gt;
+            imagens/logo.png
+            imagens/logo-antigo.png
+            imagens/fundo.jpg
+-- Completar nome de arquivo (^F^N^P) correspondência 1 de 3</pre>
+
+<div class="tip">
+<strong>Dica</strong>
+<p>Para continuar entrando em subpastas, aceite a pasta e aperte <kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>F</kbd> de novo.</p>
+</div>
+
+<h3>Omni: o completar que entende a linguagem</h3>
+<p>O <kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>O</kbd> pede sugestões a uma função que conhece o tipo de arquivo. O Vim já vem com funções para HTML, CSS, JavaScript, Python, SQL e outras. Para funcionar, ligue a detecção de tipo de arquivo no <code>.vimrc</code> (o <code>defaults.vim</code> já faz isso):</p>
+
+<pre class="file" data-file="~/.vimrc">" detecta o tipo de arquivo e carrega plugins e indentação de cada linguagem
+filetype plugin indent on</pre>
+
+<p>Num arquivo <code>.css</code>, digitar <code>back</code> e apertar <kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>O</kbd> sugere <code>background</code>, <code>background-color</code>, <code>background-image</code>…</p>
+
+<pre class="term" data-title="estilo.css — Vim">body {
+  background
+  background         « propriedades do CSS
+  background-attachment
+  background-color
+  background-image
+}
+-- Completação inteligente (^O^N^P) correspondência 1 de 9</pre>
+<p>A quantidade de sugestões depende da versão do Vim; os números aqui são ilustrativos.</p>
+
+<hr>
+
+<h2>completeopt: como o menu se comporta</h2>
+<p>A opção <code>completeopt</code> controla o menu. O valor padrão do Vim 9 é <code>menu,preview</code>. Uma configuração popular é esta:</p>
+
+<pre class="file" data-file="~/.vimrc">" menu: mostra o menu quando há mais de uma sugestão
+" menuone: mostra o menu mesmo com uma sugestão só
+" noselect: não escreve nenhuma sugestão até você escolher
+set completeopt=menu,menuone,noselect</pre>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Valor</th><th>Efeito</th></tr>
+<tr><td><code>menu</code></td><td>Mostra o menu quando há duas ou mais sugestões</td></tr>
+<tr><td><code>menuone</code></td><td>Mostra o menu mesmo com uma só (útil para ver detalhes)</td></tr>
+<tr><td><code>longest</code></td><td>Escreve só a parte que todas as sugestões têm em comum</td></tr>
+<tr><td><code>noselect</code></td><td>Não escolhe nenhuma; você escolhe com <kbd>Ctrl</kbd>+<kbd>N</kbd></td></tr>
+<tr><td><code>noinsert</code></td><td>Destaca a primeira, mas só escreve quando você aceitar</td></tr>
+<tr><td><code>preview</code></td><td>Mostra informações extras numa janela de pré-visualização</td></tr>
+<tr><td><code>popup</code></td><td>Mostra as informações extras numa janela flutuante, no lugar do <code>preview</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de chegar à mesma palavra</h2>
+<p>Objetivo: escrever <code>calcular_total_do_pedido</code>, que já aparece duas linhas acima.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que acontece</th><th>Quando usar</th></tr>
+<tr><td>Digitar tudo</td><td>24 letras, com chance de erro</td><td>Nunca, se a palavra já existe</td></tr>
+<tr><td><code>calc</code> + <kbd>Ctrl</kbd>+<kbd>P</kbd></td><td>Pega a ocorrência mais próxima acima</td><td>Nome usado há pouco</td></tr>
+<tr><td><code>calc</code> + <kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>Pega a próxima ocorrência abaixo (dando a volta)</td><td>Nome definido mais adiante</td></tr>
+<tr><td><code>calc</code> + <kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>]</kbd></td><td>Procura nas tags do projeto inteiro</td><td>Função definida em outro arquivo</td></tr>
+<tr><td>Plugin com LSP</td><td>Sugestões conforme a linguagem, com tipos</td><td>Projetos grandes; veja <a href="lsp.html">Vim como IDE</a></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Ctrl+N não faz nada e o rodapé diz "Padrão não encontrado"</strong>
+<pre class="term" data-title="notas.txt — Vim">-- Completar palavra-chave (^N^P) Padrão não encontrado</pre>
+<p><strong>O que aconteceu:</strong> nenhuma palavra nos lugares listados em <code>complete</code> começa com o que você digitou.</p>
+<p><strong>Como resolver:</strong> confira a grafia do começo. Se a palavra está em outro arquivo, abra-o junto (<code>:e outro.txt</code>, depois volte) ou use tags.</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei Ctrl+N e o terminal fez outra coisa</strong>
+<p><strong>O que aconteceu:</strong> você estava no modo normal, onde <kbd>Ctrl</kbd>+<kbd>N</kbd> só desce uma linha. Em alguns terminais e no Windows, outros atalhos (<kbd>Ctrl</kbd>+<kbd>N</kbd> = "nova janela") podem ser capturados antes de chegar ao Vim.</p>
+<p><strong>Como resolver:</strong> entre no modo de inserção (<code>i</code> ou <code>a</code>). Se o terminal captura o atalho, desative-o nas preferências do terminal.</p>
+</div>
+
+<div class="cenario">
+<strong>O completar ficou lento e o rodapé mostra "Examinando..."</strong>
+<pre class="term" data-title="main.c — Vim">-- Procurando...
+Examinando arquivo incluído: /usr/include/stdio.h</pre>
+<p><strong>O que aconteceu:</strong> o <code>i</code> da opção <code>complete</code> faz o Vim ler todos os arquivos incluídos.</p>
+<p><strong>Como resolver:</strong> <code>:set complete-=i</code> (tira só o <code>i</code>). Coloque no <code>.vimrc</code> se gostar.</p>
+</div>
+
+<div class="cenario">
+<strong>Ctrl+X Ctrl+O diz que a opção 'omnifunc' não está definida</strong>
+<pre class="term" data-title="notas.txt — Vim">E764: Opção 'omnifunc' não está definida</pre>
+<p><strong>O que aconteceu:</strong> o tipo de arquivo não foi detectado, ou a linguagem não tem completar omni no Vim.</p>
+<p><strong>Como resolver:</strong> confira com <code>:set filetype?</code>. Se estiver vazio, adicione <code>filetype plugin indent on</code> no <code>.vimrc</code>. Para linguagens sem omni, use <kbd>Ctrl</kbd>+<kbd>N</kbd> ou um LSP.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas (modo de inserção)</th><th>Completa</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>N</kbd> / <kbd>Ctrl</kbd>+<kbd>P</kbd></td><td>Palavra (fontes da opção <code>complete</code>), para baixo / para cima</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>Linha inteira</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>F</kbd></td><td>Nome de arquivo</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>Palavra só do arquivo atual</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Dicionário (<code>set dictionary=…</code>)</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>]</kbd></td><td>Tags</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>Omni (específico da linguagem)</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>s</kbd></td><td>Ortografia</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>Y</kbd> / <kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>Aceitar / cancelar a sugestão</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Palavra usada há pouco</h3>
+<p>No modo de inserção, qual atalho completa com a palavra mais próxima <strong>acima</strong> do cursor? Responda no formato <code>Ctrl+?</code>.</p>
+<div class="ex-code"><input data-answer="Ctrl+P|ctrl+p|Ctrl-P|C-p|^P" aria-label="atalho"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Linha inteira</h3>
+<p>Depois de <kbd>Ctrl</kbd>+<kbd>X</kbd>, qual tecla (com <kbd>Ctrl</kbd>) completa a linha inteira? Responda só a letra.</p>
+<div class="ex-code">Ctrl+X Ctrl+<input data-answer="L|l" aria-label="letra"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. O menu está aberto e você quer voltar exatamente ao que tinha digitado. Qual tecla usar?</p>
+<label><input type="radio" name="q3"> <kbd>Esc</kbd></label>
+<label><input type="radio" name="q3"> <kbd>Ctrl</kbd>+<kbd>Y</kbd></label>
+<label><input type="radio" name="q3"> <kbd>Ctrl</kbd>+<kbd>E</kbd></label>
+<label><input type="radio" name="q3"> <kbd>Enter</kbd></label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">4. O completar está lento em um projeto C com muitos <code>#include</code>. Qual ajuste resolve?</p>
+<label><input type="radio" name="q4"> <code>:set complete-=i</code></label>
+<label><input type="radio" name="q4"> <code>:set completeopt=menuone</code></label>
+<label><input type="radio" name="q4"> <code>:set nospell</code></label>
+<label><input type="radio" name="q4"> <code>:syntax off</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>No modo de inserção, <kbd>Ctrl</kbd>+<kbd>N</kbd> e <kbd>Ctrl</kbd>+<kbd>P</kbd> completam palavras que já existem.</li>
+  <li>No menu: <kbd>Ctrl</kbd>+<kbd>N</kbd>/<kbd>Ctrl</kbd>+<kbd>P</kbd> navegam, <kbd>Ctrl</kbd>+<kbd>Y</kbd> aceita, <kbd>Ctrl</kbd>+<kbd>E</kbd> cancela.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>X</kbd> abre modos especiais: <kbd>Ctrl</kbd>+<kbd>L</kbd> linhas, <kbd>Ctrl</kbd>+<kbd>F</kbd> arquivos, <kbd>Ctrl</kbd>+<kbd>O</kbd> omni.</li>
+  <li><code>complete</code> define de onde vêm as palavras; <code>completeopt</code>, como o menu se comporta.</li>
+  <li>Para completar com tipos e documentação, o próximo passo é um LSP.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

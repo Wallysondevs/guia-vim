@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — abas (tabs) | Guia Vim</title>
+<meta name="description" content="Abas no Vim: :tabnew, :tabe, gt, gT, :tabclose, :tabs, vim -p, e a diferença entre abas, janelas e buffers.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Abas</span></h1>
+
+<p class="intro">O Vim também tem abas, mas elas não funcionam como as do navegador. Uma aba do Vim não é "um arquivo": é um <strong>arranjo de janelas</strong>. Entender isso evita muita confusão e mostra quando vale a pena usar abas.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Abrir, trocar e fechar abas (<code>:tabnew</code>, <code>gt</code>, <code>:tabclose</code>).</li>
+  <li>Abrir vários arquivos já em abas (<code>vim -p</code>).</li>
+  <li>A diferença entre abas, janelas e buffers.</li>
+  <li>Quando usar cada uma.</li>
+</ul>
+</div>
+
+<div class="warning">
+<strong>O simulador não tem abas</strong>
+<p>As telas abaixo mostram o Vim de verdade. Pratique no Vim do seu sistema.</p>
+</div>
+
+<hr>
+
+<h2>Buffer, janela e aba</h2>
+<p>As três palavras aparecem o tempo todo no Vim. Veja a relação entre elas:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Nome</th><th>O que é</th><th>Comparação</th></tr>
+<tr><td><strong>Buffer</strong></td><td>Um arquivo carregado na memória</td><td>Um documento aberto</td></tr>
+<tr><td><strong>Janela</strong></td><td>Uma área da tela que mostra um buffer</td><td>Um visor</td></tr>
+<tr><td><strong>Aba</strong></td><td>Um conjunto de janelas com o seu próprio arranjo</td><td>Uma "mesa de trabalho"</td></tr>
+</table>
+</div>
+
+<p>Os buffers são compartilhados por todas as abas: um arquivo aberto numa aba aparece no <code>:ls</code> de qualquer outra. A aba só guarda <strong>como</strong> a tela está dividida.</p>
+
+<hr>
+
+<h2>Abrir uma aba</h2>
+
+<dl class="anatomy">
+  <dt>:tabe</dt><dd><em>tab edit</em>: abre uma aba nova…</dd>
+  <dt>notas.txt</dt><dd>…com este arquivo. Sem nome (<code>:tabnew</code>), a aba começa com um buffer vazio.</dd>
+</dl>
+
+<pre class="term" data-title="notas.txt — Vim"> index.html  notas.txt                                               X  « linha de abas: a atual em destaque
+Lembrar de revisar o texto
+~
+~
+"notas.txt" 1L, 27B                               1,1           Tudo</pre>
+
+<p>Quando há mais de uma aba, aparece a <strong>linha de abas</strong> no topo, com o nome do arquivo de cada uma. O <code>X</code> à direita fecha a aba com o mouse.</p>
+
+<p>Também dá para abrir vários arquivos, cada um na sua aba, direto do terminal:</p>
+
+<dl class="anatomy">
+  <dt>vim</dt><dd>O programa.</dd>
+  <dt>-p</dt><dd>Uma aba para cada arquivo (de <em>pages</em>, "páginas").</dd>
+  <dt>a.txt b.txt c.txt</dt><dd>Os arquivos.</dd>
+</dl>
+
+<pre class="term">$ vim -p a.txt b.txt c.txt</pre>
+
+<p>O limite padrão do <code>-p</code> é de 10 abas (opção <code>tabpagemax</code>); os arquivos que sobram ficam como buffers.</p>
+
+<hr>
+
+<h2>Trocar de aba</h2>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Origem</th><th>Vai para</th></tr>
+<tr><td><code>gt</code></td><td><em>go to tab</em></td><td>A próxima aba (da última, volta à primeira)</td></tr>
+<tr><td><code>gT</code></td><td></td><td>A aba anterior</td></tr>
+<tr><td><code>3gt</code></td><td></td><td>A aba número 3 (contando da esquerda, a partir de 1)</td></tr>
+<tr><td><code>g</code><kbd>Tab</kbd></td><td></td><td>A última aba em que você esteve</td></tr>
+<tr><td><code>:tabn</code> / <code>:tabp</code></td><td><em>next</em> / <em>previous</em></td><td>Próxima / anterior</td></tr>
+<tr><td><code>:tabfirst</code> / <code>:tablast</code></td><td></td><td>Primeira / última</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>PageDown</kbd> / <kbd>Ctrl</kbd>+<kbd>PageUp</kbd></td><td></td><td>Próxima / anterior (se o terminal deixar a tecla chegar ao Vim)</td></tr>
+</table>
+</div>
+
+<div class="tip">
+<strong>Atenção ao número em <code>3gt</code></strong>
+<p>Em <code>3gt</code> o número não é "três vezes": é "a aba 3". Já <code>3gT</code> volta três abas. É uma das poucas exceções do Vim.</p>
+</div>
+
+<hr>
+
+<h2>Listar, mover e fechar</h2>
+
+<dl class="anatomy">
+  <dt>:tabs</dt><dd>Lista as abas e as janelas de cada uma.</dd>
+</dl>
+
+<pre class="term" data-title="notas.txt — Vim">:tabs
+Aba 1                                       « o Vim em inglês mostra "Tab page 1"
+    index.html
+Aba 2
+&gt;   notas.txt                               « &gt; marca a janela atual
+    estilo.css
+Aperte ENTER ou digite um comando para continuar</pre>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:tabclose</code> ou <code>:tabc</code></td><td>Fecha a aba atual (e as janelas dela)</td></tr>
+<tr><td><code>:tabonly</code> ou <code>:tabo</code></td><td>Fecha todas as outras abas</td></tr>
+<tr><td><code>:tabm 0</code></td><td>Move a aba atual para o começo (<code>:tabm</code> sem número: para o fim)</td></tr>
+<tr><td><code>:tab split</code></td><td>Abre o buffer atual numa aba nova</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>T</kbd></td><td>Leva a janela atual para uma aba nova</td></tr>
+<tr><td><code>:q</code></td><td>Fecha a janela atual; se era a única da aba, fecha a aba</td></tr>
+</table>
+</div>
+
+<p>Fechar uma aba não fecha os buffers dela: eles continuam no <code>:ls</code>.</p>
+
+<hr>
+
+<h2>Quando usar abas, janelas ou buffers</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Situação</th><th>Use</th><th>Por quê</th></tr>
+<tr><td>Muitos arquivos de um projeto, um por vez</td><td>Buffers (<code>:e</code>, <code>:b</code>)</td><td>É o jeito mais leve; a tela fica limpa.</td></tr>
+<tr><td>Ver dois arquivos ao mesmo tempo</td><td>Janelas (<code>:vs</code>)</td><td>Você precisa dos dois na tela.</td></tr>
+<tr><td>Duas tarefas diferentes, cada uma com sua divisão</td><td>Abas</td><td>Ex.: aba 1 com código e teste lado a lado; aba 2 com a documentação.</td></tr>
+<tr><td>"Uma aba por arquivo", como no navegador</td><td>Melhor buffers</td><td>Com 20 arquivos, a linha de abas fica ilegível; <code>:b nome</code> é mais rápido.</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"E784: Não é possível fechar a última aba"</strong>
+<p><strong>O que aconteceu:</strong> você usou <code>:tabclose</code> com uma aba só.</p>
+<p><strong>Como resolver:</strong> para sair do Vim, use <code>:q</code> ou <code>:qa</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>gt não faz nada</strong>
+<p><strong>O que aconteceu:</strong> só existe uma aba (não há linha de abas no topo), ou você está no modo de inserção e o <code>gt</code> virou texto.</p>
+<p><strong>Como resolver:</strong> aperte <kbd>Esc</kbd>, confira com <code>:tabs</code> e abra outra com <code>:tabnew</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Abri o mesmo arquivo em duas abas e as duas mudam juntas</strong>
+<p><strong>O que aconteceu:</strong> é o comportamento certo. As duas abas mostram o mesmo buffer, e um buffer é um só.</p>
+<p><strong>Como resolver:</strong> nada a resolver. Se quiser uma cópia independente, salve com outro nome: <code>:saveas copia.txt</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:tabnew</code> / <code>:tabe arq</code></td><td>Aba nova vazia / com um arquivo</td></tr>
+<tr><td><code>vim -p a b c</code></td><td>Abre cada arquivo numa aba</td></tr>
+<tr><td><code>gt</code> / <code>gT</code> / <code>Ngt</code></td><td>Próxima / anterior / aba N</td></tr>
+<tr><td><code>g</code><kbd>Tab</kbd></td><td>Última aba visitada</td></tr>
+<tr><td><code>:tabs</code></td><td>Lista as abas</td></tr>
+<tr><td><code>:tabclose</code> / <code>:tabonly</code></td><td>Fecha esta / fecha as outras</td></tr>
+<tr><td><code>:tabm N</code></td><td>Move a aba para a posição N</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>T</kbd></td><td>Janela atual vira uma aba</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Abrir em aba</h3>
+<p>Complete para abrir <code>config.ini</code> numa aba nova:</p>
+<div class="ex-code">:<input data-answer="tabe|tabedit|tabnew" aria-label="comando"> config.ini</div>
+</div>
+
+<div class="exercise">
+<h3>2. Próxima aba</h3>
+<p>No modo normal, quais duas teclas vão para a próxima aba?</p>
+<div class="ex-code"><input data-answer="gt" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Do terminal</h3>
+<p>Complete para abrir os três arquivos, cada um na sua aba:</p>
+<div class="ex-code">vim <input data-answer="-p" aria-label="opção"> a.txt b.txt c.txt</div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. O que uma aba do Vim guarda?</p>
+<label><input type="radio" name="q4"> Um arquivo só, como no navegador.</label>
+<label><input type="radio" name="q4"> Um arranjo de janelas; os buffers são de todas as abas.</label>
+<label><input type="radio" name="q4"> Uma cópia separada de cada arquivo.</label>
+<label><input type="radio" name="q4"> O histórico de desfazer.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">5. O que <code>2gt</code> faz?</p>
+<label><input type="radio" name="q5"> Avança duas abas.</label>
+<label><input type="radio" name="q5"> Abre duas abas novas.</label>
+<label><input type="radio" name="q5"> Volta duas abas.</label>
+<label><input type="radio" name="q5"> Vai para a aba número 2.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Uma aba é um arranjo de janelas; os buffers são compartilhados.</li>
+  <li><code>:tabe arquivo</code> abre, <code>gt</code>/<code>gT</code> trocam, <code>:tabclose</code> fecha.</li>
+  <li><code>vim -p</code> abre vários arquivos em abas.</li>
+  <li>Para muitos arquivos, prefira buffers; abas servem para separar tarefas.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

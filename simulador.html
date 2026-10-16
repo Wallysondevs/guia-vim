@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — Vim simulado no navegador | Guia Vim</title>
+<meta name="description" content="Pratique Vim no navegador: um Vim simulado com as mesmas teclas e mensagens do Vim 9.1 em português, um campo livre e uma trilha de 10 missões com correção automática.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Vim Simulado</span></h1>
+
+<p class="intro">Este guia tem um Vim de mentira que roda dentro da própria página. Ele imita o Vim 9.1 de verdade, com os mesmos comandos, o mesmo rodapé e as mesmas mensagens em português. Nada do que você digita sai do navegador: pode errar à vontade.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Como usar o simulador: foco, teclado, celular e o botão Reiniciar.</li>
+  <li>O que ele faz igual ao Vim real e o que ele não faz.</li>
+  <li>Praticar com uma trilha de 10 missões, do <code>x</code> ao <code>:w</code>.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>Por que um Vim simulado?</h2>
+<p>Ninguém aprende Vim lendo. Os comandos precisam entrar nos dedos, e isso exige repetição. O simulador deixa você praticar em qualquer computador, sem instalar nada, e confere sozinho se você chegou ao resultado da missão.</p>
+<p>Ele também protege você do maior medo de quem está começando: estragar um arquivo de verdade. Aqui, o pior que pode acontecer é você clicar em <strong>Reiniciar</strong>.</p>
+
+<hr>
+
+<h2>Como usar</h2>
+<ol class="passo">
+  <li><strong>Clique dentro da janela escura.</strong> Enquanto ela não tem o foco, aparece "Clique aqui para usar o teclado". Com o foco, a borda fica verde e as teclas vão para o Vim.</li>
+  <li><strong>Digite como no Vim real.</strong> O rodapé mostra o modo, o comando sendo montado e a posição do cursor.</li>
+  <li><strong>Olhe a linha abaixo da janela.</strong> Nas caixas com missão, ela mostra "Missão em andamento…", o número de teclas usadas e, quando você acertar, "✔ Missão cumprida".</li>
+  <li><strong>Errou feio?</strong> O <code>u</code> desfaz, como no Vim. Ou clique em <strong>Reiniciar</strong> para voltar ao texto original.</li>
+  <li><strong>Saiu do Vim?</strong> Depois de <code>:q</code>, <code>:wq</code> ou <code>ZZ</code>, a janela avisa que você saiu. Clique em <strong>Reiniciar</strong> para abrir de novo.</li>
+</ol>
+
+<div class="tip">
+<strong>No celular</strong>
+<p>Toque na janela para abrir o teclado virtual. Como ele não tem <kbd>Esc</kbd>, use o botão <strong>Esc</strong> na barra de título do simulador. Comandos com <kbd>Ctrl</kbd> geralmente não funcionam em teclados virtuais.</p>
+</div>
+
+<div class="warning">
+<strong>Atalhos que o navegador não entrega</strong>
+<p>Alguns atalhos pertencem ao navegador e nunca chegam à página: <kbd>Ctrl</kbd>+<kbd>W</kbd> fecha a aba, <kbd>Ctrl</kbd>+<kbd>T</kbd> abre outra e <kbd>Ctrl</kbd>+<kbd>N</kbd> abre uma janela. Cuidado com o <kbd>Ctrl</kbd>+<kbd>W</kbd>, que no Vim apaga uma palavra no modo de inserção. Se o seu navegador recarregar a página no <kbd>Ctrl</kbd>+<kbd>R</kbd> (refazer), use <code>:redo</code>.</p>
+</div>
+
+<hr>
+
+<h2>Campo livre</h2>
+<p>Use esta janela para testar o que quiser. Ela vem com números de linha ligados e um texto para brincar.</p>
+
+<div class="vimtry" data-file="praticar.txt" data-height="16" data-set="number">
+<pre class="vim-inicial">O Vim é um editor modal.
+No modo normal, as teclas são comandos.
+No modo de inserção, elas viram texto.
+
+Experimente:
+  dd   apaga esta linha
+  yyp  duplica a linha
+  u    desfaz
+  :%s/Vim/VIM/g  troca todas as ocorrências
+
+def soma(a, b):
+    return (a + b)
+
+nome = "Ana Maria"</pre>
+<p class="try-task"><strong>Treino livre:</strong> não há missão aqui. Experimente os comandos das aulas e use <strong>Reiniciar</strong> quando quiser recomeçar.</p>
+</div>
+
+<hr>
+
+<h2>O que o simulador faz e o que não faz</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Faz igual ao Vim</th><th>Não faz (use o Vim real)</th></tr>
+<tr><td>Movimentos: <code>h j k l w b e 0 ^ $ gg G f t % { }</code> e outros</td><td>Abrir outros arquivos, buffers, janelas divididas e abas</td></tr>
+<tr><td>Operadores <code>d c y &gt; &lt;</code>, contagens e objetos de texto (<code>iw</code>, <code>i"</code>, <code>ip</code>…)</td><td>Comandos do shell: <code>:!</code> e <code>:r !</code></td></tr>
+<tr><td>Inserção, substituição (<code>R</code>) e os três modos visuais</td><td>A ajuda interna <code>:help</code></td></tr>
+<tr><td>Desfazer, refazer, <code>.</code>, macros (<code>q</code> e <code>@</code>), marcas e registradores</td><td>Vimscript, <code>:map</code>, <code>autocmd</code> e plugins</td></tr>
+<tr><td>Busca com <code>/ ? n N * #</code> e expressões regulares do Vim</td><td>Cores de sintaxe, dobras e autocompletar</td></tr>
+<tr><td><code>:w :q :wq :x :s :g :norm :sort :set</code> e outros comandos Ex</td><td>Área de transferência do sistema e a flag <code>c</code> do <code>:s</code></td></tr>
+<tr><td>Mensagens do Vim em português, como <code>E37</code>, <code>E486</code> e <code>3 linhas a menos</code></td><td>Arquivo de troca (<em>swap</em>), sessões e <code>.vimrc</code></td></tr>
+</table>
+</div>
+
+<p>Ele imita o Vim aberto com a configuração padrão (<code>defaults.vim</code>): mostra o comando sendo digitado e a régua no rodapé. Os resultados foram conferidos, caso a caso, com o Vim 9.1 real. As diferenças conhecidas: o arquivo é sempre um só e não há cores de sintaxe.</p>
+
+<hr>
+
+<h2>Trilha de 10 missões</h2>
+<p>Cada missão usa um comando do Nível 1. Faça na ordem; se travar, abra "Ver uma solução", mas tente antes. Clique na janela antes de digitar.</p>
+
+<h3>Missão 1: apagar uma letra</h3>
+<div class="vimtry" data-file="m1.txt" data-col="6">
+<pre class="vim-inicial">O Vimm é rápido.</pre>
+<pre class="vim-meta">O Vim é rápido.</pre>
+<p class="try-task">O cursor está sobre o <code>m</code> sobrando. Apague-o.</p>
+</div>
+<details><summary>Ver uma solução</summary><p><kbd>x</kbd> apaga o caractere sob o cursor. Veja <a href="apagar.html">Apagar</a>.</p></details>
+
+<h3>Missão 2: inserir uma palavra</h3>
+<div class="vimtry" data-file="m2.txt" data-col="10">
+<pre class="vim-inicial">Eu gosto Vim.</pre>
+<pre class="vim-meta">Eu gosto do Vim.</pre>
+<p class="try-task">O cursor está no <code>V</code>. Escreva "do " antes dele.</p>
+</div>
+<details><summary>Ver uma solução</summary><p><kbd>i</kbd>, digite <code>do </code> (com o espaço) e <kbd>Esc</kbd>. Veja <a href="inserir.html">Inserir Texto</a>.</p></details>
+
+<h3>Missão 3: acrescentar no fim da linha</h3>
+<div class="vimtry" data-file="m3.txt">
+<pre class="vim-inicial">Lista de tarefas</pre>
+<pre class="vim-meta">Lista de tarefas:</pre>
+<p class="try-task">Coloque dois-pontos no fim da linha, sem andar com o cursor até lá.</p>
+</div>
+<details><summary>Ver uma solução</summary><p><kbd>A</kbd> (maiúsculo) começa a escrever no fim da linha: <kbd>A</kbd>, <kbd>:</kbd>, <kbd>Esc</kbd>.</p></details>
+
+<h3>Missão 4: abrir uma linha nova</h3>
+<div class="vimtry" data-file="m4.txt" data-line="2">
+<pre class="vim-inicial">pão
+leite</pre>
+<pre class="vim-meta">pão
+leite
+ovos</pre>
+<p class="try-task">O cursor está em "leite". Crie uma linha abaixo com "ovos".</p>
+</div>
+<details><summary>Ver uma solução</summary><p><kbd>o</kbd> abre uma linha abaixo e já entra no modo de inserção: <kbd>o</kbd>, <code>ovos</code>, <kbd>Esc</kbd>.</p></details>
+
+<h3>Missão 5: apagar uma linha</h3>
+<div class="vimtry" data-file="m5.txt" data-line="2">
+<pre class="vim-inicial">um
+ERRO
+dois</pre>
+<pre class="vim-meta">um
+dois</pre>
+<p class="try-task">Remova a linha "ERRO".</p>
+</div>
+<details><summary>Ver uma solução</summary><p><kbd>d</kbd><kbd>d</kbd> apaga a linha do cursor.</p></details>
+
+<h3>Missão 6: apagar uma palavra</h3>
+<div class="vimtry" data-file="m6.txt" data-col="8">
+<pre class="vim-inicial">O gato muito preto</pre>
+<pre class="vim-meta">O gato preto</pre>
+<p class="try-task">O cursor está no começo de "muito". Apague a palavra e o espaço depois dela, com duas teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary><p><kbd>d</kbd><kbd>w</kbd>: apagar (<em>delete</em>) até a próxima palavra (<em>word</em>).</p></details>
+
+<h3>Missão 7: trocar uma palavra</h3>
+<div class="vimtry" data-file="m7.txt" data-col="9">
+<pre class="vim-inicial">O céu é verde.</pre>
+<pre class="vim-meta">O céu é azul.</pre>
+<p class="try-task">O cursor está em "verde". Troque a palavra por "azul".</p>
+</div>
+<details><summary>Ver uma solução</summary><p><kbd>c</kbd><kbd>w</kbd> apaga a palavra e já entra no modo de inserção: <kbd>c</kbd><kbd>w</kbd>, <code>azul</code>, <kbd>Esc</kbd>. Veja <a href="operadores.html">Operadores</a>.</p></details>
+
+<h3>Missão 8: duplicar uma linha</h3>
+<div class="vimtry" data-file="m8.txt">
+<pre class="vim-inicial">item</pre>
+<pre class="vim-meta">item
+item</pre>
+<p class="try-task">Faça uma cópia da linha logo abaixo dela.</p>
+</div>
+<details><summary>Ver uma solução</summary><p><kbd>y</kbd><kbd>y</kbd> copia a linha (<em>yank</em>) e <kbd>p</kbd> cola abaixo (<em>put</em>). Veja <a href="copiar-colar.html">Copiar e Colar</a>.</p></details>
+
+<h3>Missão 9: substituir em todo o arquivo</h3>
+<div class="vimtry" data-file="m9.txt">
+<pre class="vim-inicial">gato gato
+gato</pre>
+<pre class="vim-meta">cão cão
+cão</pre>
+<p class="try-task">Troque todos os "gato" por "cão" com um único comando.</p>
+</div>
+<details><summary>Ver uma solução</summary><p><code>:%s/gato/cão/g</code> e <kbd>Enter</kbd>. O <code>%</code> é o arquivo inteiro e o <code>g</code>, todas as ocorrências de cada linha. Veja <a href="substituir.html">Substituir</a>.</p></details>
+
+<h3>Missão 10: corrigir e salvar</h3>
+<div class="vimtry" data-file="m10.txt" data-col="5" data-save="1">
+<pre class="vim-inicial">Versao 1</pre>
+<pre class="vim-meta">Versão 1</pre>
+<p class="try-task">O cursor está no <code>a</code> sem acento. Troque essa letra por <code>ã</code> e salve o arquivo.</p>
+</div>
+<details><summary>Ver uma solução</summary><p><kbd>r</kbd> seguido de uma letra troca só o caractere sob o cursor: <kbd>r</kbd>, <kbd>ã</kbd>. Depois <code>:w</code> e <kbd>Enter</kbd>. Veja <a href="salvar.html">Salvar e Sair</a>.</p></details>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Digito e nada acontece</strong>
+<p><strong>O que aconteceu:</strong> a janela não está com o foco. As teclas estão indo para a página, não para o Vim.</p>
+<p><strong>Como resolver:</strong> clique dentro da janela escura. A borda fica verde quando ela está pronta.</p>
+</div>
+
+<div class="cenario">
+<strong>A página rolou quando apertei espaço ou as setas</strong>
+<p><strong>O que aconteceu:</strong> a mesma causa: sem foco, o navegador usa essas teclas para rolar. Clique na janela e tente de novo.</p>
+</div>
+
+<div class="cenario">
+<strong>A missão não fica cumprida, mas o texto parece certo</strong>
+<p><strong>O que aconteceu:</strong> a comparação é exata. Um espaço sobrando no fim de uma linha, uma linha vazia a mais ou uma letra sem acento já fazem diferença.</p>
+<p><strong>Como resolver:</strong> confira espaços com <code>:set list</code> (o fim de cada linha vira <code>$</code>). Nas missões que pedem para salvar, o arquivo também precisa estar gravado com <code>:w</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>O rodapé mostra "(simulador) …"</strong>
+<p><strong>O que aconteceu:</strong> você usou um recurso que só existe no Vim real, como <code>:help</code> ou <code>:!</code>. A mensagem diz o que falta.</p>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">1. No celular, como você aperta <kbd>Esc</kbd> no simulador?</p>
+<label><input type="radio" name="q1"> Segurando a tecla de espaço.</label>
+<label><input type="radio" name="q1"> Não é possível.</label>
+<label><input type="radio" name="q1"> Com o botão Esc na barra de título da janela.</label>
+<label><input type="radio" name="q1"> Tocando duas vezes no texto.</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">2. Qual destas coisas o simulador <strong>não</strong> faz?</p>
+<label><input type="radio" name="q2"> Abrir a ajuda com <code>:help</code></label>
+<label><input type="radio" name="q2"> Desfazer com <code>u</code></label>
+<label><input type="radio" name="q2"> Gravar e rodar macros</label>
+<label><input type="radio" name="q2"> Substituir com <code>:%s</code></label>
+</div>
+
+<div class="exercise">
+<h3>3. Ver os espaços</h3>
+<p>Complete o comando que mostra o fim de cada linha como <code>$</code>:</p>
+<div class="ex-code">:set <input data-answer="list" aria-label="opção"></div>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Clique na janela antes de digitar; a borda verde indica o foco.</li>
+  <li>No celular, use o botão <strong>Esc</strong>; <strong>Reiniciar</strong> volta ao texto original.</li>
+  <li>O simulador segue o Vim 9.1 real, mas tem um arquivo só e não roda shell, ajuda nem plugins.</li>
+  <li>Termine a trilha de 10 missões antes de seguir para o Nível 2.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

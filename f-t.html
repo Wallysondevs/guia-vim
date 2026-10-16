@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — pular para um caractere com f, F, t, T, ; e , | Guia Vim</title>
+<meta name="description" content="Aprenda os movimentos f, F, t e T do Vim para pular direto a um caractere da linha, repetir com ; e , e combinar com verbos: df, dt, ct, yt. Com demonstrações e Vim simulado.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Pular para um Caractere (f, t)</span></h1>
+
+<p class="intro">Para ir até a vírgula no meio de uma linha, apertar <code>l</code> vinte vezes é lento, e até <code>w</code> pode parar em lugares demais. Com <code>f,</code> o cursor pula direto para a próxima vírgula. São os movimentos mais precisos dentro de uma linha, e combinados com um verbo eles editam "até tal caractere".</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Pular <strong>para</strong> um caractere com <code>f</code> e <strong>até antes</strong> dele com <code>t</code>.</li>
+  <li>Ir para trás com <code>F</code> e <code>T</code>.</li>
+  <li>Repetir o pulo com <code>;</code> e voltar com <code>,</code>.</li>
+  <li>Usar uma contagem: <code>3f,</code> vai à terceira vírgula.</li>
+  <li>Combinar com verbos: <code>df,</code>, <code>dt)</code>, <code>ct"</code>.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Estes movimentos funcionam no modo normal e <strong>só na linha atual</strong>. Para ir a outra linha, use a <a href="busca.html">busca com /</a>.</p>
+</div>
+
+<hr>
+
+<h2>f: pular para o caractere</h2>
+<p>O <code>f</code> (de <em>find</em>, "encontrar") espera mais uma tecla: o caractere que você quer. O cursor pula para a <strong>próxima</strong> ocorrência dele na linha, à direita.</p>
+
+<dl class="anatomy">
+  <dt>f</dt><dd>"Encontre, para a direita, nesta linha…"</dd>
+  <dt>(</dt><dd>…este caractere. Pode ser qualquer um: letra, número, símbolo, espaço.</dd>
+</dl>
+
+<div class="vimdemo" data-file="ola.py" data-keys="f(">
+<pre class="vim-inicial">print("Olá, mundo") # saudação inicial</pre>
+</div>
+
+<p>O cursor foi da coluna 1 direto para o <code>(</code>, na coluna 6. Se o caractere não existir à direita, nada acontece e o cursor fica onde estava.</p>
+
+<h3>F: para a esquerda</h3>
+<p>O <code>F</code> maiúsculo faz o mesmo para a <strong>esquerda</strong>. Aqui o cursor está no fim da linha, e <code>Fa</code> volta até o "a" mais próximo:</p>
+
+<div class="vimdemo" data-file="ola.py" data-keys="$Fa">
+<pre class="vim-inicial">print("Olá, mundo") # saudação inicial</pre>
+</div>
+
+<hr>
+
+<h2>t: parar logo antes</h2>
+<p>O <code>t</code> (de <em>till</em>, "até") também procura o caractere, mas para <strong>uma posição antes</strong> dele. Parece um detalhe, mas faz toda a diferença com os verbos, como você vai ver.</p>
+
+<dl class="anatomy">
+  <dt>t</dt><dd>"Vá até, sem incluir…"</dd>
+  <dt>m</dt><dd>…o próximo "m". O cursor para no caractere anterior.</dd>
+</dl>
+
+<div class="vimdemo" data-file="ola.py" data-keys="tm">
+<pre class="vim-inicial">print("Olá, mundo") # saudação inicial</pre>
+</div>
+
+<p>O "m" de "mundo" está na coluna 13; o cursor parou na 12, o espaço antes dele. O <code>T</code> maiúsculo faz o mesmo para a esquerda, parando logo <strong>depois</strong> do caractere.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Movimento</th><th>Direção</th><th>Para</th></tr>
+<tr><td><code>f</code>x</td><td>Direita</td><td><strong>Em cima</strong> do x</td></tr>
+<tr><td><code>t</code>x</td><td>Direita</td><td>Logo <strong>antes</strong> do x</td></tr>
+<tr><td><code>F</code>x</td><td>Esquerda</td><td>Em cima do x</td></tr>
+<tr><td><code>T</code>x</td><td>Esquerda</td><td>Logo <strong>depois</strong> do x</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>; e , : repetir o pulo</h2>
+<p>Depois de um <code>f</code>, <code>t</code>, <code>F</code> ou <code>T</code>, o Vim lembra qual foi. O <code>;</code> repete o mesmo pulo na mesma direção, e a <code>,</code> repete na direção contrária.</p>
+
+<dl class="anatomy">
+  <dt>fo</dt><dd>Pula para o próximo "o".</dd>
+  <dt>;</dt><dd>Repete: o "o" seguinte.</dd>
+</dl>
+
+<div class="vimdemo" data-file="ola.py" data-keys="fo;">
+<pre class="vim-inicial">print("Olá, mundo") # saudação inicial</pre>
+</div>
+
+<p>O <code>fo</code> parou no "o" de "mundo" (coluna 17). O <code>"O"</code> maiúsculo de "Olá" foi ignorado, porque <code>f</code> diferencia maiúsculas. Depois, o <code>;</code> foi ao próximo "o", em "saudação" (coluna 30). Uma <code>,</code> agora voltaria para a coluna 17.</p>
+
+<h3>Contagem: 2fo</h3>
+<p>Um número antes pula direto para a enésima ocorrência. <code>2fo</code> chega no mesmo lugar que <code>fo;</code>:</p>
+
+<div class="vimdemo" data-file="ola.py" data-keys="2fo">
+<pre class="vim-inicial">print("Olá, mundo") # saudação inicial</pre>
+</div>
+
+<div class="vimtry" data-file="csv.txt">
+<pre class="vim-inicial">nome,idade,cidade,estado,pais</pre>
+<pre class="vim-meta">nome,idade,cidade,pais</pre>
+<p class="try-task"><strong>Missão:</strong> apague o campo "estado," (a palavra e a vírgula depois dela). Chegue até a terceira vírgula com <code>3f,</code> (ou <code>f,;;</code>), avance uma letra com <code>l</code> e apague com <code>df,</code>.</p>
+</div>
+
+<hr>
+
+<h2>Com verbos: df, dt, ct, yt</h2>
+<p>Como todo movimento, <code>f</code> e <code>t</code> podem vir depois de um verbo. É aqui que a diferença entre eles aparece:</p>
+
+<dl class="anatomy">
+  <dt>d</dt><dd>Verbo: apagar.</dd>
+  <dt>t</dt><dd>Movimento: até antes de…</dd>
+  <dt>(</dt><dd>…o parêntese. O parêntese <strong>fica</strong>.</dd>
+</dl>
+
+<div class="vimdemo" data-file="ola.py" data-keys="dt(">
+<pre class="vim-inicial">print("Olá, mundo") # saudação inicial</pre>
+</div>
+
+<p>Com <code>df(</code>, o parêntese também iria embora, porque <code>f</code> inclui o caractere encontrado:</p>
+
+<div class="vimdemo" data-file="ola.py" data-keys="df(">
+<pre class="vim-inicial">print("Olá, mundo") # saudação inicial</pre>
+</div>
+
+<h3>Apagar até o comentário: dt#</h3>
+<div class="vimdemo" data-file="ola.py" data-keys="dt#">
+<pre class="vim-inicial">print("Olá, mundo") # saudação inicial</pre>
+</div>
+
+<h3>Trocar o texto entre aspas: ct"</h3>
+<p>Com o cursor logo depois da primeira aspa, <code>ct"</code> troca tudo até a próxima aspa, sem tocar nela. Ótimo para mudar o conteúdo de uma string:</p>
+
+<div class="vimdemo" data-file="ola.py" data-keys="f&quot;lct&quot;Tchau&lt;Esc&gt;">
+<pre class="vim-inicial">print("Olá, mundo") # saudação inicial</pre>
+</div>
+
+<p>Passo a passo: <code>f"</code> foi até a primeira aspa, <code>l</code> andou uma casa para dentro, <code>ct"</code> apagou "Olá, mundo" e abriu o modo de inserção, e digitamos "Tchau" antes de <kbd>Esc</kbd>. Existe um atalho ainda melhor, <code>ci"</code>, que funciona com o cursor em qualquer lugar dentro das aspas; veja em <a href="objetos.html">Objetos de Texto</a>.</p>
+
+<div class="vimtry" data-file="ola.py">
+<pre class="vim-inicial">print("Olá, mundo") # saudação inicial</pre>
+<pre class="vim-meta">print("Olá, mundo")</pre>
+<p class="try-task"><strong>Missão:</strong> apague o comentário e o espaço antes dele. Vá até o <code>#</code> com <code>f#</code>, volte uma casa com <code>h</code> e apague até o fim da linha com <code>D</code>.</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de chegar a um ponto da linha</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th><th>Quando usar</th></tr>
+<tr><td><code>lllll</code></td><td>Anda de um em um</td><td>Só para 1 ou 2 casas.</td></tr>
+<tr><td><code>w</code> / <code>e</code></td><td>Anda de palavra em palavra</td><td>O alvo é o começo ou o fim de uma palavra.</td></tr>
+<tr><td><code>f</code>x</td><td>Pula direto para um caractere</td><td>O alvo tem um caractere fácil de ver (<code>,</code> <code>(</code> <code>=</code> <code>"</code>).</td></tr>
+<tr><td><code>/</code>texto</td><td>Busca no arquivo</td><td>O alvo está em outra linha ou é um trecho maior.</td></tr>
+<tr><td><code>0</code> / <code>$</code></td><td>Começo / fim da linha</td><td>Veja <a href="linhas.html">Início, Fim e Linhas</a>.</td></tr>
+</table>
+</div>
+
+<div class="tip">
+<strong>Dica: escolha um caractere raro</strong>
+<p>Para chegar a "mundo", <code>fm</code> é melhor que <code>fo</code>: há menos "m" que "o" na linha, então você chega com menos repetições de <code>;</code>.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Apertei f e a letra e nada aconteceu</strong>
+<p><strong>O que aconteceu:</strong> o caractere não existe à direita do cursor nesta linha. O <code>f</code> não procura em outras linhas nem para trás.</p>
+<p><strong>Como resolver:</strong> use <code>F</code> para procurar à esquerda, ou <code>/</code> para buscar em outras linhas.</p>
+</div>
+
+<div class="cenario">
+<strong>O ; parou de andar com t</strong>
+<p><strong>O que aconteceu:</strong> em versões muito antigas do Vim, depois de um <code>t</code> o cursor já está colado no caractere, e o <code>;</code> o encontrava de novo sem sair do lugar. O Vim atual pula a ocorrência que está logo à frente.</p>
+<p><strong>Como resolver:</strong> no Vim 9, o <code>;</code> funciona normalmente com <code>t</code>. Se estiver num Vim antigo, use <code>f</code> e ajuste com <code>h</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>dt) apagou mais do que eu queria</strong>
+<p><strong>O que aconteceu:</strong> o <code>t</code> procura a <strong>próxima</strong> ocorrência. Se havia um <code>)</code> antes do que você pensava, o apagamento parou nele.</p>
+<p><strong>Como resolver:</strong> <code>u</code> para desfazer e use uma contagem: <code>d2t)</code> vai até antes do segundo <code>)</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>f com letra acentuada não funcionou</strong>
+<p><strong>O que aconteceu:</strong> o caractere precisa ser exatamente o mesmo: <code>fa</code> não encontra "á".</p>
+<p><strong>Como resolver:</strong> digite o caractere acentuado depois do <code>f</code> (<code>fá</code>). Se o teclado tiver acentos "mortos", aperte o acento e a letra normalmente.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>f</code>x / <code>F</code>x</td><td>Pula para o próximo / anterior x na linha</td></tr>
+<tr><td><code>t</code>x / <code>T</code>x</td><td>Pula até antes do próximo x / até depois do anterior</td></tr>
+<tr><td><code>;</code></td><td>Repete o último f/t/F/T</td></tr>
+<tr><td><code>,</code></td><td>Repete na direção contrária</td></tr>
+<tr><td><code>3f</code>x</td><td>Pula para o terceiro x</td></tr>
+<tr><td><code>df</code>x</td><td>Apaga até o x, inclusive</td></tr>
+<tr><td><code>dt</code>x</td><td>Apaga até antes do x</td></tr>
+<tr><td><code>ct</code>x</td><td>Troca até antes do x</td></tr>
+<tr><td><code>yt</code>x</td><td>Copia até antes do x</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Até o igual</h3>
+<p>Quais teclas apagam do cursor até antes do primeiro <code>=</code> da linha?</p>
+<div class="ex-code"><input data-answer="dt=" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Repetir</h3>
+<p>Você usou <code>f,</code>. Qual tecla vai para a próxima vírgula?</p>
+<div class="ex-code"><input data-answer=";" aria-label="tecla"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Terceira ocorrência</h3>
+<p>Escreva o movimento que pula direto para o terceiro "x" à direita:</p>
+<div class="ex-code"><input data-answer="3fx" aria-label="movimento"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Na linha <code>valor = 42</code>, com o cursor no "v", o que <code>df=</code> deixa?</p>
+<label><input type="radio" name="q4"> <code>= 42</code></label>
+<label><input type="radio" name="q4"> <code> 42</code> (com um espaço antes)</label>
+<label><input type="radio" name="q4"> <code>valor</code></label>
+<label><input type="radio" name="q4"> <code>42</code></label>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">5. Qual a diferença entre <code>dt)</code> e <code>df)</code>?</p>
+<label><input type="radio" name="q5"> Nenhuma.</label>
+<label><input type="radio" name="q5"> <code>dt)</code> apaga para trás e <code>df)</code> para frente.</label>
+<label><input type="radio" name="q5"> <code>df)</code> apaga também o parêntese; <code>dt)</code> o mantém.</label>
+<label><input type="radio" name="q5"> <code>dt)</code> funciona em várias linhas.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>f</code>x pula para o x; <code>t</code>x para logo antes dele. Maiúsculas vão para a esquerda.</li>
+  <li><code>;</code> repete o pulo; <code>,</code> repete ao contrário.</li>
+  <li>Funcionam só na linha atual e aceitam contagem (<code>3f,</code>).</li>
+  <li>Com verbos: <code>df,</code> inclui o caractere, <code>dt,</code> não.</li>
+  <li><code>ct"</code> troca até a aspa; <code>dt#</code> apaga até o comentário.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

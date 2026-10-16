@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — quiz com 30 perguntas | Guia Vim</title>
+<meta name="description" content="Teste o que você aprendeu de Vim: 30 perguntas práticas, 10 por nível, com correção na hora e link para revisar cada assunto.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Quiz</span></h1>
+
+<p class="intro">Trinta perguntas práticas, dez de cada nível. A correção aparece assim que você escolhe uma opção, e cada pergunta tem um link para revisar o assunto. Algumas mostram uma tela do Vim: olhe onde está o cursor antes de responder.</p>
+
+<p>Acertos: <strong id="placar">0 de 30</strong></p>
+
+<div class="tip">
+<strong>Dica</strong>
+<p>Ficou em dúvida? Abra o <a href="simulador.html">Vim Simulado</a> em outra aba e teste antes de responder. É assim que se aprende Vim: digitando.</p>
+</div>
+
+<hr>
+
+<h2>Nível 1 · Iniciante</h2>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">1. Você abriu um arquivo, digitou algumas coisas e quer sair <strong>sem salvar</strong>. Já está no modo normal. O que digita?</p>
+<label><input type="radio" name="q1"> <code>:q</code></label>
+<label><input type="radio" name="q1"> <code>:q!</code></label>
+<label><input type="radio" name="q1"> <code>:wq</code></label>
+<label><input type="radio" name="q1"> <code>exit</code></label>
+</div>
+<p><small>Revise: <a href="abrir-sair.html">Abrir e Sair</a></small></p>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">2. O rodapé mostra <code>-- INSERÇÃO --</code> e você quer voltar a dar comandos. Qual tecla?</p>
+<label><input type="radio" name="q2"> <kbd>Enter</kbd></label>
+<label><input type="radio" name="q2"> <code>i</code></label>
+<label><input type="radio" name="q2"> <code>:</code></label>
+<label><input type="radio" name="q2"> <kbd>Esc</kbd></label>
+</div>
+<p><small>Revise: <a href="modos.html">Os Modos do Vim</a></small></p>
+
+<p>3. Veja a tela e responda abaixo:</p>
+<div class="vimdemo" data-file="q3.txt" data-col="3">
+<pre class="vim-inicial">O gato preto</pre>
+</div>
+<div class="mc" data-answer="1">
+<p class="mc-q">3. Com o cursor onde está, o que sobra depois de apertar <code>x</code>?</p>
+<label><input type="radio" name="q3"> <code>O ato preto</code></label>
+<label><input type="radio" name="q3"> <code>O gto preto</code></label>
+<label><input type="radio" name="q3"> <code>O gato</code></label>
+<label><input type="radio" name="q3"> <code>gato preto</code></label>
+</div>
+<p><small>Revise: <a href="apagar.html">Apagar</a></small></p>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">4. Qual tecla move o cursor uma linha para <strong>baixo</strong>?</p>
+<label><input type="radio" name="q4"> <code>k</code></label>
+<label><input type="radio" name="q4"> <code>l</code></label>
+<label><input type="radio" name="q4"> <code>j</code></label>
+<label><input type="radio" name="q4"> <code>h</code></label>
+</div>
+<p><small>Revise: <a href="mover.html">Mover o Cursor</a></small></p>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">5. O que <code>3dd</code> faz?</p>
+<label><input type="radio" name="q5"> Apaga 3 caracteres.</label>
+<label><input type="radio" name="q5"> Apaga 3 linhas, a partir da atual.</label>
+<label><input type="radio" name="q5"> Apaga a linha 3.</label>
+<label><input type="radio" name="q5"> Apaga até o fim do arquivo.</label>
+</div>
+<p><small>Revise: <a href="apagar.html">Apagar</a></small></p>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">6. Você apertou <code>u</code> vezes demais e desfez algo que queria manter. Como refazer?</p>
+<label><input type="radio" name="q6"> <code>U</code></label>
+<label><input type="radio" name="q6"> <code>r</code></label>
+<label><input type="radio" name="q6"> <code>:redo!</code></label>
+<label><input type="radio" name="q6"> <kbd>Ctrl</kbd>+<kbd>r</kbd></label>
+</div>
+<p><small>Revise: <a href="desfazer.html">Desfazer e Refazer</a></small></p>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">7. Você quer acrescentar um ponto e vírgula no <strong>fim</strong> da linha, com o cursor em qualquer lugar dela. Qual comando começa a inserção no lugar certo?</p>
+<label><input type="radio" name="q7"> <code>A</code></label>
+<label><input type="radio" name="q7"> <code>a</code></label>
+<label><input type="radio" name="q7"> <code>I</code></label>
+<label><input type="radio" name="q7"> <code>o</code></label>
+</div>
+<p><small>Revise: <a href="inserir.html">Inserir Texto</a></small></p>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">8. Você apertou <kbd>Ctrl</kbd>+<kbd>S</kbd> por hábito e agora nada que você digita aparece. O que aconteceu?</p>
+<label><input type="radio" name="q8"> O Vim travou e é preciso fechar o terminal.</label>
+<label><input type="radio" name="q8"> O arquivo foi salvo e o Vim está esperando confirmação.</label>
+<label><input type="radio" name="q8"> O terminal pausou a tela; <kbd>Ctrl</kbd>+<kbd>Q</kbd> libera.</label>
+<label><input type="radio" name="q8"> O Vim entrou no modo visual.</label>
+</div>
+<p><small>Revise: <a href="socorro.html">Estou Preso no Vim!</a></small></p>
+
+<p>9. Veja a tela e responda abaixo:</p>
+<div class="vimdemo" data-file="q9.txt" data-col="4">
+<pre class="vim-inicial">um dois três</pre>
+</div>
+<div class="mc" data-answer="2">
+<p class="mc-q">9. Onde o cursor fica depois de apertar <code>w</code>?</p>
+<label><input type="radio" name="q9"> No "s" de "dois".</label>
+<label><input type="radio" name="q9"> No "t" de "três".</label>
+<label><input type="radio" name="q9"> No "u" de "um".</label>
+<label><input type="radio" name="q9"> No fim da linha.</label>
+</div>
+<p><small>Revise: <a href="palavras.html">Pular Palavras</a></small></p>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">10. Ao digitar <code>:q</code>, o Vim responde <code>E37: Alterações não foram gravadas (adicione ! para forçar)</code>. Quais são as suas saídas?</p>
+<label><input type="radio" name="q10"> Só fechar o terminal.</label>
+<label><input type="radio" name="q10"> <code>:w</code> e depois <code>exit</code>.</label>
+<label><input type="radio" name="q10"> Apertar <kbd>Esc</kbd> três vezes.</label>
+<label><input type="radio" name="q10"> <code>:wq</code> para salvar e sair, ou <code>:q!</code> para sair sem salvar.</label>
+</div>
+<p><small>Revise: <a href="salvar.html">Salvar e Sair</a></small></p>
+
+<hr>
+
+<h2>Nível 2 · Intermediário</h2>
+
+<p>11. Veja a tela e responda abaixo:</p>
+<div class="vimdemo" data-file="q11.py" data-col="12">
+<pre class="vim-inicial">nome = "Ana Maria"</pre>
+</div>
+<div class="mc" data-answer="1">
+<p class="mc-q">11. O que acontece com <code>ci"</code>?</p>
+<label><input type="radio" name="q11"> Apaga <code>Ana Maria</code> (as aspas ficam) e entra no modo de inserção.</label>
+<label><input type="radio" name="q11"> Apaga só a palavra <code>Maria</code>.</label>
+<label><input type="radio" name="q11"> Apaga <code>"Ana Maria"</code> com as aspas.</label>
+<label><input type="radio" name="q11"> Copia o texto entre as aspas.</label>
+</div>
+<p><small>Revise: <a href="objetos.html">Objetos de Texto</a></small></p>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">12. Com o cursor no <strong>meio</strong> de uma palavra, qual a diferença entre <code>dw</code> e <code>daw</code>?</p>
+<label><input type="radio" name="q12"> Nenhuma; são sinônimos.</label>
+<label><input type="radio" name="q12"> <code>dw</code> apaga a linha; <code>daw</code> apaga a palavra.</label>
+<label><input type="radio" name="q12"> <code>dw</code> apaga do cursor até a próxima palavra; <code>daw</code> apaga a palavra inteira e um espaço.</label>
+<label><input type="radio" name="q12"> <code>daw</code> apaga todas as palavras iguais do arquivo.</label>
+</div>
+<p><small>Revise: <a href="objetos.html">Objetos de Texto</a></small></p>
+
+<p>13. Veja a tela e responda abaixo:</p>
+<div class="vimdemo" data-file="q13.txt">
+<pre class="vim-inicial">item item
+item
+item</pre>
+</div>
+<div class="mc" data-answer="2">
+<p class="mc-q">13. Qual é o resultado de <code>:%s/item/x/</code> (sem o <code>g</code> no fim)?</p>
+<label><input type="radio" name="q13"> Só a primeira linha muda: <code>x item</code>.</label>
+<label><input type="radio" name="q13"> <code>x item</code>, <code>x</code>, <code>x</code>: o primeiro "item" de cada linha.</label>
+<label><input type="radio" name="q13"> <code>x x</code>, <code>x</code>, <code>x</code>: todos.</label>
+<label><input type="radio" name="q13"> Nada; sem <code>g</code> o comando não faz nada.</label>
+</div>
+<p><small>Revise: <a href="substituir.html">Substituir</a></small></p>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">14. Você copiou uma linha com <code>yy</code> e depois apagou outra com <code>dd</code>. Qual comando cola a linha <strong>copiada</strong>?</p>
+<label><input type="radio" name="q14"> <code>p</code></label>
+<label><input type="radio" name="q14"> <code>"1p</code></label>
+<label><input type="radio" name="q14"> <code>"-p</code></label>
+<label><input type="radio" name="q14"> <code>"0p</code></label>
+</div>
+<p><small>Revise: <a href="registradores.html">Registradores</a></small></p>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">15. Como pôr <code># </code> no começo de três linhas de uma vez?</p>
+<label><input type="radio" name="q15"> <kbd>Ctrl</kbd>+<kbd>v</kbd> <code>jj</code> <code>I# </code> <kbd>Esc</kbd></label>
+<label><input type="radio" name="q15"> <code>v</code> <code>jj</code> <code>i# </code> <kbd>Esc</kbd></label>
+<label><input type="radio" name="q15"> <code>3I# </code> <kbd>Esc</kbd></label>
+<label><input type="radio" name="q15"> <code>:3s/#//</code></label>
+</div>
+<p><small>Revise: <a href="bloco.html">Modo Visual de Bloco</a></small></p>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">16. O que a tecla <code>*</code> faz no modo normal?</p>
+<label><input type="radio" name="q16"> Repete o último comando.</label>
+<label><input type="radio" name="q16"> Seleciona a linha inteira.</label>
+<label><input type="radio" name="q16"> Busca a próxima ocorrência da palavra sob o cursor.</label>
+<label><input type="radio" name="q16"> Multiplica o número sob o cursor.</label>
+</div>
+<p><small>Revise: <a href="busca.html">Buscar</a></small></p>
+
+<p>17. Veja a tela e responda abaixo:</p>
+<div class="vimdemo" data-file="q17.js" data-col="3">
+<pre class="vim-inicial">f(x, y)</pre>
+</div>
+<div class="mc" data-answer="2">
+<p class="mc-q">17. Com o cursor no <code>x</code>, qual é o resultado de <code>dt)</code>?</p>
+<label><input type="radio" name="q17"> <code>f(</code></label>
+<label><input type="radio" name="q17"> <code>f()</code></label>
+<label><input type="radio" name="q17"> <code>f(x)</code></label>
+<label><input type="radio" name="q17"> <code>f(, y)</code></label>
+</div>
+<p><small>Revise: <a href="f-t.html">Pular para um Caractere</a></small></p>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">18. Você buscou <code>/total</code>, trocou a palavra com <code>cwsoma</code> <kbd>Esc</kbd> e quer trocar a próxima ocorrência do mesmo jeito. O que digita?</p>
+<label><input type="radio" name="q18"> <code>cwsoma</code> <kbd>Esc</kbd> de novo, sem mover o cursor.</label>
+<label><input type="radio" name="q18"> <code>u</code> e <code>n</code></label>
+<label><input type="radio" name="q18"> <code>:s</code></label>
+<label><input type="radio" name="q18"> <code>n</code> e depois <code>.</code></label>
+</div>
+<p><small>Revise: <a href="contadores.html">Números e Repetição</a></small></p>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">19. Com <code>:set ignorecase smartcase</code>, a busca <code>/Erro</code> acha "erro" em minúsculas?</p>
+<label><input type="radio" name="q19"> Não: como o padrão tem maiúscula, a busca passa a diferenciar.</label>
+<label><input type="radio" name="q19"> Sim, porque <code>ignorecase</code> está ligado.</label>
+<label><input type="radio" name="q19"> Só se a palavra estiver no começo da linha.</label>
+<label><input type="radio" name="q19"> Só com <code>:noh</code>.</label>
+</div>
+<p><small>Revise: <a href="busca.html">Buscar</a></small></p>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">20. Para que serve <code>"_dd</code>?</p>
+<label><input type="radio" name="q20"> Apaga a linha e a guarda na área de transferência.</label>
+<label><input type="radio" name="q20"> Apaga todas as linhas vazias.</label>
+<label><input type="radio" name="q20"> Apaga a linha sem guardá-la em nenhum registrador.</label>
+<label><input type="radio" name="q20"> Apaga a linha e cola no fim do arquivo.</label>
+</div>
+<p><small>Revise: <a href="registradores.html">Registradores</a></small></p>
+
+<hr>
+
+<h2>Nível 3 · Avançado</h2>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">21. Você gravou uma macro com <code>qa</code> … <code>q</code> que edita uma linha e desce para a próxima. Como aplicá-la a mais 10 linhas?</p>
+<label><input type="radio" name="q21"> <code>:10a</code></label>
+<label><input type="radio" name="q21"> <code>10@a</code></label>
+<label><input type="radio" name="q21"> <code>qa10</code></label>
+<label><input type="radio" name="q21"> <code>@10</code></label>
+</div>
+<p><small>Revise: <a href="macros.html">Macros</a></small></p>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">22. Qual comando apaga todas as linhas que contêm "DEBUG"?</p>
+<label><input type="radio" name="q22"> <code>:%s/DEBUG//g</code></label>
+<label><input type="radio" name="q22"> <code>:d/DEBUG/</code></label>
+<label><input type="radio" name="q22"> <code>/DEBUG</code> e depois <code>dG</code></label>
+<label><input type="radio" name="q22"> <code>:g/DEBUG/d</code></label>
+</div>
+<p><small>Revise: <a href="ex-avancado.html">Comandos Ex</a></small></p>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">23. O que faz <code>:v/^#/d</code>?</p>
+<label><input type="radio" name="q23"> Apaga as linhas que <strong>não</strong> começam com <code>#</code>.</label>
+<label><input type="radio" name="q23"> Apaga as linhas que começam com <code>#</code>.</label>
+<label><input type="radio" name="q23"> Tira o <code>#</code> do começo das linhas.</label>
+<label><input type="radio" name="q23"> Mostra as linhas que começam com <code>#</code>.</label>
+</div>
+<p><small>Revise: <a href="ex-avancado.html">Comandos Ex</a></small></p>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">24. Por que preferir <code>nnoremap</code> a <code>nmap</code> no <code>.vimrc</code>?</p>
+<label><input type="radio" name="q24"> Porque <code>nmap</code> só funciona no Neovim.</label>
+<label><input type="radio" name="q24"> Porque <code>nnoremap</code> vale em todos os modos.</label>
+<label><input type="radio" name="q24"> Porque <code>nnoremap</code> não é recursivo: o lado direito usa o sentido original das teclas, mesmo que elas tenham outros mapeamentos.</label>
+<label><input type="radio" name="q24"> Porque <code>nmap</code> apaga os mapeamentos padrão.</label>
+</div>
+<p><small>Revise: <a href="mapeamentos.html">Mapeamentos</a></small></p>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">25. Você editou <code>/etc/hosts</code> sem <code>sudo</code> e o <code>:w</code> deu <code>E212</code>. Como salvar sem perder o que digitou?</p>
+<label><input type="radio" name="q25"> <code>:w!</code></label>
+<label><input type="radio" name="q25"> <code>:w !sudo tee %</code></label>
+<label><input type="radio" name="q25"> <code>:sudo w</code></label>
+<label><input type="radio" name="q25"> <code>:x!</code></label>
+</div>
+<p><small>Revise: <a href="salvar.html">Salvar e Sair</a></small></p>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">26. Para que serve colocar os autocomandos dentro de um <code>augroup</code> que começa com <code>autocmd!</code>?</p>
+<label><input type="radio" name="q26"> Para eles rodarem mais rápido.</label>
+<label><input type="radio" name="q26"> Para eles valerem só no Neovim.</label>
+<label><input type="radio" name="q26"> Para desligá-los temporariamente.</label>
+<label><input type="radio" name="q26"> Para não duplicá-los a cada vez que o <code>.vimrc</code> é recarregado.</label>
+</div>
+<p><small>Revise: <a href="autocmd.html">Autocomandos</a></small></p>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">27. O que faz <code>:%!sort</code>?</p>
+<label><input type="radio" name="q27"> Passa o arquivo inteiro pelo comando <code>sort</code> do shell e põe o resultado no lugar.</label>
+<label><input type="radio" name="q27"> Ordena só a linha atual.</label>
+<label><input type="radio" name="q27"> Mostra o arquivo ordenado sem alterá-lo.</label>
+<label><input type="radio" name="q27"> Salva uma cópia ordenada em outro arquivo.</label>
+</div>
+<p><small>Revise: <a href="shell.html">Integração com o Shell</a></small></p>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">28. No <code>vimdiff</code>, qual a diferença entre <code>do</code> e <code>dp</code>?</p>
+<label><input type="radio" name="q28"> <code>do</code> apaga a diferença; <code>dp</code> a copia.</label>
+<label><input type="radio" name="q28"> Os dois fazem a mesma coisa.</label>
+<label><input type="radio" name="q28"> <code>do</code> traz a diferença da outra janela para esta; <code>dp</code> leva a desta para a outra.</label>
+<label><input type="radio" name="q28"> <code>do</code> abre o arquivo; <code>dp</code> fecha.</label>
+</div>
+<p><small>Revise: <a href="diff.html">vimdiff</a></small></p>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">29. Com <code>set undofile</code> no <code>.vimrc</code>, o que muda?</p>
+<label><input type="radio" name="q29"> O Vim salva o arquivo automaticamente.</label>
+<label><input type="radio" name="q29"> O histórico de desfazer é guardado em disco: dá para desfazer mesmo depois de fechar e reabrir o arquivo.</label>
+<label><input type="radio" name="q29"> O <code>u</code> passa a desfazer só uma vez.</label>
+<label><input type="radio" name="q29"> O Vim cria uma cópia <code>.bak</code> a cada gravação.</label>
+</div>
+<p><small>Revise: <a href="sessoes.html">Sessões e Undo Persistente</a></small></p>
+
+<p>30. Veja a tela e responda abaixo:</p>
+<div class="vimdemo" data-file="q30.txt">
+<pre class="vim-inicial">a 1
+b 2
+c 3</pre>
+</div>
+<div class="mc" data-answer="4">
+<p class="mc-q">30. Qual é o resultado de <code>:%norm A;</code>?</p>
+<label><input type="radio" name="q30"> Só a primeira linha ganha <code>;</code> no fim.</label>
+<label><input type="radio" name="q30"> Cada linha ganha <code>A;</code> no começo.</label>
+<label><input type="radio" name="q30"> Aparece o erro E492.</label>
+<label><input type="radio" name="q30"> Todas as linhas terminam com <code>;</code>: <code>a 1;</code>, <code>b 2;</code>, <code>c 3;</code>.</label>
+</div>
+<p><small>Revise: <a href="ex-avancado.html">Comandos Ex</a></small></p>
+
+<hr>
+
+<p>Acertou menos de 20? Volte às aulas dos links e faça as missões de novo. Acertou 25 ou mais? Tente os <a href="projeto-golf.html">Desafios Vim Golf</a>.</p>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

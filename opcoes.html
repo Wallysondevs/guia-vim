@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — opções úteis com :set | Guia Vim</title>
+<meta name="description" content="Como ligar, desligar, alternar e consultar opções do Vim com :set: number, relativenumber, list, hlsearch, ignorecase, smartcase, shiftwidth, expandtab, com demonstrações e Vim simulado.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Opções Úteis (:set)</span></h1>
+
+<p class="intro">Quase tudo no comportamento do Vim é uma <strong>opção</strong>: mostrar números de linha, diferenciar maiúsculas na busca, o tamanho da indentação… Você muda qualquer uma delas na hora com <code>:set</code>, sem reiniciar nada. Quando gostar do resultado, guarda no <a href="vimrc.html">.vimrc</a>.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Ligar, desligar e alternar uma opção (<code>:set nu</code>, <code>:set nonu</code>, <code>:set nu!</code>).</li>
+  <li>Consultar o valor atual (<code>:set nu?</code>) e dar valores (<code>:set sw=4</code>).</li>
+  <li>As opções mais úteis no dia a dia, com o efeito de cada uma.</li>
+  <li>A diferença entre <code>:set</code> e <code>:setlocal</code>.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>Dois tipos de opção</h2>
+<p>Há opções de <strong>liga/desliga</strong> (como <code>number</code>: os números aparecem ou não) e opções com <strong>valor</strong> (como <code>shiftwidth</code>: a indentação tem 4 ou 8 colunas). Quase todas têm um nome longo e um curto: <code>number</code> é <code>nu</code>, <code>shiftwidth</code> é <code>sw</code>.</p>
+
+<h2>Ligar: <code>:set opção</code></h2>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Abre a linha de comando.</dd>
+  <dt>set</dt><dd>O comando que muda opções.</dd>
+  <dt>number</dt><dd>O nome da opção. Escrever só o nome <strong>liga</strong>.</dd>
+</dl>
+
+<div class="vimdemo" data-file="lista.txt" data-keys=":set number&lt;CR&gt;">
+<pre class="vim-inicial">arroz
+feijão
+café</pre>
+</div>
+
+<p>Os números aparecem à esquerda, em amarelo. Eles não fazem parte do arquivo: são só uma ajuda na tela.</p>
+
+<h2>Desligar: <code>:set noopção</code></h2>
+<p>Coloque <code>no</code> na frente do nome: <code>:set nonumber</code> (ou <code>:set nonu</code>) tira os números.</p>
+
+<h2>Alternar: <code>:set opção!</code></h2>
+<p>Com <code>!</code> no fim, a opção inverte: se estava ligada, desliga, e vice-versa. <code>:set invnumber</code> faz o mesmo. É ótimo para um atalho de teclado (veja <a href="mapeamentos.html">Mapeamentos</a>).</p>
+
+<h2>Consultar: <code>:set opção?</code></h2>
+<p>Com <code>?</code> no fim, o Vim só mostra o valor atual, sem mudar nada:</p>
+
+<div class="vimdemo" data-file="lista.txt" data-keys=":set number?&lt;CR&gt;:set shiftwidth?&lt;CR&gt;">
+<pre class="vim-inicial">arroz
+feijão</pre>
+</div>
+
+<p>Primeiro aparece <code>nonumber</code> (desligada). Depois, <code>  shiftwidth=8</code>: o valor padrão do Vim é 8. Nas opções com valor, <code>:set shiftwidth</code> sem o <code>?</code> também só mostra o valor.</p>
+
+<h2>Dar um valor: <code>:set opção=valor</code></h2>
+
+<dl class="anatomy">
+  <dt>:set</dt><dd>O comando.</dd>
+  <dt>sw</dt><dd><code>shiftwidth</code>: quantas colunas o <code>&gt;&gt;</code> indenta.</dd>
+  <dt>=4</dt><dd>O novo valor. Sem espaços em volta do <code>=</code>.</dd>
+</dl>
+
+<p>Você pode mudar várias de uma vez: <code>:set sw=4 et ic</code>. Também dá para somar e subtrair: <code>:set sw+=2</code>.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Exemplo</th><th>O que faz</th></tr>
+<tr><td><code>:set opção</code></td><td><code>:set nu</code></td><td>Liga (ou mostra o valor, se a opção tiver valor)</td></tr>
+<tr><td><code>:set noopção</code></td><td><code>:set nonu</code></td><td>Desliga</td></tr>
+<tr><td><code>:set opção!</code></td><td><code>:set nu!</code></td><td>Inverte</td></tr>
+<tr><td><code>:set opção?</code></td><td><code>:set nu?</code></td><td>Mostra o valor</td></tr>
+<tr><td><code>:set opção=valor</code></td><td><code>:set sw=4</code></td><td>Define o valor</td></tr>
+<tr><td><code>:set opção&amp;</code></td><td><code>:set sw&amp;</code></td><td>Volta ao valor padrão</td></tr>
+<tr><td><code>:set</code></td><td></td><td>Lista as opções que estão diferentes do padrão</td></tr>
+</table>
+</div>
+
+<div class="tip">
+<strong>Tab completa nomes de opções</strong>
+<p>Digite <code>:set rel</code> e aperte <kbd>Tab</kbd>: o Vim completa para <code>relativenumber</code>. Funciona também com <code>:set no</code> + <kbd>Tab</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>As opções mais úteis</h2>
+
+<h3>Números de linha: <code>number</code> e <code>relativenumber</code></h3>
+<p><code>relativenumber</code> (<code>rnu</code>) mostra a <strong>distância</strong> de cada linha até o cursor. Assim você sabe na hora quanto digitar em <code>5j</code> ou <code>3dd</code>. Ligando as duas, a linha atual mostra o número de verdade:</p>
+
+<div class="vimdemo" data-file="itens.txt" data-keys=":set number relativenumber&lt;CR&gt;jj">
+<pre class="vim-inicial">primeiro
+segundo
+terceiro
+quarto
+quinto</pre>
+</div>
+
+<h3>Ver caracteres invisíveis: <code>list</code></h3>
+<p>Um Tab e vários espaços parecem iguais na tela. Com <code>:set list</code>, o Vim mostra cada Tab como <code>^I</code> e o fim de cada linha como <code>$</code>. Assim você enxerga Tabs e espaços sobrando no fim da linha:</p>
+
+<div class="vimdemo" data-file="dados.txt" data-text="nome =\tAna\ncidade = Recife  " data-keys=":set list&lt;CR&gt;">
+</div>
+
+<p>Na primeira linha há um Tab entre <code>=</code> e <code>Ana</code>. Na segunda, os dois espaços antes do <code>$</code> estão sobrando. Desligue com <code>:set nolist</code>.</p>
+
+<div class="vimtry" data-file="config.txt" data-text="cidade =\tRecife\nnome = Ana" data-goal="cidade = Recife\nnome = Ana">
+<p class="try-task"><strong>Missão:</strong> na primeira linha, o "espaço grande" depois do <code>=</code> é um Tab. Ligue <code>:set list</code> para vê-lo, leve o cursor até ele (por exemplo, <code>f=</code> e depois <code>l</code>) e troque por um espaço com <code>r</code> seguido da barra de espaço.</p>
+</div>
+
+<h3>Busca: <code>hlsearch</code>, <code>incsearch</code>, <code>ignorecase</code> e <code>smartcase</code></h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Opção</th><th>Curta</th><th>Efeito</th></tr>
+<tr><td><code>hlsearch</code></td><td><code>hls</code></td><td>Pinta todas as ocorrências da busca. <code>:noh</code> apaga a pintura até a próxima busca.</td></tr>
+<tr><td><code>incsearch</code></td><td><code>is</code></td><td>Mostra a ocorrência enquanto você digita a busca (já ligada pelo <code>defaults.vim</code>).</td></tr>
+<tr><td><code>ignorecase</code></td><td><code>ic</code></td><td>Busca sem diferenciar maiúsculas de minúsculas.</td></tr>
+<tr><td><code>smartcase</code></td><td><code>scs</code></td><td>Junto com <code>ic</code>: se a busca tiver uma maiúscula, volta a diferenciar.</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="log.txt" data-keys=":set hlsearch&lt;CR&gt;/erro&lt;CR&gt;">
+<pre class="vim-inicial">Erro no login
+erro de rede
+servidor ok
+ERRO grave</pre>
+</div>
+
+<p>Só <code>erro</code> minúsculo foi pintado: sem <code>ignorecase</code>, <code>Erro</code> e <code>ERRO</code> são outras palavras.</p>
+
+<div class="vimtry" data-file="log.txt" data-line="1">
+<pre class="vim-inicial">Erro no login
+erro de rede
+servidor ok
+ERRO grave
+backup ok</pre>
+<pre class="vim-meta">servidor ok
+backup ok</pre>
+<p class="try-task"><strong>Missão:</strong> apague todas as linhas que têm "erro", em qualquer combinação de maiúsculas. Ligue <code>:set ignorecase</code> e use <code>:g/erro/d</code> (apaga as linhas que combinam; veja <a href="ex-avancado.html">Comandos Ex</a>). Teste antes sem o <code>ignorecase</code> e veja a diferença; <code>u</code> desfaz.</p>
+</div>
+
+<h3>Indentação: <code>shiftwidth</code>, <code>tabstop</code>, <code>expandtab</code>, <code>autoindent</code></h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Opção</th><th>Curta</th><th>Padrão</th><th>Efeito</th></tr>
+<tr><td><code>shiftwidth</code></td><td><code>sw</code></td><td>8</td><td>Quantas colunas o <code>&gt;&gt;</code> e o <code>&lt;&lt;</code> movem.</td></tr>
+<tr><td><code>tabstop</code></td><td><code>ts</code></td><td>8</td><td>Quantas colunas um caractere Tab ocupa na tela.</td></tr>
+<tr><td><code>expandtab</code></td><td><code>et</code></td><td>desligada</td><td>Ligada, troca Tabs por espaços ao indentar e ao apertar <kbd>Tab</kbd>.</td></tr>
+<tr><td><code>softtabstop</code></td><td><code>sts</code></td><td>0</td><td>Quantas colunas a tecla <kbd>Tab</kbd> anda no modo de inserção.</td></tr>
+<tr><td><code>autoindent</code></td><td><code>ai</code></td><td>desligada</td><td>A linha nova começa com a mesma indentação da anterior.</td></tr>
+</table>
+</div>
+
+<p>Para Python e muitos outros projetos, o comum é indentar com 4 espaços: <code>:set sw=4 ts=4 sts=4 et</code>.</p>
+
+<div class="vimtry" data-file="teste.py">
+<pre class="vim-inicial">if pronto:
+print("ok")
+print("fim")</pre>
+<pre class="vim-meta">if pronto:
+    print("ok")
+    print("fim")</pre>
+<p class="try-task"><strong>Missão:</strong> indente as duas linhas de <code>print</code> com <strong>4 espaços</strong>. Com o padrão, o <code>&gt;&gt;</code> coloca um Tab (8 colunas), e a missão não fica certa. Mude as opções com <code>:set sw=4 et</code> e depois use <code>&gt;&gt;</code> em cada linha.</p>
+</div>
+
+<h3>Outras que vale conhecer</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Opção</th><th>Efeito</th></tr>
+<tr><td><code>wrap</code> / <code>nowrap</code></td><td>Quebra (ou não) visualmente as linhas longas na tela</td></tr>
+<tr><td><code>scrolloff=5</code></td><td>Mantém 5 linhas visíveis acima e abaixo do cursor (o <code>defaults.vim</code> já usa 5)</td></tr>
+<tr><td><code>cursorline</code></td><td>Destaca a linha do cursor</td></tr>
+<tr><td><code>mouse=a</code></td><td>Mouse em todos os modos</td></tr>
+<tr><td><code>spell</code></td><td>Verificação ortográfica (veja <a href="ortografia.html">Verificação Ortográfica</a>)</td></tr>
+<tr><td><code>hidden</code></td><td>Trocar de buffer sem salvar (veja <a href="buffers.html">buffers</a>)</td></tr>
+<tr><td><code>clipboard=unnamedplus</code></td><td>Copiar/colar direto com o sistema (veja <a href="area-transferencia.html">Área de Transferência</a>)</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>:set ou :setlocal?</h2>
+<p>Algumas opções valem por janela ou por buffer. <code>:setlocal</code> (<code>:setl</code>) muda só a janela ou o buffer atual. <code>:set</code> muda a atual e também passa a valer como padrão para as próximas.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Quando usar</th></tr>
+<tr><td><code>:set nu</code></td><td>Quer números em tudo daqui para a frente.</td></tr>
+<tr><td><code>:setlocal nu</code></td><td>Quer números só nesta janela (por exemplo, numa divisão de tela).</td></tr>
+</table>
+</div>
+
+<p>Para saber o que cada opção faz e se ela é global, local à janela ou ao buffer, use a ajuda com o nome entre apóstrofos: <code>:help 'shiftwidth'</code>. Veja <a href="ajuda.html">A Ajuda Interna</a>.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"E518: Opção desconhecida: numbers"</strong>
+<div class="vimdemo" data-file="lista.txt" data-keys=":set numbers&lt;CR&gt;">
+<pre class="vim-inicial">arroz</pre>
+</div>
+<p><strong>O que aconteceu:</strong> o nome está errado: é <code>number</code>, sem "s".</p>
+<p><strong>Como resolver:</strong> use <kbd>Tab</kbd> para completar o nome em vez de digitar tudo.</p>
+</div>
+
+<div class="cenario">
+<strong>"E521: Número requerido após =: ts=quatro"</strong>
+<p><strong>O que aconteceu:</strong> opções numéricas só aceitam números.</p>
+<p><strong>Como resolver:</strong> <code>:set ts=4</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Fechei o Vim e as opções voltaram ao padrão</strong>
+<p><strong>O que aconteceu:</strong> o <code>:set</code> vale só até você fechar o Vim.</p>
+<p><strong>Como resolver:</strong> coloque as opções no seu <code>.vimrc</code>, sem os dois-pontos: <code>set number</code>. Veja <a href="vimrc.html">.vimrc Básico</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>"E521: Número requerido após =: sw = "</strong>
+<p><strong>O que aconteceu:</strong> você escreveu <code>:set sw = 4</code>, com espaços. O Vim esperava o número logo depois do <code>=</code> e achou um espaço.</p>
+<p><strong>Como resolver:</strong> sem espaços: <code>:set sw=4</code>.</p>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Desligar</h3>
+<p>Complete para tirar os números de linha:</p>
+<div class="ex-code">:set <input data-answer="nonumber|nonu|nu!|number!|invnumber|invnu" aria-label="opção"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Consultar</h3>
+<p>Complete para ver o valor atual de <code>tabstop</code> sem mudá-lo:</p>
+<div class="ex-code">:set <input data-answer="tabstop?|ts?|tabstop|ts" aria-label="opção"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Indentação de 2 espaços</h3>
+<p>Complete para o <code>&gt;&gt;</code> indentar 2 colunas usando espaços:</p>
+<div class="ex-code">:set sw=<input data-answer="2" aria-label="valor"> <input data-answer="et|expandtab" aria-label="opção"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">4. Com <code>:set ignorecase smartcase</code>, qual busca diferencia maiúsculas?</p>
+<label><input type="radio" name="q4"> <code>/erro</code></label>
+<label><input type="radio" name="q4"> <code>/rede</code></label>
+<label><input type="radio" name="q4"> <code>/Erro</code></label>
+<label><input type="radio" name="q4"> Nenhuma.</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">5. O que <code>:set list</code> mostra?</p>
+<label><input type="radio" name="q5"> Tabs como <code>^I</code> e o fim das linhas como <code>$</code>.</label>
+<label><input type="radio" name="q5"> A lista de arquivos abertos.</label>
+<label><input type="radio" name="q5"> Todas as opções do Vim.</label>
+<label><input type="radio" name="q5"> Os números das linhas.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>:set nu</code> liga, <code>:set nonu</code> desliga, <code>:set nu!</code> inverte, <code>:set nu?</code> consulta.</li>
+  <li>Opções com valor: <code>:set sw=4</code>, sem espaços no <code>=</code>.</li>
+  <li>As mais usadas: <code>number</code>, <code>relativenumber</code>, <code>list</code>, <code>hlsearch</code>, <code>ignorecase</code>, <code>smartcase</code>, <code>shiftwidth</code>, <code>expandtab</code>.</li>
+  <li>O <code>:set</code> vale até fechar o Vim; para sempre, use o <code>.vimrc</code>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

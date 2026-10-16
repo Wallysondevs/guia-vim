@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — operadores d, c, y, &gt;, gU | Guia Vim</title>
+<meta name="description" content="Os operadores do Vim explicados um a um: d (apagar), c (mudar), y (copiar), &gt; e &lt; (indentar), gU, gu e g~ (maiúsculas). Atalhos D, C, Y, S, s, x, X, a regra do cw e do dw no fim da linha.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Operadores d, c, y</span></h1>
+
+<p class="intro">Na aula anterior você viu que o Vim funciona com frases: <strong>verbo + movimento</strong>. Os verbos têm um nome técnico: <strong>operadores</strong>. Esta aula mostra cada um, o que ele faz com o texto, onde deixa o cursor e os atalhos de uma tecla que existem para os casos mais comuns.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Os operadores <code>d</code>, <code>c</code>, <code>y</code>, <code>&gt;</code>, <code>&lt;</code>, <code>gU</code>, <code>gu</code> e <code>g~</code>.</li>
+  <li>Por que dobrar o operador (<code>dd</code>, <code>cc</code>, <code>yy</code>) age na linha inteira.</li>
+  <li>Os atalhos <code>D</code>, <code>C</code>, <code>Y</code>, <code>S</code>, <code>s</code>, <code>x</code> e <code>X</code>, e a que frase cada um equivale.</li>
+  <li>Duas exceções que confundem todo mundo: <code>cw</code> e <code>dw</code> no fim da linha.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Leia <a href="gramatica.html">Verbo + Movimento</a>. Todos os operadores são usados no <strong>modo normal</strong>; se o rodapé mostrar <code>-- INSERÇÃO --</code>, aperte <kbd>Esc</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>Como um operador funciona</h2>
+<p>Todo operador segue os mesmos três passos:</p>
+<ol class="passo">
+  <li>Você aperta o operador (por exemplo <kbd>d</kbd>). O Vim entra no modo "operador pendente" e mostra <code>d</code> no canto direito do rodapé.</li>
+  <li>Você aperta um movimento ou objeto (por exemplo <kbd>w</kbd>). O Vim calcula o trecho entre o cursor e o destino do movimento.</li>
+  <li>O operador age sobre esse trecho, e o cursor vai para o começo dele.</li>
+</ol>
+<p>Se você mudar de ideia no meio, <kbd>Esc</kbd> cancela tudo.</p>
+
+<hr>
+
+<h2>d: apagar</h2>
+<p><code>d</code> vem de <em>delete</em>. Ele apaga o trecho e guarda o texto num registrador, para você poder colar depois com <code>p</code>.</p>
+
+<dl class="anatomy">
+  <dt>d</dt><dd>Operador: apagar.</dd>
+  <dt>w</dt><dd>Movimento: até o começo da próxima palavra.</dd>
+</dl>
+
+<div class="vimdemo" data-file="frase.txt" data-col="3" data-keys="dw">
+<pre class="vim-inicial">o gato preto</pre>
+</div>
+
+<p>"gato " saiu, incluindo o espaço, porque o <code>w</code> leva o cursor até o <code>p</code> de "preto". O cursor ficou onde o trecho começava.</p>
+
+<hr>
+
+<h2>c: mudar</h2>
+<p><code>c</code> vem de <em>change</em>. Ele apaga o trecho e já entra no <strong>modo de inserção</strong>, para você digitar o texto novo. É o <code>d</code> seguido de <code>i</code>, numa tecla só.</p>
+
+<dl class="anatomy">
+  <dt>c</dt><dd>Operador: mudar (apaga e entra no modo de inserção).</dd>
+  <dt>w</dt><dd>Movimento: a palavra.</dd>
+  <dt>cão</dt><dd>O texto novo, digitado no modo de inserção.</dd>
+  <dt>&lt;Esc&gt;</dt><dd>Volta ao modo normal.</dd>
+</dl>
+
+<div class="vimdemo" data-file="frase.txt" data-col="3" data-keys="cwcão&lt;Esc&gt;">
+<pre class="vim-inicial">o gato preto</pre>
+</div>
+
+<p>Repare: depois do <kbd>w</kbd>, o rodapé mostra <code>-- INSERÇÃO --</code>. Repare também que o espaço depois de "gato" <strong>ficou</strong>. Isso é a primeira exceção da aula, explicada logo abaixo.</p>
+
+<h3>A exceção do cw</h3>
+<p>Pela regra, <code>cw</code> deveria mudar até o começo da próxima palavra, levando o espaço junto, como o <code>dw</code> faz. Mas quase sempre você quer trocar só a palavra e manter o espaço. Por isso o Vim faz uma exceção: <strong><code>cw</code> funciona como <code>ce</code></strong> (até o fim da palavra) quando o cursor está sobre uma palavra.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Em "o gato preto", cursor no g</th><th>O espaço depois de "gato"</th></tr>
+<tr><td><code>dw</code></td><td><code>o preto</code></td><td>Sai junto</td></tr>
+<tr><td><code>cw</code> + "cão"</td><td><code>o cão preto</code></td><td>Fica</td></tr>
+<tr><td><code>ce</code> + "cão"</td><td><code>o cão preto</code></td><td>Fica (igual ao <code>cw</code>)</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="frase.txt" data-col="9">
+<pre class="vim-inicial">O carro azul é rápido</pre>
+<pre class="vim-meta">O carro vermelho é rápido</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está no começo de "azul". Troque a palavra por "vermelho" com <code>cw</code> e volte ao modo normal com <kbd>Esc</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>y: copiar</h2>
+<p><code>y</code> vem de <em>yank</em> ("puxar"). Ele copia o trecho para um registrador, sem mudar o texto. Depois, <code>p</code> cola depois do cursor e <code>P</code> cola antes.</p>
+
+<dl class="anatomy">
+  <dt>y</dt><dd>Operador: copiar.</dd>
+  <dt>w</dt><dd>Movimento: a palavra (com o espaço).</dd>
+  <dt>P</dt><dd>Cola antes do cursor (de <em>put</em>).</dd>
+</dl>
+
+<div class="vimdemo" data-file="frase.txt" data-col="4" data-keys="ywP">
+<pre class="vim-inicial">um dois tres</pre>
+</div>
+
+<p>Depois do <code>yw</code> nada muda na tela: o texto "dois " foi só copiado. O <code>P</code> cola essa cópia antes do cursor, e "dois" aparece duas vezes.</p>
+
+<h3>Onde o cursor fica depois de copiar</h3>
+<p>O cursor vai para o <strong>começo</strong> do trecho copiado. Com <code>yw</code> ele não sai do lugar; com <code>yb</code> (copiar a palavra de trás) ele volta para o começo dela:</p>
+
+<div class="vimdemo" data-file="frase.txt" data-col="4" data-keys="yb">
+<pre class="vim-inicial">um dois tres</pre>
+</div>
+
+<hr>
+
+<h2>&gt; e &lt;: indentar</h2>
+<p>O <code>&gt;</code> empurra linhas para a direita e o <code>&lt;</code> puxa para a esquerda. Eles sempre agem em <strong>linhas inteiras</strong>, mesmo com movimentos que andam dentro da linha.</p>
+
+<dl class="anatomy">
+  <dt>&gt;</dt><dd>Operador: aumentar a indentação.</dd>
+  <dt>j</dt><dd>Movimento: até a linha de baixo. Resultado: esta linha e a próxima.</dd>
+</dl>
+
+<div class="vimdemo" data-file="codigo.py" data-line="2" data-keys="&gt;j">
+<pre class="vim-inicial">def ola():
+print("Olá")
+return True</pre>
+</div>
+
+<p>Por padrão, o Vim indenta com um <strong>tab</strong> de 8 colunas (<code>shiftwidth=8</code>). Quase todo mundo prefere 4 espaços, com a configuração abaixo. Veja a diferença no mesmo comando:</p>
+
+<div class="vimdemo" data-file="codigo.py" data-line="2" data-set="shiftwidth=4 expandtab" data-keys="&gt;j">
+<pre class="vim-inicial">def ola():
+print("Olá")
+return True</pre>
+</div>
+
+<pre class="file" data-file="~/.vimrc">set shiftwidth=4   " cada nível de indentação = 4 colunas
+set expandtab      " usa espaços em vez de tab</pre>
+
+<p>Quando a indentação muda mais de 2 linhas, o Vim avisa no rodapé, por exemplo <code>4 linhas &gt;sadas 1 vez</code>. A frase estranha é a tradução oficial de <code>4 lines &gt;ed 1 time</code>.</p>
+
+<hr>
+
+<h2>gU, gu e g~: maiúsculas e minúsculas</h2>
+<p>Estes três operadores começam com <code>g</code>. Eles mudam a caixa das letras do trecho:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Operador</th><th>Faz</th><th>Exemplo</th></tr>
+<tr><td><code>gU</code></td><td>Tudo em MAIÚSCULAS (<em>uppercase</em>)</td><td><code>gUiw</code>: a palavra em maiúsculas</td></tr>
+<tr><td><code>gu</code></td><td>tudo em minúsculas (<em>lowercase</em>)</td><td><code>gu$</code>: até o fim da linha</td></tr>
+<tr><td><code>g~</code></td><td>iNVERTE a caixa de cada letra</td><td><code>g~w</code></td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="titulo.txt" data-keys="gU$">
+<pre class="vim-inicial">bom dia, mundo</pre>
+</div>
+
+<div class="vimtry" data-file="constantes.js" data-col="7">
+<pre class="vim-inicial">const max_tentativas = 3</pre>
+<pre class="vim-meta">const MAX_TENTATIVAS = 3</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está no começo do nome da constante. Deixe o nome todo em maiúsculas com um operador e um objeto de texto. Dica: "maiúsculas dentro da palavra" = <code>gUiw</code>.</p>
+</div>
+
+<hr>
+
+<h2>O operador dobrado</h2>
+<p>Apertar o operador duas vezes significa "a linha atual inteira". Com um número antes, são várias linhas a partir da atual:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Dobrado</th><th>Faz</th><th>Com número</th></tr>
+<tr><td><code>dd</code></td><td>Apaga a linha</td><td><code>3dd</code>: 3 linhas</td></tr>
+<tr><td><code>cc</code></td><td>Apaga o conteúdo da linha e entra no modo de inserção</td><td><code>2cc</code></td></tr>
+<tr><td><code>yy</code></td><td>Copia a linha</td><td><code>5yy</code></td></tr>
+<tr><td><code>&gt;&gt;</code> / <code>&lt;&lt;</code></td><td>Indenta / desindenta a linha</td><td><code>3&gt;&gt;</code></td></tr>
+<tr><td><code>gUU</code> / <code>guu</code> / <code>g~~</code></td><td>Muda a caixa da linha toda</td><td><code>2gUU</code></td></tr>
+</table>
+</div>
+
+<p>Copiar uma linha e colar no fim do arquivo:</p>
+
+<div class="vimdemo" data-file="lista.txt" data-keys="yyGp">
+<pre class="vim-inicial">cabeçalho
+item a
+item b</pre>
+</div>
+
+<p>Leia em partes: <code>yy</code> copia a linha, <code>G</code> vai para a última linha e <code>p</code> cola embaixo dela. Linhas copiadas inteiras sempre são coladas como linhas novas, nunca no meio do texto.</p>
+
+<hr>
+
+<h2>Os atalhos de uma tecla</h2>
+<p>Algumas frases são tão comuns que viraram uma tecla só. Saber a frase por trás de cada atalho ajuda a lembrar o que ele faz:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Atalho</th><th>Equivale a</th><th>Faz</th></tr>
+<tr><td><code>x</code></td><td><code>dl</code></td><td>Apaga o caractere sob o cursor</td></tr>
+<tr><td><code>X</code></td><td><code>dh</code></td><td>Apaga o caractere à esquerda</td></tr>
+<tr><td><code>D</code></td><td><code>d$</code></td><td>Apaga até o fim da linha</td></tr>
+<tr><td><code>C</code></td><td><code>c$</code></td><td>Muda até o fim da linha</td></tr>
+<tr><td><code>s</code></td><td><code>cl</code></td><td>Troca o caractere sob o cursor por texto novo</td></tr>
+<tr><td><code>S</code></td><td><code>cc</code></td><td>Troca a linha inteira por texto novo</td></tr>
+<tr><td><code>Y</code></td><td><code>yy</code></td><td>Copia a linha inteira</td></tr>
+</table>
+</div>
+
+<div class="warning">
+<strong>Atenção ao Y no Neovim</strong>
+<p>No Vim, <code>Y</code> copia a <strong>linha inteira</strong> (como <code>yy</code>). No Neovim, ele copia só até o fim da linha (como <code>y$</code>), para combinar com <code>D</code> e <code>C</code>. Se você usa os dois, lembre dessa diferença.</p>
+</div>
+
+<div class="vimdemo" data-file="config.txt" data-col="4" data-keys="Cnovo&lt;Esc&gt;">
+<pre class="vim-inicial">um dois tres</pre>
+</div>
+
+<p><code>C</code> apagou de "dois" até o fim e já deixou você digitando. É o jeito mais rápido de reescrever o final de uma linha.</p>
+
+<hr>
+
+<h2>Formas diferentes de fazer a mesma coisa</h2>
+<p>Objetivo: na linha <code>cor = azul</code>, trocar "azul" por "verde", com o cursor no começo da linha.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Como funciona</th><th>Quando usar</th></tr>
+<tr><td><code>wwcw</code> + texto</td><td>Anda duas palavras e muda a palavra</td><td>Quando você enxerga as palavras.</td></tr>
+<tr><td><code>$ciw</code> + texto</td><td>Vai ao fim e muda a palavra inteira</td><td>Quando o alvo é a última palavra.</td></tr>
+<tr><td><code>fac$</code> + texto</td><td>Pula até o "a" e muda até o fim</td><td>Quando há uma letra fácil de mirar.</td></tr>
+<tr><td><code>2WC</code> + texto</td><td>Pula duas palavras grandes e muda até o fim</td><td>Quando há pontuação no caminho.</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="estilo.css" data-max-keys="11">
+<pre class="vim-inicial">cor = azul</pre>
+<pre class="vim-meta">cor = verde</pre>
+<p class="try-task"><strong>Desafio:</strong> troque "azul" por "verde" usando no máximo 11 teclas no total (contando "verde" e o <kbd>Esc</kbd>). Teste mais de uma forma da tabela e veja quantas teclas cada uma gasta.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>dw no fim da linha não juntou com a linha de baixo</strong>
+<p><strong>O que aconteceu:</strong> é a segunda exceção. Se a última palavra apagada fica no fim da linha, o <code>dw</code> para no fim da linha em vez de levar a quebra de linha junto.</p>
+<div class="vimdemo" data-file="frase.txt" data-col="8" data-keys="dw">
+<pre class="vim-inicial">o gato preto
+segunda linha</pre>
+</div>
+<p><strong>Como resolver:</strong> isso é proposital, para você não juntar linhas sem querer. Para juntar, use <code>J</code> (de <em>join</em>).</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei c e o texto sumiu, mas o Vim ficou "esperando"</strong>
+<p><strong>O que aconteceu:</strong> depois do <code>c</code> + movimento, você está no modo de inserção. O rodapé mostra <code>-- INSERÇÃO --</code>, e o que você digitar entra no texto.</p>
+<p><strong>Como resolver:</strong> digite o texto novo e aperte <kbd>Esc</kbd>. Se quiser só apagar, use <code>d</code> em vez de <code>c</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Copiei com y, mas o p colou outra coisa</strong>
+<p><strong>O que aconteceu:</strong> entre o <code>y</code> e o <code>p</code>, você apagou algo com <code>d</code> ou <code>x</code>. Apagar também guarda texto, e o <code>p</code> cola o que foi guardado por último.</p>
+<p><strong>Como resolver:</strong> use <code>"0p</code>. O registrador <code>0</code> guarda sempre a última cópia feita com <code>y</code>. Veja <a href="registradores.html">Registradores</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>&gt;&gt; empurrou demais (8 colunas)</strong>
+<p><strong>O que aconteceu:</strong> a indentação padrão do Vim é <code>shiftwidth=8</code>.</p>
+<p><strong>Como resolver:</strong> no momento, <code>:set shiftwidth=4 expandtab</code>; para sempre, coloque essas opções no <code>~/.vimrc</code> (veja <a href="vimrc.html">.vimrc Básico</a>).</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Operador</th><th>Faz</th><th>Dobrado</th><th>Exemplos</th></tr>
+<tr><td><code>d</code></td><td>Apaga (e guarda)</td><td><code>dd</code></td><td><code>dw</code>, <code>d$</code>, <code>dip</code></td></tr>
+<tr><td><code>c</code></td><td>Apaga e entra no modo de inserção</td><td><code>cc</code></td><td><code>cw</code>, <code>ci"</code>, <code>c$</code></td></tr>
+<tr><td><code>y</code></td><td>Copia</td><td><code>yy</code></td><td><code>yw</code>, <code>yiw</code>, <code>y}</code></td></tr>
+<tr><td><code>&gt;</code></td><td>Indenta (linhas inteiras)</td><td><code>&gt;&gt;</code></td><td><code>&gt;j</code>, <code>&gt;ip</code></td></tr>
+<tr><td><code>&lt;</code></td><td>Desindenta</td><td><code>&lt;&lt;</code></td><td><code>&lt;G</code></td></tr>
+<tr><td><code>gU</code></td><td>Maiúsculas</td><td><code>gUU</code></td><td><code>gUiw</code></td></tr>
+<tr><td><code>gu</code></td><td>Minúsculas</td><td><code>guu</code></td><td><code>gu$</code></td></tr>
+<tr><td><code>g~</code></td><td>Inverte a caixa</td><td><code>g~~</code></td><td><code>g~w</code></td></tr>
+<tr><td><code>=</code></td><td>Reindenta conforme a linguagem</td><td><code>==</code></td><td><code>=ip</code>, <code>gg=G</code></td></tr>
+</table>
+</div>
+<p>O <code>=</code> depende das regras de indentação do tipo de arquivo, por isso não está no simulador. No Vim real, <code>gg=G</code> reindenta o arquivo inteiro.</p>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Atalho</h3>
+<p>Qual atalho de uma tecla equivale a <code>c$</code>?</p>
+<div class="ex-code"><input data-answer="C" aria-label="atalho"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Maiúsculas</h3>
+<p>Complete para deixar a linha inteira em maiúsculas:</p>
+<div class="ex-code"><input data-answer="gUU|gUgU" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">3. Em "o gato preto", com o cursor no "g", o que sobra depois de <code>dw</code>?</p>
+<label><input type="radio" name="q3"> <code>o preto</code></label>
+<label><input type="radio" name="q3"> <code>o  preto</code> (com dois espaços)</label>
+<label><input type="radio" name="q3"> <code>o gato</code></label>
+<label><input type="radio" name="q3"> <code>gato preto</code></label>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">4. Qual a diferença entre <code>d</code> e <code>c</code>?</p>
+<label><input type="radio" name="q4"> <code>c</code> não guarda o texto apagado.</label>
+<label><input type="radio" name="q4"> <code>c</code> só funciona com palavras.</label>
+<label><input type="radio" name="q4"> <code>c</code> apaga e já entra no modo de inserção.</label>
+<label><input type="radio" name="q4"> Nenhuma; são sinônimos.</label>
+</div>
+
+<div class="vimtry" data-file="script.py">
+<pre class="vim-inicial">def saudacao():
+print("oi")
+print("tchau")
+# fim do arquivo velho</pre>
+<pre class="vim-meta">def saudacao():
+	print("OI")
+	print("tchau")</pre>
+<p class="try-task"><strong>Missão final:</strong> indente as duas linhas <code>print</code> com <code>&gt;j</code> (o padrão do Vim usa tab), passe "oi" para maiúsculas com <code>gUiw</code> e apague o comentário da última linha com <code>dd</code>.</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Operadores esperam um movimento ou objeto: <code>d</code> apaga, <code>c</code> muda, <code>y</code> copia.</li>
+  <li><code>&gt;</code> e <code>&lt;</code> indentam linhas inteiras; <code>gU</code>, <code>gu</code> e <code>g~</code> mudam a caixa.</li>
+  <li>Dobrar o operador age na linha: <code>dd</code>, <code>cc</code>, <code>yy</code>, <code>&gt;&gt;</code>.</li>
+  <li>Atalhos: <code>D</code>=<code>d$</code>, <code>C</code>=<code>c$</code>, <code>Y</code>=<code>yy</code>, <code>S</code>=<code>cc</code>, <code>s</code>=<code>cl</code>, <code>x</code>=<code>dl</code>.</li>
+  <li>Exceções: <code>cw</code> não leva o espaço; <code>dw</code> no fim da linha não junta linhas.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — desafios Vim Golf | Guia Vim</title>
+<meta name="description" content="12 desafios de Vim Golf em português: faça cada edição com o menor número de teclas no Vim simulado. Níveis fácil, médio e difícil, com soluções explicadas tecla por tecla.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Desafios Vim Golf</span></h1>
+
+<p class="intro">No golfe, ganha quem dá menos tacadas. No <strong>Vim Golf</strong>, ganha quem faz a edição com menos teclas. É o melhor jeito de descobrir comandos que você não conhecia e de trocar hábitos lentos (apertar <code>x</code> dez vezes) por comandos certeiros (<code>dw</code>).</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>A pensar "qual é o comando que faz isso de uma vez?" em vez de "como chego lá tecla por tecla?".</li>
+  <li>A usar objetos de texto, contadores, visual de bloco e comandos Ex para encurtar edições.</li>
+  <li>Doze truques curtos que servem no dia a dia, não só no jogo.</li>
+</ul>
+</div>
+
+<h2>Regras</h2>
+<ol class="passo">
+  <li>O cursor começa na linha 1, coluna 1.</li>
+  <li>Transforme o texto até ficar igual à meta. A meta aparece no enunciado.</li>
+  <li>Cada tecla conta 1, inclusive <kbd>Esc</kbd> e <kbd>Enter</kbd>. <kbd>Ctrl</kbd>+<kbd>V</kbd> conta como uma.</li>
+  <li>Se usar mais teclas que o limite, a missão é cumprida, mas o desafio não. Clique em <strong>Reiniciar</strong> e tente de novo.</li>
+  <li>Só abra a solução depois de tentar. Às vezes existe mais de um caminho com o mesmo número de teclas.</li>
+</ol>
+
+<div class="warning">
+<strong>Evite o ponto e as macros no golfe deste guia</strong>
+<p>Como no Vim Golf de verdade, o contador soma só as teclas que <strong>você</strong> aperta. O que o <code>.</code> e as macros repetem por você não conta, então use-os à vontade.</p>
+</div>
+
+<hr>
+
+<h2>Fácil</h2>
+
+<h3>F1. Letras trocadas</h3>
+<p>"Lniux" tem duas letras trocadas. Meta: <code>Linux</code>. Limite: 3 teclas.</p>
+<div class="vimtry" data-file="f1.txt" data-max-keys="3">
+<pre class="vim-inicial">Lniux</pre>
+<pre class="vim-meta">Linux</pre>
+<p class="try-task"><strong>Desafio F1:</strong> conserte a palavra em até 3 teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>lxp</code> (3 teclas). <code>l</code> vai para o "n"; <code>x</code> apaga o "n" e o guarda; o cursor fica no "i"; <code>p</code> cola o "n" depois do "i". É o truque clássico <code>xp</code> para trocar duas letras.</p>
+</details>
+
+<h3>F2. Linhas na ordem errada</h3>
+<p>Meta: <code>primeira</code> em cima de <code>segunda</code>. Limite: 3 teclas.</p>
+<div class="vimtry" data-file="f2.txt" data-max-keys="3">
+<pre class="vim-inicial">segunda
+primeira</pre>
+<pre class="vim-meta">primeira
+segunda</pre>
+<p class="try-task"><strong>Desafio F2:</strong> troque as linhas de lugar em até 3 teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>ddp</code> (3 teclas). <code>dd</code> recorta a linha 1 e o cursor sobe para "primeira"; <code>p</code> cola a linha recortada embaixo dela.</p>
+</details>
+
+<h3>F3. Grite o erro</h3>
+<p>Meta: <code>ERRO FATAL</code>. Limite: 3 teclas.</p>
+<div class="vimtry" data-file="f3.txt" data-max-keys="3">
+<pre class="vim-inicial">erro fatal</pre>
+<pre class="vim-meta">ERRO FATAL</pre>
+<p class="try-task"><strong>Desafio F3:</strong> deixe a linha toda em maiúsculas em até 3 teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>gUU</code> (3 teclas): o operador <code>gU</code> (maiúsculas) repetido age na linha inteira. Mais curto ainda: <code>VU</code> (2 teclas), que seleciona a linha com <code>V</code> e aplica <code>U</code> (maiúsculas) na seleção.</p>
+</details>
+
+<h3>F4. Só as duas primeiras</h3>
+<p>Meta: manter só as linhas <code>1</code> e <code>2</code>. Limite: 4 teclas.</p>
+<div class="vimtry" data-file="f4.txt" data-max-keys="4">
+<pre class="vim-inicial">1
+2
+3
+4
+5</pre>
+<pre class="vim-meta">1
+2</pre>
+<p class="try-task"><strong>Desafio F4:</strong> apague da linha 3 até o fim em até 4 teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>jjdG</code> ou <code>3GdG</code> (4 teclas). Os dois levam o cursor à linha 3; <code>dG</code> apaga dali até a última linha (<code>G</code>). Com 1000 linhas, o <code>dG</code> continuaria custando 2 teclas.</p>
+</details>
+
+<hr>
+
+<h2>Médio</h2>
+
+<h3>M1. Quatro iguais</h3>
+<p>Meta: a linha <code>linha</code> repetida 4 vezes. Limite: 4 teclas.</p>
+<div class="vimtry" data-file="m1.txt" data-max-keys="4">
+<pre class="vim-inicial">linha</pre>
+<pre class="vim-meta">linha
+linha
+linha
+linha</pre>
+<p class="try-task"><strong>Desafio M1:</strong> crie as 3 cópias em até 4 teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>yy3p</code> (4 teclas). <code>yy</code> copia a linha; <code>3p</code> cola três vezes. Contadores funcionam com quase todo comando.</p>
+</details>
+
+<h3>M2. Esvaziar as aspas</h3>
+<p>Meta: <code>msg = ""</code>. Limite: 3 teclas. O cursor está no começo da linha, longe das aspas.</p>
+<div class="vimtry" data-file="m2.py" data-max-keys="3">
+<pre class="vim-inicial">msg = "texto antigo"</pre>
+<pre class="vim-meta">msg = ""</pre>
+<p class="try-task"><strong>Desafio M2:</strong> apague o que está dentro das aspas em até 3 teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>di"</code> (3 teclas): <code>d</code> apagar, <code>i"</code> "dentro das aspas". Se o cursor não está dentro de aspas, o Vim procura o primeiro par à frente na linha. O caminho "manual" seria <code>f"lct"&lt;Esc&gt;</code>, com 7 teclas.</p>
+</details>
+
+<h3>M3. Novos argumentos</h3>
+<p>Meta: <code>soma(x)</code>. Limite: 5 teclas.</p>
+<div class="vimtry" data-file="m3.py" data-max-keys="5">
+<pre class="vim-inicial">soma(a, b)</pre>
+<pre class="vim-meta">soma(x)</pre>
+<p class="try-task"><strong>Desafio M3:</strong> troque os argumentos por <code>x</code> em até 5 teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>ci(x&lt;Esc&gt;</code> (5 teclas): <code>c</code> trocar, <code>i(</code> "dentro dos parênteses" (o Vim acha o par à frente), <code>x</code> é o texto novo e <kbd>Esc</kbd> termina. <code>cib</code> é o mesmo que <code>ci(</code>.</p>
+</details>
+
+<h3>M4. Frase partida</h3>
+<p>Meta: <code>um dois três</code> numa linha só. Limite: 2 teclas.</p>
+<div class="vimtry" data-file="m4.txt" data-max-keys="2">
+<pre class="vim-inicial">um
+dois
+três</pre>
+<pre class="vim-meta">um dois três</pre>
+<p class="try-task"><strong>Desafio M4:</strong> junte as três linhas em até 2 teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>3J</code> (2 teclas). <code>J</code> junta linhas pondo um espaço entre elas, e o 3 diz quantas linhas entram na junção.</p>
+</details>
+
+<hr>
+
+<h2>Difícil</h2>
+
+<h3>D1. Domínio novo</h3>
+<p>Meta: <code>url = http://novo.com/pagina</code>. Limite: 10 teclas.</p>
+<div class="vimtry" data-file="d1.conf" data-max-keys="10">
+<pre class="vim-inicial">url = http://antigo.com/pagina</pre>
+<pre class="vim-meta">url = http://novo.com/pagina</pre>
+<p class="try-task"><strong>Desafio D1:</strong> troque <code>antigo</code> por <code>novo</code> em até 10 teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>fact.novo&lt;Esc&gt;</code> (10 teclas). <code>fa</code> vai para o primeiro "a" da linha, que é o de "antigo"; <code>ct.</code> troca tudo até antes do ponto (<em>change till</em>); <code>novo</code> e <kbd>Esc</kbd>. Com busca seria <code>/an&lt;Enter&gt;cwnovo&lt;Esc&gt;</code>, 11 teclas.</p>
+</details>
+
+<h3>D2. De trás para frente</h3>
+<p>Meta: as 4 linhas em ordem invertida. Limite: 8 teclas.</p>
+<div class="vimtry" data-file="d2.txt" data-max-keys="8">
+<pre class="vim-inicial">1. acordar
+2. café
+3. trabalhar
+4. dormir</pre>
+<pre class="vim-meta">4. dormir
+3. trabalhar
+2. café
+1. acordar</pre>
+<p class="try-task"><strong>Desafio D2:</strong> inverta a ordem das linhas em até 8 teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>:g/^/m0&lt;Enter&gt;</code> (8 teclas). <code>:g/^/</code> passa por todas as linhas (toda linha tem começo, <code>^</code>), e <code>m0</code> move cada uma para depois da "linha 0", ou seja, para o topo. Como cada linha vai parar em cima das anteriores, a ordem se inverte. Funciona com arquivos de qualquer tamanho. Aqui <code>:sort!</code> também daria certo, mas só porque as linhas começam com números em ordem.</p>
+</details>
+
+<h3>D3. Comentar quatro linhas</h3>
+<p>Meta: <code>#</code> no começo de cada linha. Limite: 6 teclas.</p>
+<div class="vimtry" data-file="d3.sh" data-max-keys="6">
+<pre class="vim-inicial">a
+b
+c
+d</pre>
+<pre class="vim-meta">#a
+#b
+#c
+#d</pre>
+<p class="try-task"><strong>Desafio D3:</strong> comente as 4 linhas em até 6 teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>&lt;Ctrl-V&gt;3jI#&lt;Esc&gt;</code> (6 teclas): bloco de uma coluna nas 4 linhas, <code>I#</code> insere e o <kbd>Esc</kbd> replica. A alternativa <code>:%s/^/#/&lt;Enter&gt;</code> custa 9.</p>
+</details>
+
+<h3>D4. Espaços fantasmas</h3>
+<p>As linhas têm espaços sobrando no fim. Neste desafio a opção <code>list</code> está ligada: o <code>$</code> azul mostra onde cada linha termina. Meta: tirar todos os espaços do fim. Limite: 10 teclas.</p>
+<div class="vimtry" data-file="d4.txt" data-max-keys="10" data-set="list">
+<pre class="vim-inicial">a   
+b 
+c  </pre>
+<pre class="vim-meta">a
+b
+c</pre>
+<p class="try-task"><strong>Desafio D4:</strong> remova os espaços do fim de todas as linhas em até 10 teclas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>:%s/ *$//&lt;Enter&gt;</code> (10 teclas). <code>%</code> é o arquivo todo; <code> *$</code> casa "zero ou mais espaços seguidos do fim da linha"; o espaço vazio entre as últimas barras troca isso por nada. Em arquivos com Tabs, use <code>\s*$</code>.</p>
+</details>
+
+<hr>
+
+<h2>Placar pessoal</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Desafio</th><th>Limite</th><th>Truque principal</th></tr>
+<tr><td>F1 Letras trocadas</td><td>3</td><td><code>xp</code></td></tr>
+<tr><td>F2 Linhas trocadas</td><td>3</td><td><code>ddp</code></td></tr>
+<tr><td>F3 Maiúsculas</td><td>3</td><td><code>gUU</code> / <code>VU</code></td></tr>
+<tr><td>F4 Apagar até o fim</td><td>4</td><td><code>dG</code></td></tr>
+<tr><td>M1 Cópias</td><td>4</td><td><code>yy3p</code></td></tr>
+<tr><td>M2 Dentro das aspas</td><td>3</td><td><code>di"</code></td></tr>
+<tr><td>M3 Dentro dos parênteses</td><td>5</td><td><code>ci(</code></td></tr>
+<tr><td>M4 Juntar</td><td>2</td><td><code>3J</code></td></tr>
+<tr><td>D1 Trocar até um caractere</td><td>10</td><td><code>ct.</code></td></tr>
+<tr><td>D2 Inverter</td><td>8</td><td><code>:g/^/m0</code></td></tr>
+<tr><td>D3 Comentar bloco</td><td>6</td><td><kbd>Ctrl</kbd>+<kbd>V</kbd> <code>I</code></td></tr>
+<tr><td>D4 Espaços no fim</td><td>10</td><td><code>:%s/ *$//</code></td></tr>
+</table>
+</div>
+
+<div class="tip">
+<strong>Quer mais?</strong>
+<p>O site <a href="https://www.vimgolf.com/">vimgolf.com</a> tem centenas de desafios da comunidade, em inglês, e mostra as soluções mais curtas de outras pessoas. Lá você joga no seu próprio Vim.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"Missão cumprida", mas acima do limite</strong>
+<p><strong>O que aconteceu:</strong> o texto ficou certo, mas com mais teclas. Movimentos tecla a tecla (<code>llll</code>) são os maiores culpados.</p>
+<p><strong>Como resolver:</strong> clique em <strong>Reiniciar</strong> e pense em comandos que "procuram" (<code>f</code>, <code>t</code>, <code>/</code>) ou que agem em objetos (<code>iw</code>, <code>i"</code>, <code>ip</code>).</p>
+</div>
+
+<div class="cenario">
+<strong>O di" não fez nada</strong>
+<p><strong>O que aconteceu:</strong> não havia aspas duplas na linha do cursor, ou elas estavam em outra linha. O objeto de aspas só olha a linha atual.</p>
+<p><strong>Como resolver:</strong> confira se o cursor está na linha certa.</p>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Trocar duas letras vizinhas (cursor na primeira)</h3>
+<div class="ex-code"><input data-answer="xp" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Trocar o que está dentro de colchetes</h3>
+<div class="ex-code"><input data-answer="ci[|ci]" aria-label="teclas"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. O cursor está no começo de <code>titulo = 'velho'</code>. Qual é o caminho mais curto para apagar <code>velho</code>?</p>
+<label><input type="radio" name="q3"> <code>f'lxxxxx</code></label>
+<label><input type="radio" name="q3"> <code>/velho&lt;Enter&gt;dw</code></label>
+<label><input type="radio" name="q3"> <code>di'</code></label>
+<label><input type="radio" name="q3"> <code>D</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Menos teclas quase sempre significa usar <strong>objetos</strong> (<code>i"</code>, <code>i(</code>, <code>ip</code>), <strong>contadores</strong> (<code>3J</code>, <code>yy3p</code>) e <strong>buscas curtas</strong> (<code>f</code>, <code>t</code>).</li>
+  <li>Para mexer em muitas linhas, <kbd>Ctrl</kbd>+<kbd>V</kbd> e comandos Ex (<code>:g</code>, <code>:%s</code>) ganham de qualquer repetição manual.</li>
+  <li>Os truques do golfe são os mesmos que economizam tempo no trabalho de verdade.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

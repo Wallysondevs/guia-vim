@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — plugins: pacotes nativos, vim-plug e netrw | Guia Vim</title>
+<meta name="description" content="Instale plugins no Vim sem complicação: pacotes nativos em ~/.vim/pack com git clone, :packadd e :helptags, o gerenciador vim-plug, plugins populares como surround e commentary, e o explorador de arquivos netrw que já vem no Vim.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Plugins</span></h1>
+
+<p class="intro">Um <strong>plugin</strong> é um conjunto de arquivos de <a href="vimscript.html">Vimscript</a> que acrescenta recursos ao Vim: novos comandos, operadores, painéis, integração com o git. Desde a versão 8, o Vim instala plugins sozinho, sem programa extra. Esta aula mostra o jeito nativo, o gerenciador mais popular e quais plugins realmente valem a pena.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Onde o Vim procura plugins e como é a pasta de um plugin.</li>
+  <li>Instalar, atualizar e remover plugins com os <strong>pacotes nativos</strong> (<code>~/.vim/pack</code>).</li>
+  <li>Carregar plugins sob demanda com <code>:packadd</code> e gerar a ajuda com <code>:helptags</code>.</li>
+  <li>Usar o gerenciador <strong>vim-plug</strong>.</li>
+  <li>Conhecer plugins populares e o explorador <strong>netrw</strong>, que já vem no Vim.</li>
+</ul>
+</div>
+
+<div class="warning">
+<strong>Precisa do Vim completo</strong>
+<p>O <code>vim-tiny</code> não carrega plugins (no <code>vim --version</code> ele mostra <code>-packages</code>). Use o pacote <code>vim</code>. O Vim simulado deste guia também não tem plugins; esta aula usa terminal e arquivos.</p>
+</div>
+
+<hr>
+
+<h2>Antes de instalar qualquer coisa</h2>
+<p>Comece com <strong>nenhum</strong> plugin. O Vim puro já faz muito mais do que parece: explorar arquivos (netrw), completar palavras, navegar em código, comparar arquivos. Cada plugin é código de terceiros rodando no seu editor, que precisa ser atualizado e pode conflitar com outros. A regra prática: instale um plugin quando sentir falta de algo várias vezes, e não porque está numa lista de "plugins essenciais".</p>
+
+<div class="warning">
+<strong>Segurança</strong>
+<p>Um plugin roda com as mesmas permissões que você. Instale só de fontes conhecidas e leia o que o plugin faz antes.</p>
+</div>
+
+<hr>
+
+<h2>Onde o Vim procura</h2>
+<p>A pasta do usuário é <code>~/.vim</code> no Linux e no macOS e <code>~/vimfiles</code> no Windows. Dentro dela, cada subpasta tem um papel:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Pasta</th><th>O que vai nela</th><th>Quando carrega</th></tr>
+<tr><td><code>plugin/</code></td><td>Scripts gerais</td><td>Sempre, ao abrir o Vim</td></tr>
+<tr><td><code>ftplugin/</code></td><td>Scripts de um tipo de arquivo (<code>python.vim</code>…)</td><td>Ao abrir um arquivo daquele tipo</td></tr>
+<tr><td><code>autoload/</code></td><td>Funções carregadas só quando usadas</td><td>Na primeira chamada</td></tr>
+<tr><td><code>colors/</code></td><td>Esquemas de cores</td><td>Com <code>:colorscheme</code></td></tr>
+<tr><td><code>doc/</code></td><td>Arquivos de ajuda</td><td>Com <code>:help</code>, depois do <code>:helptags</code></td></tr>
+<tr><td><code>after/</code></td><td>Ajustes que rodam depois de tudo</td><td>Por último (útil para sobrescrever plugins)</td></tr>
+<tr><td><code>pack/</code></td><td>Pacotes de plugins (o sistema nativo)</td><td>Veja abaixo</td></tr>
+</table>
+</div>
+
+<p>Um plugin baixado da internet tem justamente essas pastas dentro dele. Instalar é colocar essa pasta num lugar onde o Vim a encontre.</p>
+
+<hr>
+
+<h2>Pacotes nativos (sem gerenciador)</h2>
+<p>O Vim procura plugins em <code>~/.vim/pack/</code>. A estrutura tem sempre três níveis:</p>
+
+<dl class="anatomy">
+  <dt>~/.vim/pack/</dt><dd>A raiz dos pacotes.</dd>
+  <dt>plugins/</dt><dd>Um nome de grupo, à sua escolha. Use um só, ou separe por assunto.</dd>
+  <dt>start/</dt><dd><code>start</code> = carrega sempre ao abrir o Vim. <code>opt</code> = só quando você pedir com <code>:packadd</code>.</dd>
+  <dt>vim-surround/</dt><dd>A pasta do plugin, com <code>plugin/</code>, <code>doc/</code> etc. dentro.</dd>
+</dl>
+
+<h3>Instalar com git</h3>
+<ol class="passo">
+  <li>Crie a pasta e clone o plugin dentro dela:
+<pre class="term">$ mkdir -p ~/.vim/pack/plugins/start
+$ git clone https://github.com/tpope/vim-surround.git ~/.vim/pack/plugins/start/vim-surround
+Cloning into '/home/ana/.vim/pack/plugins/start/vim-surround'...</pre>
+  </li>
+  <li>Gere o índice da ajuda, para o <code>:help</code> do plugin funcionar. Dentro do Vim:
+<pre class="file" data-file="linha de comando do Vim">:helptags ALL</pre>
+  </li>
+  <li>Reinicie o Vim. Teste com <code>:help surround</code>.</li>
+</ol>
+
+<h3>Atualizar e remover</h3>
+<pre class="term">$ git -C ~/.vim/pack/plugins/start/vim-surround pull         « atualizar
+$ rm -rf ~/.vim/pack/plugins/start/vim-surround               « remover</pre>
+
+<div class="tip">
+<strong>Dica: plugins como submódulos</strong>
+<p>Se você guarda o <code>~/.vim</code> num repositório git, adicione os plugins como submódulos (<code>git submodule add URL pack/plugins/start/nome</code>). Assim a mesma configuração, com os mesmos plugins, chega a qualquer máquina com um <code>git clone --recursive</code>.</p>
+</div>
+
+<h3>Plugins opcionais: opt e :packadd</h3>
+<p>Plugins em <code>opt/</code> não carregam sozinhos. Isso deixa o Vim abrir mais rápido e permite ligar um plugin só quando precisar:</p>
+
+<pre class="file" data-file="~/.vimrc">" O "!" carrega sem rodar ainda; útil dentro do .vimrc
+packadd! nome-do-plugin</pre>
+
+<p>O Vim já vem com alguns pacotes opcionais prontos. Dois que valem a pena:</p>
+
+<pre class="file" data-file="~/.vimrc">" % pula também entre if/else/endif, tags HTML &lt;div&gt;…&lt;/div&gt; etc.
+packadd! matchit
+
+" Respeita o arquivo .editorconfig dos projetos (Vim 9.1 ou mais novo)
+packadd! editorconfig</pre>
+
+<hr>
+
+<h2>O gerenciador vim-plug</h2>
+<p>O <strong>vim-plug</strong> é um único arquivo que instala, atualiza e remove plugins listados no seu <code>.vimrc</code>. Ele faz em paralelo o que você faria com <code>git clone</code>, e mostra o progresso numa janela.</p>
+
+<h3>1. Instalar o vim-plug</h3>
+<pre class="term">$ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim</pre>
+
+<p>No Windows, a pasta é <code>~/vimfiles/autoload/</code>.</p>
+
+<h3>2. Listar os plugins no .vimrc</h3>
+<dl class="anatomy">
+  <dt>call plug#begin()</dt><dd>Começa a lista. Os plugins vão para <code>~/.vim/plugged</code>.</dd>
+  <dt>Plug 'tpope/vim-surround'</dt><dd>Um plugin, no formato <code>usuário/repositório</code> do GitHub.</dd>
+  <dt>call plug#end()</dt><dd>Fecha a lista e já liga <code>filetype plugin indent on</code> e <code>syntax enable</code>.</dd>
+</dl>
+
+<pre class="file" data-file="~/.vimrc">call plug#begin()
+
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-fugitive'
+" Só carrega quando você usar o comando :NERDTreeToggle
+Plug 'preservim/nerdtree', { 'on': 'NERDTreeToggle' }
+
+call plug#end()</pre>
+
+<h3>3. Instalar</h3>
+<p>Salve, recarregue (<code>:source ~/.vimrc</code>) e rode os comandos do vim-plug:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:PlugInstall</code></td><td>Instala os plugins da lista que ainda não estão instalados</td></tr>
+<tr><td><code>:PlugUpdate</code></td><td>Atualiza todos</td></tr>
+<tr><td><code>:PlugClean</code></td><td>Apaga os que você tirou da lista</td></tr>
+<tr><td><code>:PlugStatus</code></td><td>Mostra o estado de cada um</td></tr>
+<tr><td><code>:PlugUpgrade</code></td><td>Atualiza o próprio vim-plug</td></tr>
+</table>
+</div>
+
+<p>Para remover um plugin: apague a linha <code>Plug</code>, recarregue o <code>.vimrc</code> e rode <code>:PlugClean</code>.</p>
+
+<hr>
+
+<h2>Plugins populares</h2>
+<p>Uma lista curta de plugins antigos, estáveis e muito usados. Nenhum é obrigatório:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Plugin</th><th>Para quê</th><th>Exemplo</th></tr>
+<tr><td><code>tpope/vim-surround</code></td><td>Trocar, apagar e criar aspas, parênteses e tags em volta do texto</td><td><code>cs"'</code> troca <code>"</code> por <code>'</code></td></tr>
+<tr><td><code>tpope/vim-commentary</code></td><td>Comentar linhas em qualquer linguagem</td><td><code>gcc</code> comenta a linha; <code>gcip</code>, o parágrafo</td></tr>
+<tr><td><code>tpope/vim-fugitive</code></td><td>Git dentro do Vim</td><td><code>:Git blame</code>, <code>:Git diff</code></td></tr>
+<tr><td><code>junegunn/fzf.vim</code></td><td>Busca rápida de arquivos e texto (precisa do programa <code>fzf</code>)</td><td><code>:Files</code>, <code>:Rg texto</code></td></tr>
+<tr><td><code>preservim/nerdtree</code></td><td>Árvore de arquivos num painel lateral</td><td><code>:NERDTreeToggle</code></td></tr>
+<tr><td><code>itchyny/lightline.vim</code></td><td>Barra de status mais informativa</td><td>Funciona sozinho depois de instalado</td></tr>
+<tr><td><code>dense-analysis/ale</code></td><td>Mostra erros do código enquanto você edita</td><td>Veja <a href="lsp.html">Vim como IDE</a></td></tr>
+</table>
+</div>
+
+<h3>Exemplo: vim-surround</h3>
+<p>O surround cria um "objeto" para o que está em volta do texto: <code>s</code> de <em>surroundings</em>. Ele se encaixa na <a href="gramatica.html">gramática</a> do Vim:</p>
+
+<dl class="anatomy">
+  <dt>c</dt><dd>Verbo: trocar (<em>change</em>).</dd>
+  <dt>s</dt><dd>Objeto: o que está em volta (<em>surroundings</em>).</dd>
+  <dt>"</dt><dd>Qual volta: as aspas duplas.</dd>
+  <dt>'</dt><dd>Pelo quê: aspas simples.</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Texto (cursor em "Ana")</th><th>Teclas</th><th>Resultado</th></tr>
+<tr><td><code>nome = "Ana"</code></td><td><code>cs"'</code></td><td><code>nome = 'Ana'</code></td></tr>
+<tr><td><code>nome = "Ana"</code></td><td><code>ds"</code></td><td><code>nome = Ana</code></td></tr>
+<tr><td><code>nome = Ana</code></td><td><code>ysiw"</code></td><td><code>nome = "Ana"</code></td></tr>
+<tr><td><code>Olá</code></td><td><code>ysiw&lt;b&gt;</code></td><td><code>&lt;b&gt;Olá&lt;/b&gt;</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>netrw: o explorador que já vem no Vim</h2>
+<p>Antes de instalar uma árvore de arquivos, experimente o <strong>netrw</strong>, que vem com o Vim. Abra uma pasta em vez de um arquivo:</p>
+
+<pre class="term">$ vim .</pre>
+
+<p>Ou, de dentro do Vim:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Abre o explorador…</th></tr>
+<tr><td><code>:Explore</code> (ou <code>:Ex</code>)</td><td>Na janela atual, na pasta do arquivo aberto</td></tr>
+<tr><td><code>:Sexplore</code> / <code>:Vexplore</code></td><td>Numa divisão horizontal / vertical</td></tr>
+<tr><td><code>:Lexplore</code></td><td>Num painel à esquerda, que fica aberto</td></tr>
+</table>
+</div>
+
+<p>Dentro do netrw, as teclas mais usadas:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Faz</th></tr>
+<tr><td><kbd>Enter</kbd></td><td>Abre o arquivo ou entra na pasta</td></tr>
+<tr><td><code>-</code></td><td>Sobe para a pasta de cima</td></tr>
+<tr><td><code>%</code></td><td>Cria um arquivo novo (pede o nome)</td></tr>
+<tr><td><code>d</code></td><td>Cria uma pasta</td></tr>
+<tr><td><code>R</code> / <code>D</code></td><td>Renomeia / apaga (pede confirmação)</td></tr>
+<tr><td><code>i</code></td><td>Muda o estilo da lista (simples, detalhada, árvore)</td></tr>
+<tr><td><code>gh</code></td><td>Mostra ou esconde arquivos ocultos</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de instalar</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Como</th><th>Quando usar</th></tr>
+<tr><td>Pacotes nativos</td><td><code>git clone</code> em <code>~/.vim/pack/*/start</code></td><td>Poucos plugins, sem depender de nada além do git.</td></tr>
+<tr><td>vim-plug</td><td><code>Plug '…'</code> no <code>.vimrc</code> e <code>:PlugInstall</code></td><td>Vários plugins, atualização com um comando e carregamento sob demanda.</td></tr>
+<tr><td>Pacote do sistema</td><td>Por exemplo <code>sudo apt install vim-airline</code> no Debian/Ubuntu</td><td>Servidores gerenciados pela distribuição; versões mais antigas, mas estáveis.</td></tr>
+<tr><td>Recurso nativo</td><td><code>packadd! matchit</code>, netrw, <code>:Ex</code></td><td>Sempre que o Vim já fizer o que você precisa.</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Instalei e o plugin não faz nada</strong>
+<p><strong>O que aconteceu:</strong> quase sempre a pasta está no nível errado, por exemplo <code>~/.vim/pack/plugins/vim-surround</code> (faltou o <code>start/</code>), ou a pasta clonada ficou dentro de outra.</p>
+<p><strong>Como confirmar:</strong> <code>:scriptnames</code> lista todos os arquivos carregados; o do plugin precisa aparecer. A estrutura certa é <code>~/.vim/pack/QUALQUER/start/PLUGIN/plugin/arquivo.vim</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"E149: Desculpe, nenhuma ajuda para surround"</strong>
+<p><strong>O que aconteceu:</strong> o índice da ajuda não foi gerado. No Vim em inglês: <code>E149: Sorry, no help for surround</code>.</p>
+<p><strong>Como resolver:</strong> rode <code>:helptags ALL</code> (com vim-plug, o <code>:PlugInstall</code> faz isso sozinho).</p>
+</div>
+
+<div class="cenario">
+<strong>"E117: Função desconhecida: plug#begin"</strong>
+<p><strong>O que aconteceu:</strong> o arquivo <code>plug.vim</code> não está em <code>~/.vim/autoload/</code> (ou <code>~/vimfiles/autoload/</code> no Windows).</p>
+<p><strong>Como resolver:</strong> rode de novo o <code>curl</code> da instalação e confira o caminho com <code>ls ~/.vim/autoload</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"E492: Não é um comando do editor: PlugInstall"</strong>
+<p><strong>O que aconteceu:</strong> o <code>.vimrc</code> com o bloco <code>plug#begin()</code> ainda não foi carregado nesta sessão.</p>
+<p><strong>Como resolver:</strong> <code>:source ~/.vimrc</code> ou reinicie o Vim.</p>
+</div>
+
+<div class="cenario">
+<strong>"E919: Diretório não encontrado" no :packadd</strong>
+<p><strong>O que aconteceu:</strong> o nome no <code>:packadd</code> não bate com uma pasta em <code>pack/*/opt/</code>.</p>
+<p><strong>Como resolver:</strong> confira o nome exato da pasta com <code>ls ~/.vim/pack/*/opt</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Depois de um plugin, uma tecla mudou de comportamento</strong>
+<p><strong>Como confirmar:</strong> <code>:verbose nmap &lt;tecla&gt;</code> mostra qual arquivo definiu o atalho (veja <a href="mapeamentos.html">Mapeamentos</a>).</p>
+<p><strong>Como resolver:</strong> veja na ajuda do plugin se dá para desligar os atalhos dele, ou remapeie em <code>~/.vim/after/plugin/</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando / caminho</th><th>O que é</th></tr>
+<tr><td><code>~/.vim/pack/{grupo}/start/{plugin}</code></td><td>Plugin carregado sempre</td></tr>
+<tr><td><code>~/.vim/pack/{grupo}/opt/{plugin}</code></td><td>Plugin carregado com <code>:packadd</code></td></tr>
+<tr><td><code>:packadd {nome}</code> / <code>packadd! {nome}</code></td><td>Carrega um plugin opcional (o <code>!</code> é para o <code>.vimrc</code>)</td></tr>
+<tr><td><code>:helptags ALL</code></td><td>Gera a ajuda de todos os plugins</td></tr>
+<tr><td><code>:scriptnames</code></td><td>Lista os scripts carregados</td></tr>
+<tr><td><code>:PlugInstall</code>, <code>:PlugUpdate</code>, <code>:PlugClean</code></td><td>Comandos do vim-plug</td></tr>
+<tr><td><code>:Explore</code>, <code>:Lexplore</code></td><td>Explorador de arquivos netrw</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Pasta certa</h3>
+<p>Complete o caminho para um plugin que carrega sempre ao abrir o Vim:</p>
+<div class="ex-code">~/.vim/pack/plugins/<input data-answer="start" aria-label="pasta">/vim-commentary</div>
+</div>
+
+<div class="exercise">
+<h3>2. Gerar a ajuda</h3>
+<div class="ex-code">:<input data-answer="helptags ALL|helpt ALL" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. Você tirou a linha <code>Plug 'preservim/nerdtree'</code> do <code>.vimrc</code> e recarregou. Qual comando apaga o plugin do disco?</p>
+<label><input type="radio" name="q3"> <code>:PlugUpdate</code></label>
+<label><input type="radio" name="q3"> <code>:PlugClean</code></label>
+<label><input type="radio" name="q3"> <code>:packadd! nerdtree</code></label>
+<label><input type="radio" name="q3"> <code>:helptags ALL</code></label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. Qual comando abre o explorador de arquivos que já vem no Vim?</p>
+<label><input type="radio" name="q4"> <code>:NERDTree</code></label>
+<label><input type="radio" name="q4"> <code>:Files</code></label>
+<label><input type="radio" name="q4"> <code>:PlugStatus</code></label>
+<label><input type="radio" name="q4"> <code>:Explore</code></label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">5. Com o vim-surround e o cursor dentro de <code>"Ana"</code>, o que faz <code>ds"</code>?</p>
+<label><input type="radio" name="q5"> Apaga as aspas e mantém <code>Ana</code>.</label>
+<label><input type="radio" name="q5"> Apaga <code>Ana</code> e mantém as aspas.</label>
+<label><input type="radio" name="q5"> Troca as aspas duplas por simples.</label>
+<label><input type="radio" name="q5"> Duplica as aspas.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Comece sem plugins; o Vim já traz muito (netrw, <code>packadd! matchit</code>, <code>packadd! editorconfig</code>).</li>
+  <li>Nativo: <code>git clone</code> em <code>~/.vim/pack/plugins/start/</code> e <code>:helptags ALL</code>.</li>
+  <li><code>opt/</code> + <code>:packadd</code> carrega só quando você pedir.</li>
+  <li>vim-plug: <code>Plug '…'</code> entre <code>plug#begin()</code> e <code>plug#end()</code>, depois <code>:PlugInstall</code>.</li>
+  <li>Problemas: confira a pasta com <code>:scriptnames</code> e os atalhos com <code>:verbose nmap</code>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

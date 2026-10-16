@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — monte seu .vimrc em 5 etapas | Guia Vim</title>
+<meta name="description" content="Laboratório de Vim: monte um .vimrc completo em 5 etapas (números de linha, busca, indentação, atalhos e o arquivo final), testando cada opção no Vim simulado.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Monte seu .vimrc</span></h1>
+
+<p class="intro">O <code>.vimrc</code> é um arquivo de texto com as suas preferências. O Vim lê esse arquivo toda vez que abre. Neste laboratório você testa cada opção primeiro com <code>:set</code>, vê o efeito na hora, e só depois a coloca no arquivo. No fim você terá um <code>.vimrc</code> completo e comentado.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Testar uma opção com <code>:set</code> antes de guardá-la.</li>
+  <li>Ligar números de linha, uma busca mais esperta e uma indentação com espaços.</li>
+  <li>Criar atalhos próprios com a tecla líder.</li>
+  <li>Onde fica o <code>.vimrc</code> em cada sistema e como recarregá-lo sem fechar o Vim.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Leia <a href="opcoes.html">Opções Úteis (:set)</a> e <a href="vimrc.html">.vimrc Básico</a>. Este projeto junta tudo num arquivo seu.</p>
+</div>
+
+<h2>A ideia: testar com :set, guardar no .vimrc</h2>
+<p>Tudo o que você escreve no <code>.vimrc</code> é um comando que você também poderia digitar com <code>:</code>. A diferença é que, digitado, vale só até fechar o Vim. No arquivo, vale para sempre.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Digitado no Vim</th><th>No .vimrc</th><th>Dura</th></tr>
+<tr><td><code>:set number</code></td><td><code>set number</code></td><td>Até fechar / para sempre</td></tr>
+<tr><td><code>:set nonumber</code></td><td>—</td><td>Desliga uma opção</td></tr>
+<tr><td><code>:set number?</code></td><td>—</td><td>Mostra o valor atual</td></tr>
+</table>
+</div>
+
+<p>No arquivo não se escreve o <code>:</code> do começo. Comentários começam com aspas duplas (<code>"</code>).</p>
+
+<hr>
+
+<h2>Etapa 1: números de linha</h2>
+<p>Com números na margem fica fácil ir para uma linha (<code>:42</code>) ou entender uma mensagem de erro que cita uma linha. Há dois estilos:</p>
+
+<dl class="anatomy">
+  <dt>:set number</dt><dd>Mostra o número de cada linha (abreviação: <code>nu</code>).</dd>
+  <dt>:set relativenumber</dt><dd>Mostra a <strong>distância</strong> até o cursor (abreviação: <code>rnu</code>). Assim você lê direto quantas linhas pular: <code>4j</code>, <code>3dd</code>.</dd>
+</dl>
+
+<p>Com as duas ligadas, a linha do cursor mostra o número real e as outras mostram a distância:</p>
+
+<div class="vimdemo" data-file="exemplo.py" data-line="3" data-set="number relativenumber">
+<pre class="vim-inicial">import os
+
+def listar(pasta):
+    for nome in os.listdir(pasta):
+        print(nome)
+
+listar(".")</pre>
+</div>
+
+<div class="vimtry" data-file="exemplo.py">
+<pre class="vim-inicial">import os
+
+def listar(pasta):
+    for nome in os.listdir(pasta):
+        print(nome)
+
+listar(".")</pre>
+<p class="try-task"><strong>Treino livre:</strong> digite <code>:set number</code>, depois <code>:set relativenumber</code>, mova o cursor com <kbd>j</kbd> e <kbd>k</kbd> e veja os números mudarem. Desligue com <code>:set nornu</code>. Qual estilo você prefere?</p>
+</div>
+
+<hr>
+
+<h2>Etapa 2: uma busca mais esperta</h2>
+<p>Por padrão a busca diferencia maiúsculas: <code>/ana</code> não acha "Ana". Duas opções resolvem isso juntas:</p>
+
+<dl class="anatomy">
+  <dt>:set ignorecase</dt><dd>Ignora maiúsculas e minúsculas na busca (abreviação: <code>ic</code>).</dd>
+  <dt>:set smartcase</dt><dd>Mas, se você digitar alguma maiúscula, volta a diferenciar (abreviação: <code>scs</code>). <code>/ana</code> acha "Ana" e "ana"; <code>/Ana</code> só acha "Ana".</dd>
+</dl>
+
+<div class="vimtry" data-file="cadastro.txt">
+<pre class="vim-inicial">Nome: Ana Maria</pre>
+<pre class="vim-meta">Nome: </pre>
+<p class="try-task"><strong>Missão:</strong> primeiro tente <code>/ana</code> e veja o erro <code>E486</code>. Depois ligue <code>:set ignorecase</code>, busque <code>/ana</code> de novo e apague do cursor até o fim com <code>D</code>.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>:set ic&lt;Enter&gt;/ana&lt;Enter&gt;D</code>. Sem o <code>ic</code>, a busca falha, o cursor fica no começo e o <code>D</code> apagaria a linha inteira; nesse caso desfaça com <code>u</code>.</p>
+</details>
+
+<h3>Ver todas as ocorrências: hlsearch</h3>
+<p>O <code>:set hlsearch</code> pinta de amarelo todas as ocorrências da última busca. Para apagar o destaque depois de achar o que queria, use <code>:nohlsearch</code> (ou <code>:noh</code>).</p>
+
+<div class="vimdemo" data-file="log.txt" data-set="hlsearch" data-keys="/erro&lt;CR&gt;">
+<pre class="vim-inicial">10:00 ok
+10:01 erro de disco
+10:02 ok
+10:03 erro de rede</pre>
+</div>
+
+<p>O <code>incsearch</code>, que mostra o resultado enquanto você digita, já vem ligado no Vim moderno.</p>
+
+<hr>
+
+<h2>Etapa 3: indentação com espaços</h2>
+<p>O padrão do Vim é recuar 8 colunas com um caractere Tab. Em Python, JavaScript, YAML e na maioria dos projetos atuais, o costume é 4 (ou 2) espaços. Quatro opções controlam isso:</p>
+
+<dl class="anatomy">
+  <dt>shiftwidth=4</dt><dd>Quanto <code>&gt;&gt;</code> e <code>&lt;&lt;</code> andam (abreviação: <code>sw</code>).</dd>
+  <dt>tabstop=4</dt><dd>Quantas colunas um Tab ocupa na tela (abreviação: <code>ts</code>).</dd>
+  <dt>expandtab</dt><dd>A tecla Tab e o <code>&gt;&gt;</code> inserem espaços em vez de um Tab (abreviação: <code>et</code>).</dd>
+  <dt>autoindent</dt><dd>Uma linha nova começa com o mesmo recuo da anterior (abreviação: <code>ai</code>).</dd>
+</dl>
+
+<p>Veja a diferença. Primeiro com o padrão (Tab de 8 colunas), depois com <code>sw=4 et</code>:</p>
+
+<div class="vimdemo" data-file="ola.py" data-line="2" data-keys="&gt;&gt;">
+<pre class="vim-inicial">def ola():
+print("oi")</pre>
+</div>
+
+<div class="vimdemo" data-file="ola.py" data-line="2" data-set="shiftwidth=4 expandtab" data-keys="&gt;&gt;">
+<pre class="vim-inicial">def ola():
+print("oi")</pre>
+</div>
+
+<div class="vimtry" data-file="ola.py">
+<pre class="vim-inicial">def ola():
+print("oi")
+return 0</pre>
+<pre class="vim-meta">def ola():
+    print("oi")
+    return 0</pre>
+<p class="try-task"><strong>Missão:</strong> configure recuo de 4 espaços (<code>:set shiftwidth=4 expandtab</code>) e indente as linhas 2 e 3.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>:set sw=4 et&lt;Enter&gt;j&gt;j</code>. O <code>&gt;j</code> indenta a linha atual e a de baixo de uma vez. Também vale <code>j&gt;&gt;j&gt;&gt;</code>. Sem configurar antes, o recuo sai com um Tab e a missão não bate.</p>
+</details>
+
+<div class="note">
+<strong>Cada linguagem com seu recuo</strong>
+<p>Dá para usar 2 espaços só em arquivos YAML, por exemplo, com <code>autocmd</code>. Isso fica para a aula <a href="autocmd.html">Autocomandos</a>.</p>
+</div>
+
+<hr>
+
+<h2>Etapa 4: atalhos com a tecla líder</h2>
+<p>A <strong>tecla líder</strong> (<em>leader</em>) é uma tecla que você escolhe para começar os seus próprios atalhos, sem atrapalhar os comandos do Vim. O espaço é uma escolha popular, porque no modo normal ele quase não tem uso.</p>
+
+<pre class="file" data-file="trecho do ~/.vimrc">let mapleader = " "                    " a tecla líder é o espaço
+nnoremap &lt;leader&gt;w :w&lt;CR&gt;              " espaço + w salva
+nnoremap &lt;leader&gt;q :q&lt;CR&gt;              " espaço + q fecha
+nnoremap &lt;leader&gt;h :nohlsearch&lt;CR&gt;     " espaço + h apaga o destaque da busca</pre>
+
+<dl class="anatomy">
+  <dt>nnoremap</dt><dd>Cria um atalho no modo <strong>n</strong>ormal, <strong>nore</strong> = sem reaproveitar outros atalhos (mais seguro).</dd>
+  <dt>&lt;leader&gt;w</dt><dd>As teclas que você vai apertar: líder e depois <code>w</code>.</dd>
+  <dt>:w&lt;CR&gt;</dt><dd>O que o atalho faz: digita <code>:w</code> e <kbd>Enter</kbd> por você.</dd>
+</dl>
+
+<p>Atalhos não funcionam no Vim simulado. Teste no seu Vim depois de salvar o arquivo. A aula <a href="mapeamentos.html">Mapeamentos</a> explica tudo sobre eles.</p>
+
+<hr>
+
+<h2>Etapa 5: escrever e salvar o arquivo</h2>
+<p>Primeiro um aquecimento no simulador: escreva um <code>.vimrc</code> pequeno e salve.</p>
+
+<div class="vimtry" data-file=".vimrc" data-save="1">
+<pre class="vim-inicial"></pre>
+<pre class="vim-meta">set number
+set ignorecase
+set smartcase</pre>
+<p class="try-task"><strong>Missão:</strong> o arquivo está vazio. Escreva as três linhas <code>set number</code>, <code>set ignorecase</code> e <code>set smartcase</code> (uma por linha) e salve com <code>:w</code>.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>i</code>, digite <code>set number&lt;Enter&gt;set ignorecase&lt;Enter&gt;set smartcase</code>, aperte <kbd>Esc</kbd> e depois <code>:w&lt;Enter&gt;</code>.</p>
+</details>
+
+<h3>Onde fica o arquivo</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Sistema</th><th>Arquivo</th></tr>
+<tr><td>Linux, macOS, WSL</td><td><code>~/.vimrc</code> ou <code>~/.vim/vimrc</code></td></tr>
+<tr><td>Windows</td><td><code>%USERPROFILE%\_vimrc</code> ou <code>%USERPROFILE%\vimfiles\vimrc</code></td></tr>
+<tr><td>Neovim</td><td><code>~/.config/nvim/init.vim</code> (ou <code>init.lua</code>)</td></tr>
+</table>
+</div>
+
+<p>Dentro do Vim, <code>:echo $MYVIMRC</code> mostra qual arquivo foi lido. No terminal:</p>
+
+<pre class="term">$ vim ~/.vimrc</pre>
+
+<h3>O arquivo completo</h3>
+<p>Este é o resultado do projeto, comentado linha a linha. Copie, cole no seu <code>~/.vimrc</code> e apague o que não quiser.</p>
+
+<pre class="file" data-file="~/.vimrc">" ~/.vimrc — configuração do Guia Vim
+
+" Mantém os padrões bons do Vim (showcmd, ruler, incsearch...).
+" Sem estas duas linhas, criar um .vimrc desliga esses padrões.
+unlet! skip_defaults_vim
+source $VIMRUNTIME/defaults.vim
+
+" ---- Aparência ----
+set number              " número da linha
+set relativenumber      " distância até o cursor (ótimo para 5j, 3dd)
+
+" ---- Busca ----
+set ignorecase          " ignora maiúsculas na busca...
+set smartcase           " ...a não ser que você digite uma
+set hlsearch            " destaca todas as ocorrências
+set incsearch           " mostra o resultado enquanto digita
+
+" ---- Indentação ----
+set shiftwidth=4        " &gt;&gt; e &lt;&lt; andam 4 colunas
+set tabstop=4           " um Tab ocupa 4 colunas
+set expandtab           " Tab vira espaços
+set autoindent          " linha nova herda o recuo
+
+" ---- Conforto ----
+set mouse=a             " mouse funciona no terminal
+syntax on               " cores por linguagem
+filetype plugin indent on
+
+" ---- Atalhos (líder = espaço) ----
+let mapleader = " "
+nnoremap &lt;leader&gt;w :w&lt;CR&gt;
+nnoremap &lt;leader&gt;q :q&lt;CR&gt;
+nnoremap &lt;leader&gt;h :nohlsearch&lt;CR&gt;</pre>
+
+<div class="warning">
+<strong>As duas primeiras linhas importam</strong>
+<p>Quando não existe <code>.vimrc</code>, o Vim carrega o <code>defaults.vim</code>, que liga várias coisas boas. No momento em que você cria o seu <code>.vimrc</code>, isso deixa de acontecer. As linhas <code>unlet! skip_defaults_vim</code> e <code>source $VIMRUNTIME/defaults.vim</code> trazem esses padrões de volta.</p>
+</div>
+
+<h3>Aplicar sem fechar o Vim</h3>
+<p>Depois de salvar o <code>.vimrc</code>, recarregue com <code>:source ~/.vimrc</code>. Se o arquivo aberto é o próprio <code>.vimrc</code>, basta <code>:source %</code> (o <code>%</code> é "o arquivo atual").</p>
+
+<pre class="term">$ vim --clean notas.txt     « abre sem nenhuma configuração, para comparar
+$ vim -u NONE notas.txt     « mais cru ainda: sem .vimrc e sem defaults.vim</pre>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>E518: Opção desconhecida</strong>
+<p><strong>O que aconteceu:</strong> erro de digitação no nome da opção, como <code>:set numbr</code>. Ao abrir o Vim, o erro aparece com o número da linha do <code>.vimrc</code>.</p>
+<p><strong>Como resolver:</strong> confira o nome em <code>:help 'number'</code> (com aspas simples) ou use <kbd>Tab</kbd> depois de <code>:set nu</code> para o Vim completar.</p>
+</div>
+
+<div class="cenario">
+<strong>Criei o .vimrc e o Vim ficou "pior"</strong>
+<p><strong>O que aconteceu:</strong> o <code>defaults.vim</code> deixou de ser carregado. O comando pendente sumiu do rodapé, a régua também, e a busca não mostra mais o resultado enquanto você digita.</p>
+<p><strong>Como resolver:</strong> coloque no topo do arquivo as duas linhas do <code>defaults.vim</code> mostradas acima.</p>
+</div>
+
+<div class="cenario">
+<strong>Mudei o .vimrc e nada mudou</strong>
+<p><strong>O que aconteceu:</strong> o Vim só lê o arquivo ao abrir.</p>
+<p><strong>Como resolver:</strong> <code>:source ~/.vimrc</code>. Para saber de onde veio o valor de uma opção, use <code>:verbose set shiftwidth?</code>.</p>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Ligar os números de linha</h3>
+<div class="ex-code">:set <input data-answer="number|nu" aria-label="opção"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Desligar o destaque da busca, só agora</h3>
+<div class="ex-code">:<input data-answer="nohlsearch|noh|nohl|nohls" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. Com <code>ignorecase</code> e <code>smartcase</code> ligados, o que <code>/Linux</code> encontra?</p>
+<label><input type="radio" name="q3"> "linux", "LINUX" e "Linux"</label>
+<label><input type="radio" name="q3"> Só "Linux", porque a busca tem maiúscula</label>
+<label><input type="radio" name="q3"> Nada: as opções se anulam</label>
+<label><input type="radio" name="q3"> Só "linux"</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. Como se escreve um comentário no <code>.vimrc</code>?</p>
+<label><input type="radio" name="q4"> <code># comentário</code></label>
+<label><input type="radio" name="q4"> <code>// comentário</code></label>
+<label><input type="radio" name="q4"> <code>-- comentário</code></label>
+<label><input type="radio" name="q4"> <code>" comentário</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Teste com <code>:set opção</code>; se gostar, escreva <code>set opção</code> no <code>.vimrc</code>.</li>
+  <li><code>number</code>/<code>relativenumber</code>, <code>ignorecase</code>/<code>smartcase</code>, <code>shiftwidth</code>/<code>expandtab</code> são o trio que mais muda o dia a dia.</li>
+  <li>A tecla líder abre espaço para os seus atalhos com <code>nnoremap</code>.</li>
+  <li>Comece o arquivo carregando o <code>defaults.vim</code> e recarregue com <code>:source</code>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

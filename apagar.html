@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — apagar texto com x, dd e D | Guia Vim</title>
+<meta name="description" content="Aprenda a apagar no Vim: x, X, dw, dd, D e d$, com cada tecla explicada, demonstrações passo a passo, um Vim simulado para praticar e os erros mais comuns.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Apagar (x, dd, D)</span></h1>
+
+<p class="intro">No Vim você não apaga segurando <kbd>Backspace</kbd>. Você diz <strong>o que</strong> quer apagar: um caractere, uma palavra, até o fim da linha ou a linha inteira. Cada uma dessas tarefas tem um comando de uma ou duas teclas, sempre no <strong>modo normal</strong>.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Apagar um caractere com <code>x</code> e <code>X</code>.</li>
+  <li>Apagar uma linha inteira com <code>dd</code>, e várias de uma vez com <code>3dd</code>.</li>
+  <li>Apagar até o fim da linha com <code>D</code>, e uma palavra com <code>dw</code>.</li>
+  <li>Para onde vai o texto apagado (spoiler: ele não some).</li>
+  <li>O que fazer quando a tecla "escreve" em vez de apagar.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Todos os comandos desta aula funcionam no <strong>modo normal</strong>, o modo em que o Vim abre. Se você estiver digitando texto (modo de inserção, com <code>-- INSERÇÃO --</code> no rodapé), aperte <kbd>Esc</kbd> primeiro. Reveja em <a href="modos.html">Os Modos do Vim</a>.</p>
+</div>
+
+<hr>
+
+<h2>Como ler as telas desta aula</h2>
+<p>As caixas escuras são um Vim simulado, igual ao de verdade. O quadrado claro é o <strong>cursor</strong>. Os <code>~</code> azuis marcam linhas que não existem no arquivo. Na última linha ficam as mensagens e, à direita, a posição do cursor (linha,coluna).</p>
+
+<div class="vimdemo" data-file="lista.txt" data-col="1">
+<pre class="vim-inicial">Comprar pão
+Pagar a conta de luz
+Ligar para o João</pre>
+</div>
+
+<p>Aqui o cursor está na linha 1, coluna 1, sobre o <code>C</code> de "Comprar". O rodapé mostra <code>1,1</code> e <code>Tudo</code>, que quer dizer que o arquivo inteiro cabe na tela.</p>
+
+<hr>
+
+<h2>x: apagar um caractere</h2>
+<p>O <code>x</code> apaga o caractere <strong>sob o cursor</strong>. Pense num "x" riscando uma letra.</p>
+
+<dl class="anatomy">
+  <dt>x</dt><dd>Apaga o caractere em que o cursor está. O texto da direita anda uma posição para a esquerda.</dd>
+</dl>
+
+<p>Clique em <strong>Próxima tecla</strong> para ver o que cada tecla faz. O erro de digitação é o <code>a</code> a mais em "Paagar":</p>
+
+<div class="vimdemo" data-file="lista.txt" data-line="2" data-col="2" data-keys="x">
+<pre class="vim-inicial">Comprar pão
+Paagar a conta de luz
+Ligar para o João</pre>
+</div>
+
+<p>Com um número antes, ele apaga vários: <code>3x</code> apaga 3 caracteres a partir do cursor.</p>
+
+<div class="vimdemo" data-file="nota.txt" data-col="5" data-keys="3x">
+<pre class="vim-inicial">Nota: 10000 pontos</pre>
+</div>
+
+<h3>X maiúsculo: apagar o caractere da esquerda</h3>
+<p>O <code>X</code> (com <kbd>Shift</kbd>) apaga o caractere <strong>antes</strong> do cursor, como o <kbd>Backspace</kbd> de outros editores.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Apaga</th><th>Equivale a</th></tr>
+<tr><td><code>x</code></td><td>O caractere sob o cursor</td><td><kbd>Delete</kbd></td></tr>
+<tr><td><code>X</code></td><td>O caractere à esquerda do cursor</td><td><kbd>Backspace</kbd></td></tr>
+<tr><td><code>5x</code></td><td>5 caracteres a partir do cursor</td><td>—</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="frase.txt" data-col="1">
+<pre class="vim-inicial">O Viim é um eeditor muito ráapido.</pre>
+<pre class="vim-meta">O Vim é um editor muito rápido.</pre>
+<p class="try-task"><strong>Missão:</strong> a frase tem três letras sobrando. Mova o cursor com <kbd>l</kbd> (direita) e <kbd>h</kbd> (esquerda) e apague as sobras com <code>x</code>. Clique na tela antes de digitar.</p>
+</div>
+
+<hr>
+
+<h2>dd: apagar a linha inteira</h2>
+<p>Para apagar uma linha, não importa onde o cursor esteja nela: aperte <kbd>d</kbd> duas vezes.</p>
+
+<dl class="anatomy">
+  <dt>d</dt><dd>O verbo <strong>apagar</strong> (de <em>delete</em>). Sozinho ele espera a próxima tecla para saber o que apagar.</dd>
+  <dt>d</dt><dd>Repetir o verbo significa "a linha inteira".</dd>
+</dl>
+
+<div class="vimdemo" data-file="lista.txt" data-line="2" data-col="4" data-keys="dd">
+<pre class="vim-inicial">Comprar pão
+Linha errada que precisa sair
+Ligar para o João</pre>
+</div>
+
+<p>Repare no canto direito do rodapé enquanto a demonstração roda: depois do primeiro <kbd>d</kbd>, aparece um <code>d</code> ali. É o Vim mostrando que está esperando o resto do comando. Se você apertou <kbd>d</kbd> sem querer, aperte <kbd>Esc</kbd> e nada acontece.</p>
+
+<h3>Várias linhas: 3dd</h3>
+<p>Um número antes apaga várias linhas a partir da atual. Quando são mais de 2 linhas, o Vim avisa no rodapé quantas saíram:</p>
+
+<div class="vimdemo" data-file="log.txt" data-line="2" data-keys="3dd">
+<pre class="vim-inicial">INÍCIO
+erro 1
+erro 2
+erro 3
+FIM</pre>
+</div>
+
+<p>A mensagem <code>3 linhas a menos</code> é a confirmação. No Vim em inglês ela aparece como <code>3 fewer lines</code>.</p>
+
+<div class="vimtry" data-file="compras.txt" data-line="1">
+<pre class="vim-inicial">arroz
+APAGAR ESTA
+feijão
+APAGAR ESTA
+APAGAR ESTA
+café</pre>
+<pre class="vim-meta">arroz
+feijão
+café</pre>
+<p class="try-task"><strong>Missão:</strong> remova as três linhas "APAGAR ESTA". Use <kbd>j</kbd> para descer, <code>dd</code> para apagar uma linha e <code>2dd</code> para apagar duas.</p>
+</div>
+
+<hr>
+
+<h2>D: apagar até o fim da linha</h2>
+<p>O <code>D</code> maiúsculo apaga do cursor até o fim da linha. A linha continua existindo, só fica mais curta.</p>
+
+<dl class="anatomy">
+  <dt>D</dt><dd>Apaga do cursor até o último caractere da linha. É um atalho para <code>d$</code>.</dd>
+</dl>
+
+<div class="vimdemo" data-file="config.txt" data-col="13" data-keys="D">
+<pre class="vim-inicial">porta = 8080  # comentário velho que não serve mais</pre>
+</div>
+
+<p>O cursor começou no espaço logo depois de <code>8080</code>. Depois do <code>D</code>, ele fica sobre o último caractere que sobrou, o <code>0</code>.</p>
+
+<hr>
+
+<h2>dw: apagar uma palavra</h2>
+<p>O <code>d</code> também pode ser combinado com um <strong>movimento</strong>. O <code>w</code> é o movimento "até a próxima palavra" (de <em>word</em>). Juntos, <code>dw</code> apaga do cursor até o começo da próxima palavra.</p>
+
+<dl class="anatomy">
+  <dt>d</dt><dd>Verbo: apagar.</dd>
+  <dt>w</dt><dd>Movimento: até o começo da próxima palavra. O espaço depois da palavra vai junto.</dd>
+</dl>
+
+<div class="vimdemo" data-file="frase.txt" data-col="8" data-keys="dw">
+<pre class="vim-inicial">O gato muito preto dormiu</pre>
+</div>
+
+<p>Essa ideia de <strong>verbo + movimento</strong> é o coração do Vim, e você vai usá-la o tempo todo. Ela tem uma aula só para ela: <a href="gramatica.html">Verbo + Movimento</a>.</p>
+
+<hr>
+
+<h2>Formas diferentes de apagar</h2>
+<p>Quase sempre há mais de um jeito. Veja o mesmo objetivo, "tirar a palavra <code>muito</code>", feito de formas diferentes:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que acontece</th><th>Quando usar</th></tr>
+<tr><td><code>xxxxxx</code></td><td>Apaga letra por letra (6 vezes)</td><td>Funciona, mas é lento. Evite.</td></tr>
+<tr><td><code>6x</code></td><td>Apaga 6 caracteres de uma vez</td><td>Quando você sabe exatamente quantos são.</td></tr>
+<tr><td><code>dw</code></td><td>Apaga do cursor até a próxima palavra</td><td>Cursor no começo da palavra.</td></tr>
+<tr><td><code>daw</code></td><td>Apaga a palavra inteira e um espaço, com o cursor em qualquer letra dela</td><td>Cursor no meio da palavra (veja <a href="objetos.html">Objetos de Texto</a>).</td></tr>
+<tr><td><code>viwd</code></td><td>Seleciona a palavra e apaga</td><td>Quando você quer ver antes o que vai sair (veja <a href="visual.html">Modo Visual</a>).</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="frase.txt" data-col="12" data-max-keys="3">
+<pre class="vim-inicial">O gato muito preto dormiu</pre>
+<pre class="vim-meta">O gato preto dormiu</pre>
+<p class="try-task"><strong>Desafio:</strong> o cursor está no meio de "muito". Apague a palavra e um dos espaços em volta usando no máximo 3 teclas. Dica: está na tabela acima.</p>
+</div>
+
+<hr>
+
+<h2>O texto apagado não some</h2>
+<p>No Vim, apagar também é <strong>recortar</strong>. Tudo o que <code>x</code>, <code>dd</code>, <code>D</code> e <code>dw</code> apagam vai para um lugar chamado <strong>registrador</strong>, e o <code>p</code> (de <em>put</em>, "colocar") cola de volta. Daí sai um truque clássico: <code>ddp</code> troca uma linha com a de baixo.</p>
+
+<div class="vimdemo" data-file="passos.txt" data-keys="ddp">
+<pre class="vim-inicial">2. Ligar o computador
+1. Apertar o botão
+3. Entrar com a senha</pre>
+</div>
+
+<p>E <code>xp</code> troca duas letras de lugar, perfeito para consertar um "Ubnutu":</p>
+
+<div class="vimdemo" data-file="nome.txt" data-col="3" data-keys="xp">
+<pre class="vim-inicial">Ubnutu</pre>
+</div>
+
+<p>Você aprende tudo sobre isso em <a href="copiar-colar.html">Copiar e Colar</a> e <a href="registradores.html">Registradores</a>.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Apertei x e apareceu a letra "x" no texto</strong>
+<p><strong>O que aconteceu:</strong> você estava no modo de inserção (o rodapé mostrava <code>-- INSERÇÃO --</code>). Nesse modo, toda tecla vira texto.</p>
+<p><strong>Como resolver:</strong> aperte <kbd>Backspace</kbd> para tirar o "x" e depois <kbd>Esc</kbd> para voltar ao modo normal. Agora o <code>x</code> apaga.</p>
+</div>
+
+<div class="cenario">
+<strong>dd apagou a linha errada</strong>
+<p><strong>O que aconteceu:</strong> o <code>dd</code> apaga a linha em que o cursor está, e talvez ele estivesse uma linha acima ou abaixo.</p>
+<p><strong>Como resolver:</strong> aperte <code>u</code> (de <em>undo</em>, desfazer). A linha volta. Veja <a href="desfazer.html">Desfazer e Refazer</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>Apertei D e apagou mais do que eu queria</strong>
+<p><strong>O que aconteceu:</strong> <code>D</code> maiúsculo apaga até o fim da linha. Talvez o <kbd>Caps Lock</kbd> estivesse ligado e você quisesse um <code>d</code> minúsculo.</p>
+<p><strong>Como resolver:</strong> <code>u</code> para desfazer e desligue o <kbd>Caps Lock</kbd>. Com ele ligado, quase todo comando vira outro: <code>j</code> vira <code>J</code> (juntar linhas), <code>u</code> vira <code>U</code>…</p>
+</div>
+
+<div class="cenario">
+<strong>Escrevi "d" e nada aconteceu</strong>
+<p><strong>O que aconteceu:</strong> o <code>d</code> sozinho não faz nada; ele espera um movimento. O <code>d</code> aparece no canto direito do rodapé.</p>
+<p><strong>Como resolver:</strong> complete o comando (<code>d</code>, <code>w</code>, <code>$</code>…) ou aperte <kbd>Esc</kbd> para cancelar.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Apaga</th><th>Exemplo</th></tr>
+<tr><td><code>x</code></td><td>Caractere sob o cursor</td><td><code>3x</code> apaga 3</td></tr>
+<tr><td><code>X</code></td><td>Caractere à esquerda</td><td><code>2X</code></td></tr>
+<tr><td><code>dd</code></td><td>Linha inteira</td><td><code>5dd</code> apaga 5 linhas</td></tr>
+<tr><td><code>D</code> ou <code>d$</code></td><td>Do cursor até o fim da linha</td><td>—</td></tr>
+<tr><td><code>d0</code></td><td>Do começo da linha até antes do cursor</td><td>—</td></tr>
+<tr><td><code>dw</code></td><td>Do cursor até a próxima palavra</td><td><code>3dw</code> apaga 3 palavras</td></tr>
+<tr><td><code>daw</code></td><td>A palavra inteira (com um espaço)</td><td>—</td></tr>
+<tr><td><code>dG</code></td><td>Da linha atual até o fim do arquivo</td><td>—</td></tr>
+<tr><td><code>dgg</code></td><td>Da linha atual até o começo do arquivo</td><td>—</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Várias linhas</h3>
+<p>Quais teclas apagam 4 linhas a partir da atual?</p>
+<div class="ex-code"><input data-answer="4dd|d3j|dd..." aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Até o fim</h3>
+<p>Qual tecla <strong>única</strong> apaga do cursor até o fim da linha?</p>
+<div class="ex-code"><input data-answer="D" aria-label="tecla"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. O cursor está no "r" de "Ubrnutu". Qual comando deixa "Ubuntu"?</p>
+<label><input type="radio" name="q3"> <code>dd</code></label>
+<label><input type="radio" name="q3"> <code>X</code></label>
+<label><input type="radio" name="q3"> <code>x</code></label>
+<label><input type="radio" name="q3"> <code>D</code></label>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Você apertou <code>dd</code> e uma linha sumiu. Onde ela está agora?</p>
+<label><input type="radio" name="q4"> Foi apagada para sempre.</label>
+<label><input type="radio" name="q4"> Num registrador; <code>p</code> cola de volta e <code>u</code> desfaz.</label>
+<label><input type="radio" name="q4"> Na lixeira do sistema.</label>
+<label><input type="radio" name="q4"> Num arquivo de backup automático.</label>
+</div>
+
+<div class="vimtry" data-file="tarefas.txt" data-line="1">
+<pre class="vim-inicial">TAREFAS
+- estudar Vim  (urgente!!!)
+- regar as plantas
+LIXO
+LIXO
+- lavar a louça</pre>
+<pre class="vim-meta">TAREFAS
+- estudar Vim
+- regar as plantas
+- lavar a louça</pre>
+<p class="try-task"><strong>Missão final:</strong> apague as duas linhas "LIXO" e o texto <code>  (urgente!!!)</code> do fim da segunda linha. Dica: leve o cursor até o espaço depois de "Vim" e use <code>D</code>.</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>x</code> apaga o caractere sob o cursor; <code>X</code>, o da esquerda.</li>
+  <li><code>dd</code> apaga a linha; <code>3dd</code>, três linhas.</li>
+  <li><code>D</code> apaga até o fim da linha; <code>dw</code>, até a próxima palavra.</li>
+  <li>O <code>d</code> é um verbo que espera um movimento: <code>d</code> + <code>w</code>, <code>d</code> + <code>$</code>…</li>
+  <li>Nada se perde: <code>u</code> desfaz e <code>p</code> cola o que foi apagado.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

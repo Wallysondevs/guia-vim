@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — ctags e navegação em código | Guia Vim</title>
+<meta name="description" content="Navegue em código no Vim: gere tags com universal-ctags, pule para definições com Ctrl-] e volte com Ctrl-t, use :tag, :ts, gd, gf e [[ ]]. Instalação em Linux, macOS e Windows.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">ctags e Navegação em Código</span></h1>
+
+<p class="intro">Num projeto com dezenas de arquivos, a pergunta mais comum é "onde essa função foi definida?". O Vim responde com um único atalho, <kbd>Ctrl</kbd>+<kbd>]</kbd>, desde que exista um <strong>arquivo de tags</strong>: um índice com o nome e o local de cada função, classe e variável do projeto. Quem gera esse índice é um programa chamado <strong>ctags</strong>.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>O que é um arquivo de tags e como gerá-lo com o universal-ctags.</li>
+  <li>Pular para uma definição com <kbd>Ctrl</kbd>+<kbd>]</kbd> e voltar com <kbd>Ctrl</kbd>+<kbd>T</kbd>.</li>
+  <li>Escolher entre várias definições com <code>:ts</code> e <code>g]</code>.</li>
+  <li>Navegar sem tags: <code>gd</code>, <code>gf</code>, <code>[[</code> e <code>]]</code>.</li>
+  <li>Resolver "Não há arquivo de marcadores" e tags desatualizadas.</li>
+</ul>
+</div>
+
+<div class="note">
+<strong>Sobre o simulador</strong>
+<p>O Vim simulado tem um arquivo só e não lê tags. Nesta aula as telas mostram o Vim real; pratique num projeto de verdade.</p>
+</div>
+
+<hr>
+
+<h2>O que é um arquivo de tags</h2>
+<p>É um arquivo de texto chamado <code>tags</code>, na raiz do projeto, com uma linha por "coisa com nome" (o Vim chama de <strong>marcador</strong>). Cada linha diz o nome, o arquivo e como achar a linha:</p>
+
+<pre class="file" data-file="tags">calcular_total	loja/pedido.py	/^def calcular_total(itens):$/;"	f
+Cliente	loja/cliente.py	/^class Cliente:$/;"	c
+TAXA	loja/config.py	/^TAXA = 0.05$/;"	v</pre>
+
+<dl class="anatomy">
+  <dt>calcular_total</dt><dd>O nome procurado.</dd>
+  <dt>loja/pedido.py</dt><dd>O arquivo onde ele foi definido.</dd>
+  <dt>/^def calcular_total(itens):$/</dt><dd>Uma busca do Vim que encontra a linha exata.</dd>
+  <dt>f</dt><dd>O tipo: <code>f</code> função, <code>c</code> classe, <code>v</code> variável.</dd>
+</dl>
+
+<p>Ninguém escreve isso à mão: o ctags lê o código e gera o arquivo.</p>
+
+<hr>
+
+<h2>Instalar o universal-ctags</h2>
+<p>O <strong>universal-ctags</strong> é a versão moderna e mantida do ctags, com suporte a mais de 100 linguagens. Instale pelo gerenciador de pacotes do seu sistema:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Sistema</th><th>Comando</th></tr>
+<tr><td>Debian, Ubuntu, Mint</td><td><code>sudo apt install universal-ctags</code></td></tr>
+<tr><td>Fedora</td><td><code>sudo dnf install ctags</code></td></tr>
+<tr><td>Arch, Manjaro</td><td><code>sudo pacman -S ctags</code></td></tr>
+<tr><td>openSUSE</td><td><code>sudo zypper install ctags</code></td></tr>
+<tr><td>macOS (Homebrew)</td><td><code>brew install universal-ctags</code></td></tr>
+<tr><td>Windows</td><td><code>winget install UniversalCtags.Ctags</code></td></tr>
+</table>
+</div>
+
+<p>Confira se é o universal-ctags (a primeira linha deve dizer <code>Universal Ctags</code>):</p>
+
+<pre class="term">$ ctags --version
+Universal Ctags 6.1.0, Copyright (C) 2015-2023 Universal Ctags Team
+Universal Ctags is derived from Exuberant Ctags.</pre>
+
+<p>O número da versão varia de um sistema para outro.</p>
+
+<div class="warning">
+<strong>Cuidado no macOS</strong>
+<p>O macOS traz um <code>ctags</code> antigo do sistema, que não entende a opção <code>-R</code>. Se <code>ctags -R .</code> der erro, confira com <code>which ctags</code> se o do Homebrew está primeiro no <code>PATH</code>.</p>
+</div>
+
+<hr>
+
+<h2>Gerar as tags: ctags -R .</h2>
+<p>Na pasta raiz do projeto, rode:</p>
+
+<dl class="anatomy">
+  <dt>ctags</dt><dd>O programa que cria o índice.</dd>
+  <dt>-R</dt><dd>Recursivo: entra em todas as subpastas.</dd>
+  <dt>.</dt><dd>A partir da pasta atual.</dd>
+</dl>
+
+<pre class="term" data-cwd="~/loja">$ ctags -R .
+$ ls
+cliente.py  config.py  pedido.py  tags        « o índice novo
+$ grep calcular tags
+calcular_total	pedido.py	/^def calcular_total(itens):$/;"	f</pre>
+
+<p>O ctags não mostra nada quando dá certo. Rode de novo sempre que o código mudar bastante, porque o arquivo de tags não se atualiza sozinho.</p>
+
+<div class="tip">
+<strong>Não versione o arquivo tags</strong>
+<p>Coloque <code>tags</code> no <code>.gitignore</code>: cada pessoa gera o seu.</p>
+</div>
+
+<hr>
+
+<h2>Ctrl+]: pular para a definição</h2>
+<p>Abra o Vim na mesma pasta do arquivo <code>tags</code>, coloque o cursor sobre um nome e aperte <kbd>Ctrl</kbd>+<kbd>]</kbd>.</p>
+
+<dl class="anatomy">
+  <dt>Ctrl+]</dt><dd>Procura a palavra sob o cursor no arquivo de tags e pula para a definição, mesmo que ela esteja em outro arquivo.</dd>
+</dl>
+
+<p>O cursor está em <code>calcular_total</code>, dentro de <code>main.py</code>:</p>
+
+<div class="vimdemo" data-file="main.py" data-line="3" data-col="9" data-title="main.py — Vim">
+<pre class="vim-inicial">from pedido import calcular_total
+
+total = calcular_total(carrinho)
+print(total)</pre>
+</div>
+
+<p>Depois de <kbd>Ctrl</kbd>+<kbd>]</kbd>, o Vim abre <code>pedido.py</code> com o cursor na linha da definição:</p>
+
+<div class="vimdemo" data-file="pedido.py" data-title="pedido.py — Vim">
+<pre class="vim-inicial">def calcular_total(itens):
+    soma = 0
+    for item in itens:
+        soma += item.preco
+    return soma</pre>
+</div>
+
+<h3>Ctrl+T: voltar</h3>
+<p>O <kbd>Ctrl</kbd>+<kbd>T</kbd> (de <em>tag stack</em>, a "pilha" de pulos) volta para onde você estava antes do último <kbd>Ctrl</kbd>+<kbd>]</kbd>. Você pode pular várias vezes seguidas, entrando cada vez mais fundo no código, e voltar uma por uma.</p>
+
+<pre class="term" data-title="pedido.py — Vim">:tags
+  # PARA marcador  DA linha   no arquivo/texto
+  1  1 calcular_total        3 main.py
+&gt;</pre>
+
+<p>O comando <code>:tags</code> mostra essa pilha. O <code>&gt;</code> indica sua posição nela. A pilha guarda até 20 pulos.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>]</kbd></td><td>Pula para a definição da palavra sob o cursor</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>Volta pela pilha de tags</td></tr>
+<tr><td><code>:tags</code></td><td>Mostra a pilha</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>Volta pela lista de saltos (funciona para tags e para qualquer pulo)</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando há mais de uma definição</h2>
+<p>Em projetos grandes, o mesmo nome pode existir em vários lugares (por exemplo, um método <code>salvar</code> em várias classes). O <kbd>Ctrl</kbd>+<kbd>]</kbd> pula para o primeiro e avisa no rodapé:</p>
+
+<pre class="term" data-title="cliente.py — Vim">marcador 1 de 3 ou mais</pre>
+
+<p>Para escolher, use <code>:ts</code> (de <em>tag select</em>) ou <code>g]</code> com o cursor no nome:</p>
+
+<pre class="term" data-title="main.py — Vim">:ts salvar
+  # pri tipo marcador          arquivo
+  1 F   m    salvar            loja/cliente.py
+               class:Cliente
+               def salvar(self):
+  2 F   m    salvar            loja/pedido.py
+               class:Pedido
+               def salvar(self):
+  3 F   m    salvar            loja/produto.py
+               class:Produto
+               def salvar(self):
+Digite um número e &lt;Enter&gt; (deixe em branco para cancelar): </pre>
+
+<p>Digite o número e <kbd>Enter</kbd>. Depois, <code>:tn</code> e <code>:tp</code> (de <em>tag next</em> e <em>tag previous</em>) andam entre as opções.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:tag nome</code></td><td>Pula para a definição de <code>nome</code>, sem precisar do cursor nele. Aceita <kbd>Tab</kbd> para completar.</td></tr>
+<tr><td><code>:ts nome</code> ou <code>g]</code></td><td>Lista todas as definições e deixa escolher</td></tr>
+<tr><td><code>g Ctrl+]</code></td><td>Pula direto se houver uma só; lista se houver várias</td></tr>
+<tr><td><code>:tn</code> / <code>:tp</code></td><td>Próxima / anterior definição com o mesmo nome</td></tr>
+<tr><td><code>:tag /^calc</code></td><td>Procura tags com uma expressão regular</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Onde o Vim procura o arquivo tags</h2>
+<p>A opção <code>tags</code> diz onde procurar. O padrão é <code>./tags,tags</code>: a pasta do arquivo aberto e a pasta em que você abriu o Vim. Se você abre arquivos de subpastas, adicione o <code>;</code>, que faz o Vim subir pelas pastas até encontrar um <code>tags</code>:</p>
+
+<pre class="file" data-file="~/.vimrc">" procura 'tags' na pasta do arquivo e vai subindo até a raiz
+set tags=./tags;,tags;</pre>
+
+<hr>
+
+<h2>Navegar sem tags</h2>
+<p>Alguns pulos funcionam sem ctags nenhum, porque o Vim só olha o arquivo atual ou o texto sob o cursor.</p>
+
+<h3>gd: definição local</h3>
+<p>O <code>gd</code> (de <em>go to definition</em>) procura a primeira ocorrência da palavra na função atual. Em código simples, isso costuma ser onde a variável nasceu. O <code>gD</code> procura do começo do arquivo.</p>
+
+<div class="vimdemo" data-file="conta.py" data-line="4" data-col="12">
+<pre class="vim-inicial">def media(notas):
+    total = sum(notas)
+    qtd = len(notas)
+    return total / qtd</pre>
+</div>
+
+<p>Com o cursor em <code>total</code> na linha 4, <code>gd</code> leva o cursor para <code>total</code> na linha 2. É uma busca de texto inteligente, não uma análise do código: com nomes repetidos, pode errar.</p>
+
+<h3>gf: abrir o arquivo sob o cursor</h3>
+<p>O <code>gf</code> (de <em>go to file</em>) abre o arquivo cujo nome está sob o cursor. Funciona em caminhos de <code>import</code>, <code>#include</code>, links de Markdown e arquivos de configuração.</p>
+
+<pre class="term" data-title="index.html — Vim">&lt;link rel="stylesheet" href="css/estilo.css"&gt;   « cursor aqui, gf abre css/estilo.css</pre>
+
+<p>Para voltar, use <kbd>Ctrl</kbd>+<kbd>O</kbd> (salto anterior) ou <kbd>Ctrl</kbd>+<kbd>^</kbd> (arquivo anterior). Se o arquivo atual tem alterações não salvas, o Vim não troca de arquivo; salve antes com <code>:w</code> ou ligue <code>:set hidden</code> (veja <a href="buffers.html">Vários Arquivos</a>).</p>
+
+<h3>[[ e ]]: pular entre blocos</h3>
+<p>O <code>]]</code> vai para a próxima linha que tem <code>{</code> na primeira coluna, e o <code>[[</code> volta para a anterior. Em C e linguagens parecidas, isso é o começo de cada função. Em Python e outras linguagens, os plugins de tipo de arquivo do Vim redefinem esses atalhos para pular entre <code>def</code> e <code>class</code>.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Precisa de tags?</th><th>Vai para</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>]</kbd></td><td>Sim</td><td>A definição, em qualquer arquivo do projeto</td></tr>
+<tr><td><code>gd</code> / <code>gD</code></td><td>Não</td><td>A primeira ocorrência na função / no arquivo</td></tr>
+<tr><td><code>gf</code></td><td>Não</td><td>O arquivo com o nome sob o cursor</td></tr>
+<tr><td><code>[[</code> / <code>]]</code></td><td>Não</td><td>Começo do bloco/função anterior / próximo</td></tr>
+<tr><td><code>*</code> / <code>#</code></td><td>Não</td><td>Próxima / anterior ocorrência da palavra (veja <a href="busca.html">Buscar</a>)</td></tr>
+<tr><td><code>%</code></td><td>Não</td><td>O par do parêntese ou chave (veja <a href="pares.html">Parênteses e Blocos</a>)</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de achar uma definição</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Como</th><th>Quando usar</th></tr>
+<tr><td>Busca simples</td><td><code>/def calcular</code></td><td>Está no arquivo aberto e você sabe como começa</td></tr>
+<tr><td><code>gd</code></td><td>Cursor no nome</td><td>Variável local</td></tr>
+<tr><td>ctags</td><td><kbd>Ctrl</kbd>+<kbd>]</kbd></td><td>Função ou classe em outro arquivo</td></tr>
+<tr><td><code>:vimgrep</code></td><td><code>:vimgrep /calcular_total/ **/*.py</code> e <code>:copen</code></td><td>Ver todos os lugares onde o nome aparece</td></tr>
+<tr><td>LSP</td><td>Plugin + servidor da linguagem</td><td>Precisão total, inclusive com nomes repetidos; veja <a href="lsp.html">Vim como IDE</a></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"Não há arquivo de marcadores"</strong>
+<pre class="term" data-title="main.py — Vim">E433: Não há arquivo de marcadores
+E426: marcador não encontrado: calcular_total</pre>
+<p><strong>O que aconteceu:</strong> o Vim não achou um arquivo <code>tags</code> nos lugares da opção <code>tags</code>. Você não rodou o ctags, ou abriu o Vim de outra pasta.</p>
+<p><strong>Como resolver:</strong> rode <code>ctags -R .</code> na raiz do projeto e abra o Vim a partir dela, ou use <code>set tags=./tags;,tags;</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Pulou para o lugar errado ou "marcador não encontrado" num nome novo</strong>
+<pre class="term" data-title="main.py — Vim">E426: marcador não encontrado: aplicar_desconto</pre>
+<p><strong>O que aconteceu:</strong> o arquivo de tags é uma foto do código no momento em que foi gerado. Funções criadas ou movidas depois não estão nele.</p>
+<p><strong>Como resolver:</strong> gere de novo, sem sair do Vim: <code>:!ctags -R .</code></p>
+</div>
+
+<div class="cenario">
+<strong>Ctrl+T não volta</strong>
+<pre class="term" data-title="main.py — Vim">E73: pilha de marcadores vazia</pre>
+<p><strong>O que aconteceu:</strong> você não chegou ali por um <kbd>Ctrl</kbd>+<kbd>]</kbd> (talvez por <code>gf</code> ou busca).</p>
+<p><strong>Como resolver:</strong> use <kbd>Ctrl</kbd>+<kbd>O</kbd>, que volta por qualquer tipo de salto.</p>
+</div>
+
+<div class="cenario">
+<strong>gf não encontra o arquivo</strong>
+<pre class="term" data-title="main.py — Vim">E447: Arquivo "pedido" não encontrado nos caminhos de busca</pre>
+<p><strong>O que aconteceu:</strong> o texto não tem a extensão (<code>import pedido</code> em vez de <code>pedido.py</code>) ou o arquivo está numa pasta que o Vim não procura.</p>
+<p><strong>Como resolver:</strong> para Python, os plugins de tipo de arquivo já ensinam o Vim a adicionar <code>.py</code>. Em outros casos, ajuste <code>:set suffixesadd=.py</code> e <code>:set path+=**</code> (procura em todas as subpastas).</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>ctags -R .</code> (no shell)</td><td>Gera o arquivo <code>tags</code> do projeto</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>]</kbd> / <kbd>Ctrl</kbd>+<kbd>T</kbd></td><td>Pula para a definição / volta</td></tr>
+<tr><td><code>g]</code> / <code>:ts nome</code></td><td>Lista as definições para escolher</td></tr>
+<tr><td><code>:tag nome</code></td><td>Pula para <code>nome</code></td></tr>
+<tr><td><code>:tn</code> / <code>:tp</code></td><td>Próxima / anterior definição</td></tr>
+<tr><td><code>:tags</code></td><td>Mostra a pilha de pulos</td></tr>
+<tr><td><code>gd</code> / <code>gD</code></td><td>Definição local / global, sem tags</td></tr>
+<tr><td><code>gf</code></td><td>Abre o arquivo sob o cursor</td></tr>
+<tr><td><code>[[</code> / <code>]]</code></td><td>Bloco anterior / próximo</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>X</kbd> <kbd>Ctrl</kbd>+<kbd>]</kbd></td><td>Completa nomes a partir das tags (veja <a href="completar.html">Autocompletar</a>)</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Gerar o índice</h3>
+<p>Complete o comando que gera as tags de todas as subpastas:</p>
+<div class="ex-code">ctags <input data-answer="-R .|-R|--recurse .|--recurse" aria-label="opções"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Ida e volta</h3>
+<p>Você pulou para uma definição com <kbd>Ctrl</kbd>+<kbd>]</kbd>. Qual atalho volta? Responda no formato <code>Ctrl+?</code>.</p>
+<div class="ex-code"><input data-answer="Ctrl+T|ctrl+t|Ctrl-T|C-t|^T" aria-label="atalho"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. Você criou uma função nova e <kbd>Ctrl</kbd>+<kbd>]</kbd> diz "marcador não encontrado". O que fazer?</p>
+<label><input type="radio" name="q3"> Reiniciar o computador.</label>
+<label><input type="radio" name="q3"> Gerar as tags de novo com <code>ctags -R .</code></label>
+<label><input type="radio" name="q3"> Apagar o <code>.vimrc</code>.</label>
+<label><input type="radio" name="q3"> Usar <code>:set spell</code>.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. Qual destes funciona <strong>sem</strong> arquivo de tags?</p>
+<label><input type="radio" name="q4"> <kbd>Ctrl</kbd>+<kbd>]</kbd></label>
+<label><input type="radio" name="q4"> <code>:ts</code></label>
+<label><input type="radio" name="q4"> <code>:tn</code></label>
+<label><input type="radio" name="q4"> <code>gf</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>O universal-ctags gera o arquivo <code>tags</code>, um índice das definições do projeto: <code>ctags -R .</code></li>
+  <li><kbd>Ctrl</kbd>+<kbd>]</kbd> pula para a definição e <kbd>Ctrl</kbd>+<kbd>T</kbd> volta.</li>
+  <li>Com nomes repetidos, <code>:ts</code> ou <code>g]</code> deixam escolher.</li>
+  <li>Sem tags: <code>gd</code> (definição local), <code>gf</code> (abrir arquivo), <code>[[</code>/<code>]]</code> (blocos).</li>
+  <li>As tags não se atualizam sozinhas: gere de novo quando o código mudar.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

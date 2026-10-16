@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — folha de consulta para imprimir | Guia Vim</title>
+<meta name="description" content="Folha de consulta do Vim em português: sair e salvar, modos, movimentos, operadores, objetos de texto, copiar e colar, busca, substituição, visual, macros, janelas e comandos Ex.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Folha de Consulta</span></h1>
+
+<p class="intro">Tudo o que o guia ensina, numa página só, para deixar aberta ao lado do editor ou imprimir. Cada linha tem as teclas e uma frase. Quando a frase não bastar, o link leva à aula completa.</p>
+
+<div class="note">
+<strong>Como estudar com ela</strong>
+<p>Não tente decorar a página inteira. Escolha <strong>três comandos novos por semana</strong>, marque-os com caneta na versão impressa e force-se a usá-los no lugar do jeito antigo. Quando eles virarem reflexo, escolha outros três. Para imprimir, use <kbd>Ctrl</kbd>+<kbd>P</kbd> no navegador: o menu e os botões somem na impressão.</p>
+</div>
+
+<div class="tip">
+<strong>Lembrete de modo</strong>
+<p>Quase tudo aqui é digitado no <strong>modo normal</strong>. Na dúvida, aperte <kbd>Esc</kbd> antes. Comandos que começam com <code>:</code> terminam com <kbd>Enter</kbd>.</p>
+</div>
+
+<hr>
+
+<h2>Sair e salvar</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>:w</code></td><td>Salva o arquivo (<a href="salvar.html">Salvar e Sair</a>).</td></tr>
+<tr><td><code>:w nome.txt</code></td><td>Salva com outro nome.</td></tr>
+<tr><td><code>:q</code></td><td>Sai, se não houver alterações pendentes.</td></tr>
+<tr><td><code>:wq</code> · <code>:x</code> · <code>ZZ</code></td><td>Salva e sai (<code>:x</code> e <code>ZZ</code> só gravam se algo mudou).</td></tr>
+<tr><td><code>:q!</code> · <code>ZQ</code></td><td>Sai jogando fora as alterações.</td></tr>
+<tr><td><code>:e!</code></td><td>Volta o arquivo à última versão salva.</td></tr>
+<tr><td><code>:w !sudo tee %</code></td><td>Salva um arquivo de root aberto sem sudo (ver o aviso em <a href="salvar.html">Salvar e Sair</a>).</td></tr>
+<tr><td><code>:wa</code> · <code>:qa</code> · <code>:qa!</code></td><td>Salva todos · sai de todos · sai de todos sem salvar.</td></tr>
+</table>
+</div>
+
+<h2>Modos</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><kbd>Esc</kbd></td><td>Volta ao modo normal (de qualquer modo) (<a href="modos.html">Os Modos do Vim</a>).</td></tr>
+<tr><td><code>i</code> · <code>a</code></td><td>Insere antes · depois do cursor.</td></tr>
+<tr><td><code>I</code> · <code>A</code></td><td>Insere no começo · no fim da linha.</td></tr>
+<tr><td><code>o</code> · <code>O</code></td><td>Abre uma linha nova abaixo · acima.</td></tr>
+<tr><td><code>v</code> · <code>V</code> · <kbd>Ctrl</kbd>+<kbd>v</kbd></td><td>Visual de caracteres · de linhas · de bloco.</td></tr>
+<tr><td><code>R</code></td><td>Modo de substituição: digita por cima.</td></tr>
+<tr><td><code>:</code> · <code>/</code> · <code>?</code></td><td>Linha de comando · busca para frente · para trás.</td></tr>
+</table>
+</div>
+
+<h2>Mover</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>h</code> <code>j</code> <code>k</code> <code>l</code></td><td>Esquerda, baixo, cima, direita (<a href="mover.html">Mover o Cursor</a>).</td></tr>
+<tr><td><code>w</code> · <code>b</code> · <code>e</code> · <code>ge</code></td><td>Próxima palavra · palavra anterior · fim da palavra · fim da anterior (<a href="palavras.html">Pular Palavras</a>).</td></tr>
+<tr><td><code>W</code> <code>B</code> <code>E</code></td><td>O mesmo, mas PALAVRA = tudo entre espaços.</td></tr>
+<tr><td><code>0</code> · <code>^</code> · <code>$</code></td><td>Coluna 1 · primeiro caractere visível · fim da linha (<a href="linhas.html">Início, Fim e Linhas</a>).</td></tr>
+<tr><td><code>gg</code> · <code>G</code> · <code>42G</code></td><td>Primeira linha · última · linha 42.</td></tr>
+<tr><td><code>f</code><var>x</var> · <code>t</code><var>x</var> · <code>;</code> · <code>,</code></td><td>Até o <var>x</var> · até antes do <var>x</var> · repete · repete ao contrário (<a href="f-t.html">f, t</a>).</td></tr>
+<tr><td><code>%</code></td><td>Pula para o par de <code>( ) [ ] { }</code> (<a href="pares.html">Parênteses e Blocos</a>).</td></tr>
+<tr><td><code>{</code> · <code>}</code></td><td>Parágrafo anterior · próximo.</td></tr>
+<tr><td><code>H</code> <code>M</code> <code>L</code></td><td>Topo, meio e base da tela.</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>d</kbd> · <kbd>Ctrl</kbd>+<kbd>u</kbd></td><td>Meia tela para baixo · para cima.</td></tr>
+<tr><td><code>m</code><var>a</var> · <code>'</code><var>a</var> · <code>`</code><var>a</var></td><td>Marca · vai à linha · vai à posição exata (<a href="marcas.html">Marcas e Saltos</a>).</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>o</kbd> · <kbd>Ctrl</kbd>+<kbd>i</kbd></td><td>Volta · avança na lista de saltos.</td></tr>
+</table>
+</div>
+
+<h2>Editar</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>x</code> · <code>X</code></td><td>Apaga o caractere sob o cursor · à esquerda (<a href="apagar.html">Apagar</a>).</td></tr>
+<tr><td><code>dd</code> · <code>D</code></td><td>Apaga a linha · até o fim da linha.</td></tr>
+<tr><td><code>cc</code> · <code>C</code> · <code>s</code> · <code>S</code></td><td>Troca a linha · até o fim · um caractere · a linha (entra em inserção).</td></tr>
+<tr><td><code>r</code><var>x</var></td><td>Troca um caractere por <var>x</var>.</td></tr>
+<tr><td><code>J</code> · <code>gJ</code></td><td>Junta com a linha de baixo (com espaço · sem espaço).</td></tr>
+<tr><td><code>~</code> · <code>gUiw</code> · <code>guiw</code></td><td>Inverte maiúscula · palavra em MAIÚSCULAS · em minúsculas.</td></tr>
+<tr><td><code>&gt;&gt;</code> · <code>&lt;&lt;</code></td><td>Aumenta · diminui o recuo da linha.</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>a</kbd> · <kbd>Ctrl</kbd>+<kbd>x</kbd></td><td>Soma · subtrai 1 do número na linha (<a href="contadores.html">Números e Repetição</a>).</td></tr>
+<tr><td><code>u</code> · <kbd>Ctrl</kbd>+<kbd>r</kbd> · <code>U</code></td><td>Desfaz · refaz · desfaz tudo na última linha alterada (<a href="desfazer.html">Desfazer e Refazer</a>).</td></tr>
+<tr><td><code>.</code></td><td>Repete a última alteração.</td></tr>
+</table>
+</div>
+
+<h2>Operadores e movimentos</h2>
+<p>Operador + movimento = uma frase: <code>d</code> (apagar) + <code>w</code> (palavra) = apagar até a próxima palavra. Veja <a href="gramatica.html">Verbo + Movimento</a>.</p>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Operador</th><th>Faz</th><th>Exemplos</th></tr>
+<tr><td><code>d</code></td><td>Apaga (recorta)</td><td><code>dw</code> <code>d$</code> <code>dj</code> <code>dG</code> <code>dt)</code></td></tr>
+<tr><td><code>c</code></td><td>Apaga e entra em inserção</td><td><code>cw</code> <code>c$</code> <code>ct,</code></td></tr>
+<tr><td><code>y</code></td><td>Copia</td><td><code>yw</code> <code>y$</code> <code>yG</code></td></tr>
+<tr><td><code>&gt;</code> · <code>&lt;</code></td><td>Recua para dentro · para fora</td><td><code>&gt;j</code> <code>&lt;}</code></td></tr>
+<tr><td><code>gU</code> · <code>gu</code> · <code>g~</code></td><td>Maiúsculas · minúsculas · inverte</td><td><code>gUw</code> <code>gu$</code></td></tr>
+<tr><td>dobrado</td><td>A linha inteira</td><td><code>dd</code> <code>cc</code> <code>yy</code> <code>&gt;&gt;</code> <code>gUU</code></td></tr>
+<tr><td>com número</td><td>Repete</td><td><code>3dd</code> <code>d3w</code> <code>2yy</code> (<a href="operadores.html">Operadores</a>)</td></tr>
+</table>
+</div>
+
+<h2>Objetos de texto</h2>
+<p>Depois de um operador (ou no modo visual): <code>i</code> = dentro, <code>a</code> = com a borda. O cursor pode estar em qualquer lugar do objeto. Veja <a href="objetos.html">Objetos de Texto</a>.</p>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Seleciona</th></tr>
+<tr><td><code>iw</code> · <code>aw</code></td><td>A palavra · a palavra com um espaço.</td></tr>
+<tr><td><code>iW</code> · <code>aW</code></td><td>A PALAVRA (até os espaços).</td></tr>
+<tr><td><code>is</code> · <code>as</code></td><td>A frase.</td></tr>
+<tr><td><code>ip</code> · <code>ap</code></td><td>O parágrafo · com a linha vazia seguinte.</td></tr>
+<tr><td><code>i"</code> <code>i'</code> <code>i`</code></td><td>Dentro das aspas (<code>a"</code> inclui as aspas).</td></tr>
+<tr><td><code>i(</code> <code>i[</code> <code>i{</code> <code>i&lt;</code></td><td>Dentro dos parênteses, colchetes, chaves, sinais de menor e maior.</td></tr>
+<tr><td><code>it</code> · <code>at</code></td><td>Dentro da tag HTML · a tag inteira.</td></tr>
+<tr><td>Exemplos</td><td><code>ciw</code> troca a palavra · <code>di(</code> esvazia os parênteses · <code>ya"</code> copia a string com aspas · <code>dap</code> apaga o parágrafo.</td></tr>
+</table>
+</div>
+
+<h2>Copiar e colar</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>yy</code> · <code>Y</code></td><td>Copia a linha (<a href="copiar-colar.html">Copiar e Colar</a>).</td></tr>
+<tr><td><code>p</code> · <code>P</code></td><td>Cola depois · antes do cursor (ou abaixo · acima, se for linha).</td></tr>
+<tr><td><code>ddp</code> · <code>xp</code></td><td>Troca a linha com a de baixo · troca duas letras.</td></tr>
+<tr><td><code>"a</code><var>yy</var> · <code>"ap</code></td><td>Copia para o registrador <code>a</code> · cola dele (<a href="registradores.html">Registradores</a>).</td></tr>
+<tr><td><code>"0p</code></td><td>Cola o último texto <strong>copiado</strong> (mesmo depois de apagar algo).</td></tr>
+<tr><td><code>"1p</code> e <code>.</code></td><td>Cola o último apagado; cada <code>.</code> traz um mais antigo.</td></tr>
+<tr><td><code>"_d</code></td><td>Apaga sem guardar em lugar nenhum.</td></tr>
+<tr><td><code>"+y</code> · <code>"+p</code></td><td>Copia para · cola da área de transferência do sistema (<a href="area-transferencia.html">Área de Transferência</a>).</td></tr>
+<tr><td><code>:reg</code></td><td>Mostra o conteúdo dos registradores.</td></tr>
+</table>
+</div>
+
+<h2>Buscar e substituir</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>/texto</code> · <code>?texto</code></td><td>Busca para frente · para trás (<a href="busca.html">Buscar</a>).</td></tr>
+<tr><td><code>n</code> · <code>N</code></td><td>Próximo resultado · anterior.</td></tr>
+<tr><td><code>*</code> · <code>#</code></td><td>Busca a palavra sob o cursor, para frente · para trás.</td></tr>
+<tr><td><code>:noh</code></td><td>Apaga o destaque da busca.</td></tr>
+<tr><td><code>:s/a/b/</code></td><td>Troca o primeiro "a" da linha por "b" (<a href="substituir.html">Substituir</a>).</td></tr>
+<tr><td><code>:s/a/b/g</code></td><td>Troca todos na linha.</td></tr>
+<tr><td><code>:%s/a/b/g</code></td><td>Troca todos no arquivo.</td></tr>
+<tr><td><code>:%s/a/b/gc</code></td><td>Troca pedindo confirmação a cada um.</td></tr>
+<tr><td><code>:%s/a//gn</code></td><td>Só conta quantas vezes "a" aparece.</td></tr>
+<tr><td><code>\(..\)</code> e <code>\1</code></td><td>Grupo e referência a ele (<a href="regex.html">Expressões Regulares</a>).</td></tr>
+</table>
+</div>
+
+<h2>Modo visual</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>v</code> + movimento</td><td>Seleciona; depois <code>d</code>, <code>y</code>, <code>c</code>, <code>&gt;</code>, <code>U</code>… agem na seleção (<a href="visual.html">Modo Visual</a>).</td></tr>
+<tr><td><code>viw</code> · <code>vip</code> · <code>vi(</code></td><td>Seleciona palavra · parágrafo · dentro dos parênteses.</td></tr>
+<tr><td><code>o</code></td><td>Pula para a outra ponta da seleção.</td></tr>
+<tr><td><code>gv</code></td><td>Reseleciona a última seleção.</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>v</kbd> <code>jj</code> <code>I# </code> <kbd>Esc</kbd></td><td>Comenta três linhas de uma vez (<a href="bloco.html">Visual de Bloco</a>).</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>v</kbd> <code>jj$A;</code> <kbd>Esc</kbd></td><td>Põe <code>;</code> no fim de três linhas.</td></tr>
+</table>
+</div>
+
+<h2>Macros e repetição</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>qa</code> … <code>q</code></td><td>Grava tudo o que você digitar no registrador <code>a</code> (<a href="macros.html">Macros</a>).</td></tr>
+<tr><td><code>@a</code> · <code>@@</code> · <code>10@a</code></td><td>Executa a macro · repete a última · executa 10 vezes.</td></tr>
+<tr><td><code>.</code> · <code>3.</code></td><td>Repete a última alteração · com contagem 3.</td></tr>
+<tr><td><code>:norm A;</code></td><td>Roda teclas do modo normal em cada linha da faixa (<a href="ex-avancado.html">Comandos Ex</a>).</td></tr>
+</table>
+</div>
+
+<h2>Arquivos, janelas e abas</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>:e arquivo</code></td><td>Abre outro arquivo (<a href="buffers.html">Vários Arquivos</a>).</td></tr>
+<tr><td><code>:ls</code> · <code>:bn</code> · <code>:bp</code> · <code>:b2</code></td><td>Lista · próximo · anterior · buffer 2.</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>^</kbd></td><td>Alterna entre os dois últimos arquivos.</td></tr>
+<tr><td><code>:sp</code> · <code>:vs</code></td><td>Divide a janela na horizontal · na vertical (<a href="janelas.html">Janelas</a>).</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <code>h j k l</code> · <code>w</code></td><td>Vai para a janela da esquerda/baixo/cima/direita · para a próxima.</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>w</kbd> <code>q</code> · <code>o</code></td><td>Fecha a janela · fecha todas as outras.</td></tr>
+<tr><td><code>:tabe arq</code> · <code>gt</code> · <code>gT</code></td><td>Nova aba · próxima · anterior (<a href="abas.html">Abas</a>).</td></tr>
+</table>
+</div>
+
+<h2>Comandos Ex</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><code>:42</code></td><td>Vai à linha 42.</td></tr>
+<tr><td><code>:g/padrão/d</code></td><td>Apaga as linhas que contêm o padrão (<a href="ex-avancado.html">Comandos Ex</a>).</td></tr>
+<tr><td><code>:v/padrão/d</code></td><td>Apaga as linhas que <strong>não</strong> contêm o padrão.</td></tr>
+<tr><td><code>:g/^$/d</code></td><td>Apaga as linhas vazias.</td></tr>
+<tr><td><code>:sort</code> · <code>:sort u</code> · <code>:sort n</code></td><td>Ordena · e tira repetidas · numericamente.</td></tr>
+<tr><td><code>:m 0</code> · <code>:t $</code></td><td>Move a linha para o topo · copia para o fim.</td></tr>
+<tr><td><code>:%!comando</code></td><td>Passa o arquivo por um comando do shell (<a href="shell.html">Integração com o Shell</a>).</td></tr>
+<tr><td><code>:set number</code> · <code>:set nonumber</code></td><td>Liga · desliga uma opção (<a href="opcoes.html">Opções Úteis</a>).</td></tr>
+<tr><td><code>:h assunto</code></td><td>Abre a ajuda (<a href="ajuda.html">A Ajuda Interna</a>).</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Revisão geral</h2>
+
+<div class="vimtry" data-file="revisao.txt" data-line="1">
+<pre class="vim-inicial">lista de compras
+- arroz
+- feijao
+- LIXO
+- cafe
+- açúcar</pre>
+<pre class="vim-meta">LISTA DE COMPRAS
+- arroz
+- feijão
+- café
+- açúcar</pre>
+<p class="try-task"><strong>Missão:</strong> use pelo menos quatro comandos desta página: deixe o título em maiúsculas, apague a linha "LIXO" e acentue "feijão" e "café".</p>
+<details><summary>Ver uma solução</summary>
+<p><code>gUU</code> · <code>jj$h</code> · <code>rã</code> · <code>j</code> · <code>dd</code> · <code>$</code> · <code>ré</code></p>
+<ol class="passo">
+  <li><code>gUU</code> põe a linha do título em maiúsculas (operador <code>gU</code> dobrado = linha inteira).</li>
+  <li><code>jj$h</code> desce duas linhas, vai ao fim de "feijao" e volta uma letra, parando no "a".</li>
+  <li><code>rã</code> troca o "a" por "ã" sem sair do modo normal.</li>
+  <li><code>j</code> desce para "LIXO" e <code>dd</code> apaga a linha; o cursor cai em "- cafe".</li>
+  <li><code>$</code> vai ao "e" final e <code>ré</code> troca por "é".</li>
+</ol>
+</details>
+</div>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

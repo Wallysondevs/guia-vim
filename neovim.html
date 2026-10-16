@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — Neovim: o que é e quando usar | Guia Vim</title>
+<meta name="description" content="O que é o Neovim, o que muda em relação ao Vim, como instalar em qualquer sistema, init.vim x init.lua, aproveitar o seu .vimrc, LSP e Treesitter nativos e quando escolher cada editor.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Neovim</span></h1>
+
+<p class="intro">O <strong>Neovim</strong> é um "irmão mais novo" do Vim: começou em 2014 como uma cópia (<em>fork</em>) do código do Vim e hoje é um projeto independente. As teclas, os modos, os operadores, a busca, o <code>:s</code>, as macros, tudo o que este guia ensina funciona igual nos dois. O que muda é o que fica em volta: configuração em Lua, LSP embutido e um ecossistema de plugins próprio.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>O que é o Neovim e por que ele existe.</li>
+  <li>O que é igual e o que muda em relação ao Vim.</li>
+  <li>Instalar o Neovim em Linux, macOS e Windows.</li>
+  <li>Onde fica a configuração (<code>init.vim</code> e <code>init.lua</code>) e como aproveitar o seu <code>.vimrc</code>.</li>
+  <li>Quando escolher cada um.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>O que é igual</h2>
+<p>Quase tudo o que você faz com as mãos. Se você aprendeu os níveis 1 e 2 deste guia, já sabe usar o Neovim. Esta missão funciona do mesmo jeito nos dois editores:</p>
+
+<div class="vimtry" data-file="config.txt">
+<pre class="vim-inicial">editor = "vim"
+editor = "vim"
+editor = "vim"</pre>
+<pre class="vim-meta">editor = "nvim"
+editor = "nvim"
+editor = "nvim"</pre>
+<p class="try-task"><strong>Missão:</strong> troque <code>vim</code> por <code>nvim</code> nas três linhas. Faça de duas formas: com <code>:%s</code> (veja <a href="substituir.html">Substituir</a>) e depois, com <strong>Reiniciar</strong>, com <code>ciw</code> e o ponto (<code>.</code>).</p>
+</div>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Igual nos dois</th><th>Exemplos</th></tr>
+<tr><td>Modos</td><td>Normal, inserção, visual, linha de comando</td></tr>
+<tr><td>Movimentos e operadores</td><td><code>w b e</code>, <code>d c y</code>, <code>ciw</code>, <code>dap</code></td></tr>
+<tr><td>Busca e substituição</td><td><code>/</code>, <code>*</code>, <code>:%s/a/b/g</code>, <code>:g</code></td></tr>
+<tr><td>Registradores, macros, marcas</td><td><code>"ay</code>, <code>qa…q</code>, <code>@a</code>, <code>ma</code></td></tr>
+<tr><td>Janelas, buffers, abas</td><td><code>:split</code>, <code>:ls</code>, <code>:tabnew</code></td></tr>
+<tr><td>Vimscript</td><td><code>set number</code>, <code>nnoremap</code>, <code>autocmd</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>O que muda</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Recurso</th><th>Vim</th><th>Neovim</th></tr>
+<tr><td>Comando</td><td><code>vim</code></td><td><code>nvim</code></td></tr>
+<tr><td>Configuração</td><td><code>~/.vimrc</code> (Vimscript)</td><td><code>~/.config/nvim/init.vim</code> (Vimscript) <strong>ou</strong> <code>init.lua</code> (Lua)</td></tr>
+<tr><td>Linguagem de script</td><td>Vimscript e Vim9script</td><td>Vimscript e <strong>Lua</strong></td></tr>
+<tr><td>Padrões ao abrir</td><td>Mínimos (melhores com <code>defaults.vim</code>)</td><td>Mais modernos: busca destacada, mouse, cores de sintaxe já ligados</td></tr>
+<tr><td>LSP</td><td>Por plugin (veja <a href="lsp.html">Vim como IDE</a>)</td><td>Cliente embutido (<code>vim.lsp</code>)</td></tr>
+<tr><td>Cores de sintaxe</td><td>Por expressões regulares</td><td>Também <strong>Treesitter</strong>, que entende a estrutura do código</td></tr>
+<tr><td>Memória entre execuções</td><td><code>~/.viminfo</code></td><td>Arquivo <code>shada</code> (mesmo papel)</td></tr>
+<tr><td>Diagnóstico da instalação</td><td><code>:version</code></td><td><code>:checkhealth</code></td></tr>
+<tr><td>Interface gráfica</td><td><code>gvim</code></td><td>Programas separados (Neovide e outros)</td></tr>
+<tr><td>Já vem instalado</td><td>Em quase todo Linux e Unix (às vezes como <code>vi</code>)</td><td>Raramente; precisa instalar</td></tr>
+</table>
+</div>
+
+<h3>Os padrões mais modernos</h3>
+<p>O Neovim já abre com opções que no Vim você colocaria no <code>.vimrc</code>, como <code>hlsearch</code> (destacar a busca), <code>incsearch</code>, <code>autoindent</code>, <code>showcmd</code>, <code>ruler</code>, mouse ativo e <code>filetype plugin indent on</code>. Por isso, sem configuração nenhuma, o Neovim parece "mais amigável" que o Vim. A lista completa está em <code>:help nvim-defaults</code>.</p>
+
+<hr>
+
+<h2>Instalar</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Sistema</th><th>Comando</th></tr>
+<tr><td>Debian, Ubuntu, Mint</td><td><code>sudo apt install neovim</code></td></tr>
+<tr><td>Fedora</td><td><code>sudo dnf install neovim</code></td></tr>
+<tr><td>Arch, Manjaro</td><td><code>sudo pacman -S neovim</code></td></tr>
+<tr><td>openSUSE</td><td><code>sudo zypper install neovim</code></td></tr>
+<tr><td>macOS (Homebrew)</td><td><code>brew install neovim</code></td></tr>
+<tr><td>Windows</td><td><code>winget install Neovim.Neovim</code></td></tr>
+</table>
+</div>
+
+<p>Confira a versão:</p>
+
+<pre class="term">$ nvim --version
+NVIM v0.11.4
+Build type: Release
+LuaJIT 2.1.1741730670</pre>
+
+<p>O número da versão é ilustrativo. A primeira linha é a que importa.</p>
+
+<div class="warning">
+<strong>Versões antigas nos repositórios</strong>
+<p>Distribuições com ciclo longo (Debian estável, Ubuntu LTS) podem trazer uma versão do Neovim de meses ou anos atrás. Muitos plugins modernos exigem a versão mais recente. Se um plugin reclamar da versão, use o pacote oficial do projeto (AppImage ou arquivo <code>.tar.gz</code> na página de lançamentos do Neovim no GitHub), ou Flatpak/Snap.</p>
+</div>
+
+<p>Depois de instalar, rode <code>:checkhealth</code> dentro do <code>nvim</code>. Ele confere a instalação e mostra avisos com sugestões, como provedores de área de transferência ausentes.</p>
+
+<hr>
+
+<h2>Configuração: init.vim ou init.lua</h2>
+<p>O Neovim lê a configuração de uma pasta própria:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Sistema</th><th>Pasta</th></tr>
+<tr><td>Linux e macOS</td><td><code>~/.config/nvim/</code></td></tr>
+<tr><td>Windows</td><td><code>~/AppData/Local/nvim/</code></td></tr>
+</table>
+</div>
+
+<p>Dentro dela, crie <strong>um</strong> destes arquivos (não os dois):</p>
+
+<dl class="anatomy">
+  <dt>init.vim</dt><dd>Configuração em Vimscript, igual ao <code>.vimrc</code>.</dd>
+  <dt>init.lua</dt><dd>Configuração em Lua, o jeito mais comum no Neovim atual.</dd>
+</dl>
+
+<p>A mesma configuração nas duas linguagens:</p>
+
+<pre class="file" data-file="~/.config/nvim/init.vim">set number
+set relativenumber
+set expandtab shiftwidth=4
+nnoremap &lt;Space&gt; za</pre>
+
+<pre class="file" data-file="~/.config/nvim/init.lua">vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 4
+vim.keymap.set('n', '&lt;Space&gt;', 'za')</pre>
+
+<dl class="anatomy">
+  <dt>vim.opt.number = true</dt><dd>Equivale a <code>set number</code>.</dd>
+  <dt>vim.keymap.set('n', …)</dt><dd>Equivale a <code>nnoremap</code>: o <code>'n'</code> é o modo normal (veja <a href="mapeamentos.html">Mapeamentos</a>).</dd>
+</dl>
+
+<h3>Aproveitar o seu .vimrc</h3>
+<p>Para usar a mesma configuração nos dois editores, faça o <code>init.vim</code> carregar o <code>.vimrc</code>. Este trecho é o recomendado na própria ajuda do Neovim (<code>:help nvim-from-vim</code>):</p>
+
+<pre class="file" data-file="~/.config/nvim/init.vim">" usa as pastas e o .vimrc do Vim também no Neovim
+set runtimepath^=~/.vim runtimepath+=~/.vim/after
+let &amp;packpath = &amp;runtimepath
+source ~/.vimrc</pre>
+
+<pre class="term">$ mkdir -p ~/.config/nvim
+$ nvim ~/.config/nvim/init.vim</pre>
+
+<p>Assim você mantém um único <code>.vimrc</code>. Opções que só existem no Vim são ignoradas ou dão aviso; nesse caso, proteja-as com <code>if !has('nvim')</code> … <code>endif</code>.</p>
+
+<hr>
+
+<h2>LSP e Treesitter embutidos</h2>
+<p>Dois recursos explicam boa parte da popularidade do Neovim:</p>
+<ul>
+  <li><strong>LSP nativo:</strong> o cliente de servidores de linguagem já vem no editor. Com o plugin <code>nvim-lspconfig</code> (configurações prontas) e o <code>mason.nvim</code> (instala os servidores), você tem ir-para-definição, renomear e erros em tempo real. Veja <a href="lsp.html">Vim como IDE</a>.</li>
+  <li><strong>Treesitter:</strong> uma biblioteca que analisa a estrutura do código, em vez de usar só expressões regulares. Isso dá cores de sintaxe mais precisas e permite dobras e seleções por função ou bloco.</li>
+</ul>
+
+<p>Os plugins do Neovim geralmente são instalados com gerenciadores escritos em Lua, como o <strong>lazy.nvim</strong>. Os do Vim (vim-plug, pacotes nativos) também funcionam no Neovim. Veja <a href="plugins.html">Plugins</a>.</p>
+
+<div class="tip">
+<strong>Distribuições prontas</strong>
+<p>Projetos como LazyVim, kickstart.nvim e AstroNvim entregam um Neovim já configurado como IDE. São ótimos para ver do que ele é capaz, mas trazem muitos atalhos novos de uma vez. Se você está aprendendo, o <code>kickstart.nvim</code> é o mais didático: é um único arquivo comentado.</p>
+</div>
+
+<hr>
+
+<h2>Qual escolher?</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Se você…</th><th>Escolha</th><th>Por quê</th></tr>
+<tr><td>Edita arquivos em servidores e máquinas de outras pessoas</td><td>Vim</td><td>Já está instalado em quase todo lugar, inclusive como <code>vi</code></td></tr>
+<tr><td>Quer uma configuração pequena e estável por anos</td><td>Vim</td><td>Muda pouco e mantém compatibilidade</td></tr>
+<tr><td>Quer LSP e recursos de IDE com pouco esforço</td><td>Neovim</td><td>LSP e Treesitter embutidos</td></tr>
+<tr><td>Gosta de programar a configuração</td><td>Neovim</td><td>Lua é uma linguagem geral, rápida e mais fácil que Vimscript</td></tr>
+<tr><td>Está começando</td><td>Tanto faz</td><td>As teclas são as mesmas; aprenda os comandos primeiro</td></tr>
+</table>
+</div>
+
+<p>Na prática, muita gente usa os dois: Neovim configurado na própria máquina e Vim puro nos servidores. Como o núcleo é igual, a memória muscular serve nos dois.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"nvim: comando não encontrado"</strong>
+<pre class="term">$ nvim notas.txt
+nvim: comando não encontrado</pre>
+<p><strong>O que aconteceu:</strong> o Neovim não está instalado (o comando do Vim é <code>vim</code>, não <code>nvim</code>). Em alguns sistemas, como o Ubuntu, o terminal também sugere o pacote que instala o comando.</p>
+<p><strong>Como resolver:</strong> instale pelo gerenciador do seu sistema (tabela acima).</p>
+</div>
+
+<div class="cenario">
+<strong>Minha configuração do Vim não vale no Neovim</strong>
+<p><strong>O que aconteceu:</strong> o Neovim não lê o <code>~/.vimrc</code>; ele procura em <code>~/.config/nvim/</code>.</p>
+<p><strong>Como resolver:</strong> crie o <code>init.vim</code> que carrega o <code>.vimrc</code>, como mostrado acima.</p>
+</div>
+
+<div class="cenario">
+<strong>O Neovim ignora o init.lua (ou o init.vim)</strong>
+<p><strong>O que aconteceu:</strong> existem os dois arquivos. O Neovim usa só um e avisa que há conflito.</p>
+<p><strong>Como resolver:</strong> escolha uma linguagem e apague (ou renomeie) o outro arquivo.</p>
+</div>
+
+<div class="cenario">
+<strong>Um plugin diz que precisa de uma versão mais nova</strong>
+<p><strong>O que aconteceu:</strong> o pacote da sua distribuição é antigo.</p>
+<p><strong>Como resolver:</strong> confira com <code>nvim --version</code> e instale a versão oficial mais recente (AppImage, <code>.tar.gz</code>, Flatpak ou Snap).</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tarefa</th><th>Vim</th><th>Neovim</th></tr>
+<tr><td>Abrir um arquivo</td><td><code>vim arq</code></td><td><code>nvim arq</code></td></tr>
+<tr><td>Arquivo de configuração</td><td><code>~/.vimrc</code></td><td><code>~/.config/nvim/init.lua</code> ou <code>init.vim</code></td></tr>
+<tr><td>Ver versão e recursos</td><td><code>vim --version</code></td><td><code>nvim --version</code></td></tr>
+<tr><td>Diagnosticar a instalação</td><td><code>:version</code></td><td><code>:checkhealth</code></td></tr>
+<tr><td>Definir uma opção</td><td><code>set number</code></td><td><code>set number</code> ou <code>vim.opt.number = true</code></td></tr>
+<tr><td>Criar um atalho</td><td><code>nnoremap x y</code></td><td><code>nnoremap x y</code> ou <code>vim.keymap.set('n', 'x', 'y')</code></td></tr>
+<tr><td>Abrir um terminal dentro do editor</td><td><code>:terminal</code></td><td><code>:terminal</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. O comando</h3>
+<p>Qual comando abre o Neovim no terminal?</p>
+<div class="ex-code"><input data-answer="nvim" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Diagnóstico</h3>
+<p>Complete o comando do Neovim que confere a instalação:</p>
+<div class="ex-code">:<input data-answer="checkhealth" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. Onde o Neovim procura a configuração no Linux?</p>
+<label><input type="radio" name="q3"> <code>~/.vimrc</code></label>
+<label><input type="radio" name="q3"> <code>/etc/neovim.conf</code></label>
+<label><input type="radio" name="q3"> <code>~/.config/nvim/</code></label>
+<label><input type="radio" name="q3"> <code>~/.nvim/config.json</code></label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">4. Você aprendeu <code>ciw</code>, <code>dap</code> e macros no Vim. No Neovim:</p>
+<label><input type="radio" name="q4"> Funcionam do mesmo jeito.</label>
+<label><input type="radio" name="q4"> Precisam ser reescritos em Lua.</label>
+<label><input type="radio" name="q4"> Só funcionam com plugins.</label>
+<label><input type="radio" name="q4"> Têm outras teclas.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>O Neovim nasceu do código do Vim; as teclas e comandos de edição são os mesmos.</li>
+  <li>Muda o entorno: configuração em <code>~/.config/nvim/</code>, Lua, padrões modernos, LSP e Treesitter embutidos.</li>
+  <li>Um <code>init.vim</code> de três linhas faz o Neovim usar o seu <code>.vimrc</code>.</li>
+  <li><code>:checkhealth</code> é o primeiro passo quando algo não funciona.</li>
+  <li>Vim para estar em qualquer servidor; Neovim para montar uma IDE no próprio computador.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

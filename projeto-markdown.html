@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — escrever um README em Markdown | Guia Vim</title>
+<meta name="description" content="Laboratório de Vim: escrever um README em Markdown com títulos, listas, parágrafos trocados de lugar com dap e p, linhas juntadas com J e tabelas editadas no modo visual de bloco.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Escrever em Markdown</span></h1>
+
+<p class="intro">O Vim não serve só para código. Muita gente escreve documentação, anotações e até livros nele. Neste laboratório você monta o <code>README.md</code> de um projeto: põe títulos, transforma linhas em lista, troca parágrafos de lugar e arruma uma tabela, sempre com poucas teclas.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Marcar títulos com <code>I#</code> e repetir com <code>.</code>.</li>
+  <li>Transformar várias linhas em lista com o modo visual de bloco.</li>
+  <li>Recortar um parágrafo inteiro com <code>dap</code> e colar em outro lugar.</li>
+  <li>Juntar linhas quebradas com <code>J</code> e conhecer o <code>gq</code>.</li>
+  <li>Criar e apagar colunas de tabelas com <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Revise <a href="objetos.html">Objetos de Texto</a>, <a href="copiar-colar.html">Copiar e Colar</a> e <a href="bloco.html">Modo Visual de Bloco</a>. Não precisa saber Markdown: o laboratório explica cada marcação usada.</p>
+</div>
+
+<h2>Markdown em 30 segundos</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Você escreve</th><th>Vira</th></tr>
+<tr><td><code># Título</code></td><td>Título principal</td></tr>
+<tr><td><code>## Seção</code></td><td>Subtítulo</td></tr>
+<tr><td><code>- item</code></td><td>Item de lista</td></tr>
+<tr><td><code>| a | b |</code></td><td>Linha de tabela</td></tr>
+<tr><td>Linha em branco</td><td>Separa parágrafos</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Etapa 1: títulos</h2>
+<p>O texto já está escrito, mas sem marcação. O título principal ganha <code>#</code> e cada seção ganha <code>##</code>.</p>
+
+<dl class="anatomy">
+  <dt>I# &lt;Esc&gt;</dt><dd><code>I</code> insere no começo da linha, venha o cursor de onde vier. Digite <code>#</code> e um espaço.</dd>
+  <dt>jj</dt><dd>Desce duas linhas, até "Instalação".</dd>
+  <dt>I## &lt;Esc&gt;</dt><dd>Marca a seção.</dd>
+  <dt>jj.</dt><dd>Desce até "Uso" e repete a última alteração: outro <code>## </code>.</dd>
+</dl>
+
+<div class="vimtry" data-file="README.md">
+<pre class="vim-inicial">Meu Projeto
+Um app de tarefas.
+Instalação
+Baixe o arquivo.
+Uso
+Rode ./app.</pre>
+<pre class="vim-meta"># Meu Projeto
+Um app de tarefas.
+## Instalação
+Baixe o arquivo.
+## Uso
+Rode ./app.</pre>
+<p class="try-task"><strong>Missão:</strong> transforme "Meu Projeto" em título (<code># </code>) e "Instalação" e "Uso" em seções (<code>## </code>).</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>I# &lt;Esc&gt;jjI## &lt;Esc&gt;jj.</code>. O ponto repete o <code>I## </code> inteiro, inclusive o texto digitado.</p>
+</details>
+
+<hr>
+
+<h2>Etapa 2: linhas viram lista</h2>
+<p>Cada item de lista começa com <code>- </code>. Em vez de escrever em cada linha, selecione uma "coluna" no começo das linhas e insira em todas de uma vez.</p>
+
+<dl class="anatomy">
+  <dt>j</dt><dd>Desce até o primeiro item ("rápido").</dd>
+  <dt>&lt;Ctrl-V&gt;jj</dt><dd>Seleção em bloco na primeira coluna das três linhas.</dd>
+  <dt>I- &lt;Esc&gt;</dt><dd>Insere <code>- </code> no começo do bloco; o <kbd>Esc</kbd> repete nas outras linhas.</dd>
+</dl>
+
+<div class="vimdemo" data-file="README.md" data-keys="j&lt;C-v&gt;jjI- &lt;Esc&gt;">
+<pre class="vim-inicial">Recursos:
+rápido
+leve
+grátis</pre>
+</div>
+
+<div class="vimtry" data-file="README.md">
+<pre class="vim-inicial">Recursos:
+rápido
+leve
+grátis</pre>
+<pre class="vim-meta">Recursos:
+- rápido
+- leve
+- grátis</pre>
+<p class="try-task"><strong>Missão:</strong> transforme os três recursos em itens de lista.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>j&lt;Ctrl-V&gt;jjI- &lt;Esc&gt;</code>. Outras formas: <code>:2,4s/^/- /</code>, ou <code>jI- &lt;Esc&gt;j.j.</code>.</p>
+</details>
+
+<hr>
+
+<h2>Etapa 3: trocar parágrafos de lugar</h2>
+<p>A seção "Uso" ficou antes de "Instalação", mas quem lê precisa instalar primeiro. Para o Vim, um parágrafo é um bloco de linhas separado por linhas em branco, e o objeto <code>ap</code> (<em>a paragraph</em>) pega o parágrafo inteiro mais a linha em branco depois dele.</p>
+
+<dl class="anatomy">
+  <dt>dap</dt><dd>Recorta o parágrafo do cursor e a linha em branco seguinte. O cursor vai para o parágrafo de baixo.</dd>
+  <dt>}</dt><dd>Pula para o fim desse parágrafo, na linha em branco.</dd>
+  <dt>p</dt><dd>Cola o parágrafo recortado depois da linha em branco.</dd>
+</dl>
+
+<div class="vimdemo" data-file="README.md" data-keys="dap}p">
+<pre class="vim-inicial">Uso: rode o programa
+com ./app.
+
+Instalação: baixe o
+arquivo e descompacte.
+
+Licença: MIT.</pre>
+</div>
+
+<p>Depois do <code>dap</code>, o rodapé avisa <code>3 linhas a menos</code>: as duas do parágrafo e a linha em branco.</p>
+
+<div class="vimtry" data-file="README.md">
+<pre class="vim-inicial">Uso: rode o programa
+com ./app.
+
+Instalação: baixe o
+arquivo e descompacte.
+
+Licença: MIT.</pre>
+<pre class="vim-meta">Instalação: baixe o
+arquivo e descompacte.
+
+Uso: rode o programa
+com ./app.
+
+Licença: MIT.</pre>
+<p class="try-task"><strong>Missão:</strong> coloque o parágrafo de Instalação antes do de Uso, mantendo uma linha em branco entre os parágrafos.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>dap}p</code> (4 teclas). Funciona com parágrafos de qualquer tamanho, sem precisar contar linhas.</p>
+</details>
+
+<hr>
+
+<h2>Etapa 4: juntar linhas quebradas</h2>
+<p>Textos colados de e-mail ou PDF chegam quebrados no meio da frase. O <code>J</code> (de <em>join</em>) junta a linha de baixo com a atual, pondo um espaço entre elas. <code>3J</code> junta três linhas.</p>
+
+<div class="vimtry" data-file="README.md">
+<pre class="vim-inicial">Esta frase está
+quebrada em
+três linhas.</pre>
+<pre class="vim-meta">Esta frase está quebrada em três linhas.</pre>
+<p class="try-task"><strong>Missão:</strong> deixe a frase numa linha só.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>3J</code>, ou <code>JJ</code>. Para juntar sem pôr espaço, existe <code>gJ</code>.</p>
+</details>
+
+<div class="note">
+<strong>O contrário: quebrar linhas longas com gq</strong>
+<p>No Vim de verdade, <code>:set textwidth=80</code> faz o texto quebrar sozinho na coluna 80 enquanto você digita, e <code>gqap</code> reformata o parágrafo inteiro para essa largura. O <code>gq</code> não existe no Vim simulado.</p>
+</div>
+
+<hr>
+
+<h2>Etapa 5: tabelas</h2>
+<p>Tabelas em Markdown são linhas com <code>|</code> separando as colunas. O modo visual de bloco é perfeito para elas, porque trabalha com <strong>colunas</strong> de texto.</p>
+
+<h3>Criar as bordas</h3>
+<dl class="anatomy">
+  <dt>&lt;Ctrl-V&gt;jjI| &lt;Esc&gt;</dt><dd>Põe <code>| </code> no começo das três linhas.</dd>
+  <dt>&lt;Ctrl-V&gt;jj$</dt><dd>Seleciona as três linhas de novo; o <code>$</code> estende cada uma até o <strong>seu próprio</strong> fim, mesmo com tamanhos diferentes.</dd>
+  <dt>A |&lt;Esc&gt;</dt><dd>Acrescenta <code> |</code> no fim de cada linha.</dd>
+</dl>
+
+<div class="vimtry" data-file="README.md">
+<pre class="vim-inicial">Nome Idade
+Ana 30
+Bruno 25</pre>
+<pre class="vim-meta">| Nome Idade |
+| Ana 30 |
+| Bruno 25 |</pre>
+<p class="try-task"><strong>Missão:</strong> ponha <code>| </code> no começo e <code> |</code> no fim de cada linha.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>&lt;Ctrl-V&gt;jjI| &lt;Esc&gt;&lt;Ctrl-V&gt;jj$A |&lt;Esc&gt;</code>. No segundo passo, <code>gv</code> (reselecionar a última seleção) no lugar de <code>&lt;Ctrl-V&gt;jj</code> também funciona.</p>
+</details>
+
+<h3>Apagar uma coluna</h3>
+<p>Quando a tabela está alinhada, cada coluna ocupa as mesmas posições em todas as linhas. Basta selecionar o retângulo e apagar.</p>
+
+<dl class="anatomy">
+  <dt>f|</dt><dd>Vai até a segunda barra, a que abre a coluna "Cidade".</dd>
+  <dt>&lt;Ctrl-V&gt;jj</dt><dd>Começa um bloco e desce até a última linha.</dd>
+  <dt>t|</dt><dd>Estende o bloco até antes da próxima barra (<em>till</em>): o retângulo cobre <code>| Cidade </code> nas três linhas.</dd>
+  <dt>d</dt><dd>Apaga o retângulo.</dd>
+</dl>
+
+<div class="vimdemo" data-file="README.md" data-keys="f|&lt;C-v&gt;jjt|d">
+<pre class="vim-inicial">| Nome  | Cidade | Idade |
+| Ana   | Recife | 30    |
+| Bruno | Natal  | 25    |</pre>
+</div>
+
+<div class="vimtry" data-file="README.md">
+<pre class="vim-inicial">| Nome  | Cidade | Idade |
+| Ana   | Recife | 30    |
+| Bruno | Natal  | 25    |</pre>
+<pre class="vim-meta">| Nome  | Idade |
+| Ana   | 30    |
+| Bruno | 25    |</pre>
+<p class="try-task"><strong>Missão:</strong> remova a coluna Cidade inteira.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>f|&lt;Ctrl-V&gt;jjt|d</code> (6 teclas, contando <kbd>Ctrl</kbd>+<kbd>V</kbd> como uma).</p>
+</details>
+
+<hr>
+
+<h2>O README pronto</h2>
+<p>Juntando as etapas, o arquivo fica assim:</p>
+
+<pre class="file" data-file="README.md"># Meu Projeto
+Um app de tarefas.
+
+## Instalação
+Baixe o arquivo e descompacte.
+
+## Uso
+Rode ./app.
+
+## Recursos
+- rápido
+- leve
+- grátis
+
+| Nome  | Idade |
+| ----- | ----- |
+| Ana   | 30    |
+| Bruno | 25    |</pre>
+
+<p>A linha <code>| ----- | ----- |</code> separa o cabeçalho do resto: sem ela, muitos sites não reconhecem a tabela.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>O dap pegou mais linhas do que eu queria</strong>
+<p><strong>O que aconteceu:</strong> não havia linha em branco entre os parágrafos. Para o Vim, linhas grudadas são um parágrafo só.</p>
+<p><strong>Como resolver:</strong> <code>u</code>, separe os blocos com uma linha vazia (<code>o&lt;Esc&gt;</code>) e repita.</p>
+</div>
+
+<div class="cenario">
+<strong>Apaguei a coluna e a tabela ficou torta</strong>
+<p><strong>O que aconteceu:</strong> as colunas não estavam alinhadas, então o retângulo cortou pedaços diferentes em cada linha.</p>
+<p><strong>Como resolver:</strong> <code>u</code> e alinhe antes. Uma opção é deixar cada célula com o mesmo número de caracteres (preenchendo com espaços).</p>
+</div>
+
+<div class="cenario">
+<strong>O A no modo de bloco escreveu no lugar errado</strong>
+<p><strong>O que aconteceu:</strong> sem o <code>$</code>, o <code>A</code> escreve logo depois do bloco, na mesma coluna em todas as linhas, e as linhas curtas são completadas com espaços.</p>
+<p><strong>Como resolver:</strong> <code>u</code> e refaça com <code>$</code> antes do <code>A</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência do projeto</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tarefa</th><th>Teclas</th></tr>
+<tr><td>Inserir no começo da linha</td><td><code>I</code></td></tr>
+<tr><td>Mesmo texto no começo de várias linhas</td><td><kbd>Ctrl</kbd>+<kbd>V</kbd>, <code>j</code>…, <code>I</code>texto<kbd>Esc</kbd></td></tr>
+<tr><td>Mesmo texto no fim de várias linhas</td><td><kbd>Ctrl</kbd>+<kbd>V</kbd>, <code>j</code>…, <code>$A</code>texto<kbd>Esc</kbd></td></tr>
+<tr><td>Recortar um parágrafo</td><td><code>dap</code></td></tr>
+<tr><td>Ir para o fim / começo do parágrafo</td><td><code>}</code> / <code>{</code></td></tr>
+<tr><td>Juntar linhas</td><td><code>J</code>, <code>3J</code>, <code>gJ</code> (sem espaço)</td></tr>
+<tr><td>Reformatar parágrafo (Vim real)</td><td><code>gqap</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Copiar um parágrafo inteiro</h3>
+<div class="ex-code"><input data-answer="yap" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Juntar 4 linhas numa só</h3>
+<div class="ex-code"><input data-answer="4J|JJJ" aria-label="teclas"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. Qual a diferença entre <code>dip</code> e <code>dap</code>?</p>
+<label><input type="radio" name="q3"> Nenhuma.</label>
+<label><input type="radio" name="q3"> <code>dap</code> leva também a linha em branco depois do parágrafo.</label>
+<label><input type="radio" name="q3"> <code>dip</code> apaga só a primeira linha.</label>
+<label><input type="radio" name="q3"> <code>dap</code> apaga todos os parágrafos.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. As linhas têm tamanhos diferentes. Como acrescentar " |" no fim de todas?</p>
+<label><input type="radio" name="q4"> <code>v</code>, <code>jj</code>, <code>A |</code></label>
+<label><input type="radio" name="q4"> <code>A |</code> em cada uma com <code>j</code></label>
+<label><input type="radio" name="q4"> <kbd>Ctrl</kbd>+<kbd>V</kbd>, <code>jj</code>, <code>A |</code> sem o <code>$</code></label>
+<label><input type="radio" name="q4"> <kbd>Ctrl</kbd>+<kbd>V</kbd>, <code>jj</code>, <code>$</code>, <code>A |</code>, <kbd>Esc</kbd></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>I</code> + texto + <code>.</code> marca títulos rapidamente.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>V</kbd> com <code>I</code> e <code>$A</code> escreve no começo e no fim de várias linhas.</li>
+  <li><code>dap</code> + <code>}</code> + <code>p</code> troca parágrafos de lugar.</li>
+  <li><code>J</code> junta linhas; <code>gq</code> (Vim real) quebra linhas longas.</li>
+  <li>Tabelas alinhadas se editam por colunas com o modo visual de bloco.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

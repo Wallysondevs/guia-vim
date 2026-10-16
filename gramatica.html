@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — a gramática verbo + movimento | Guia Vim</title>
+<meta name="description" content="Entenda a gramática do Vim: verbos (d, c, y), números e movimentos (w, $, }) se combinam como frases. Aprenda a ler d2w, ci&quot; e dap em português e pratique num Vim simulado.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Verbo + Movimento</span></h1>
+
+<p class="intro">Os comandos do Vim não são uma lista solta de atalhos para decorar. Eles formam uma pequena <strong>língua</strong>: um <strong>verbo</strong> diz o que fazer e um <strong>movimento</strong> diz até onde. Quem entende essa gramática aprende 3 verbos e 10 movimentos e já sabe 30 comandos.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>O que são verbos (operadores) e movimentos.</li>
+  <li>Como ler um comando do Vim em português: <code>d2w</code> = "apague duas palavras".</li>
+  <li>Os três "complementos" da frase: número, movimento e objeto de texto.</li>
+  <li>Por que cada movimento novo que você aprende multiplica tudo o que você já sabe.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Tudo nesta aula acontece no <strong>modo normal</strong>. Você precisa conhecer os movimentos básicos <code>w</code>, <code>b</code>, <code>e</code>, <code>0</code> e <code>$</code> (veja <a href="palavras.html">Pular Palavras</a> e <a href="linhas.html">Início, Fim e Linhas</a>) e o <code>dd</code> de <a href="apagar.html">Apagar</a>.</p>
+</div>
+
+<hr>
+
+<h2>A ideia: frases em vez de atalhos</h2>
+<p>Em outros editores, cada ação tem um atalho próprio, e você precisa decorar todos. No Vim, você <strong>monta</strong> a ação na hora, como uma frase:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Parte da frase</th><th>Exemplo</th><th>Papel</th></tr>
+<tr><td>Verbo (operador)</td><td><code>d</code></td><td>O que fazer: apagar, mudar, copiar…</td></tr>
+<tr><td>Número (opcional)</td><td><code>2</code></td><td>Quantas vezes.</td></tr>
+<tr><td>Movimento ou objeto</td><td><code>w</code></td><td>Até onde, ou sobre o quê.</td></tr>
+</table>
+</div>
+
+<p>Juntando as três partes:</p>
+
+<dl class="anatomy">
+  <dt>d</dt><dd>Verbo: <strong>apague</strong> (de <em>delete</em>).</dd>
+  <dt>2</dt><dd>Número: <strong>duas vezes</strong>.</dd>
+  <dt>w</dt><dd>Movimento: <strong>palavra</strong> (de <em>word</em>).</dd>
+</dl>
+
+<p>Lido em voz alta: "apague duas palavras". Veja acontecer:</p>
+
+<div class="vimdemo" data-file="frase.txt" data-keys="d2w">
+<pre class="vim-inicial">o rato roeu a roupa do rei</pre>
+</div>
+
+<p>Depois do <kbd>d</kbd> e do <kbd>2</kbd>, nada muda no texto: o Vim espera o resto da frase e mostra <code>d2</code> no canto direito do rodapé. Só quando o <kbd>w</kbd> chega o comando fica completo e as palavras "o rato " somem.</p>
+
+<hr>
+
+<h2>Os verbos</h2>
+<p>O Vim chama os verbos de <strong>operadores</strong>. Estes são os que você mais vai usar:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Verbo</th><th>Em inglês</th><th>Em português</th></tr>
+<tr><td><code>d</code></td><td><em>delete</em></td><td>apague (e guarde para colar)</td></tr>
+<tr><td><code>c</code></td><td><em>change</em></td><td>mude: apague e entre no modo de inserção</td></tr>
+<tr><td><code>y</code></td><td><em>yank</em></td><td>copie</td></tr>
+<tr><td><code>&gt;</code> / <code>&lt;</code></td><td><em>shift</em></td><td>aumente / diminua a indentação</td></tr>
+<tr><td><code>gU</code> / <code>gu</code></td><td><em>uppercase / lowercase</em></td><td>passe para maiúsculas / minúsculas</td></tr>
+<tr><td><code>g~</code></td><td><em>swap case</em></td><td>inverta maiúsculas e minúsculas</td></tr>
+</table>
+</div>
+
+<p>A aula <a href="operadores.html">Operadores d, c, y</a> mostra cada um em detalhe.</p>
+
+<hr>
+
+<h2>Os movimentos</h2>
+<p>Qualquer tecla que só <strong>move o cursor</strong> pode ser o fim da frase. O verbo age sobre o trecho entre onde o cursor está e onde o movimento o levaria.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Movimento</th><th>Vai até…</th><th>Lê-se</th></tr>
+<tr><td><code>w</code></td><td>o começo da próxima palavra</td><td>"palavra"</td></tr>
+<tr><td><code>e</code></td><td>o fim da palavra</td><td>"até o fim da palavra"</td></tr>
+<tr><td><code>b</code></td><td>o começo da palavra anterior</td><td>"palavra para trás"</td></tr>
+<tr><td><code>$</code></td><td>o fim da linha</td><td>"até o fim da linha"</td></tr>
+<tr><td><code>0</code></td><td>o começo da linha</td><td>"até o começo da linha"</td></tr>
+<tr><td><code>}</code></td><td>o fim do parágrafo</td><td>"até o fim do parágrafo"</td></tr>
+<tr><td><code>G</code></td><td>a última linha</td><td>"até o fim do arquivo"</td></tr>
+<tr><td><code>fx</code></td><td>o próximo caractere <code>x</code> (incluindo ele)</td><td>"até o x"</td></tr>
+<tr><td><code>tx</code></td><td>logo antes do próximo <code>x</code></td><td>"até antes do x"</td></tr>
+</table>
+</div>
+
+<h3>A tabela que multiplica</h3>
+<p>Cada verbo combina com cada movimento. Com 3 verbos e 5 movimentos você já tem 15 comandos, sem decorar nenhum:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th></th><th><code>w</code> (palavra)</th><th><code>$</code> (fim da linha)</th><th><code>0</code> (começo)</th><th><code>}</code> (parágrafo)</th><th><code>G</code> (fim do arquivo)</th></tr>
+<tr><td><code>d</code> apague</td><td><code>dw</code></td><td><code>d$</code></td><td><code>d0</code></td><td><code>d}</code></td><td><code>dG</code></td></tr>
+<tr><td><code>c</code> mude</td><td><code>cw</code></td><td><code>c$</code></td><td><code>c0</code></td><td><code>c}</code></td><td><code>cG</code></td></tr>
+<tr><td><code>y</code> copie</td><td><code>yw</code></td><td><code>y$</code></td><td><code>y0</code></td><td><code>y}</code></td><td><code>yG</code></td></tr>
+</table>
+</div>
+
+<p>E o contrário também vale: quando você aprende um movimento novo, ele já funciona com todos os verbos. Ao aprender <code>f</code> (pular até um caractere), você ganha de graça <code>df,</code> ("apague até a vírgula"), <code>cf,</code> e <code>yf,</code>.</p>
+
+<div class="vimdemo" data-file="csv.txt" data-keys="df,">
+<pre class="vim-inicial">nome errado, Ana, 30, Recife</pre>
+</div>
+
+<p>"Apague até a vírgula": o <code>f,</code> leva o cursor até a primeira vírgula, e o <code>d</code> apaga tudo do cursor até ela, inclusive.</p>
+
+<div class="vimtry" data-file="frase.txt">
+<pre class="vim-inicial">PALAVRA EXTRA o Vim é rápido e isto aqui tudo sobra</pre>
+<pre class="vim-meta">o Vim é rápido</pre>
+<p class="try-task"><strong>Missão:</strong> use frases do Vim. Apague as duas primeiras palavras com um comando (dica: <code>d2w</code>). Depois leve o cursor até o espaço depois de "rápido" e apague até o fim da linha (dica: <code>d$</code>).</p>
+</div>
+
+<hr>
+
+<h2>O verbo dobrado: a linha inteira</h2>
+<p>Repetir o verbo significa "a linha inteira". É o caso mais comum, por isso ganhou um atalho:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Frase</th><th>Lê-se</th></tr>
+<tr><td><code>dd</code></td><td>apague a linha</td></tr>
+<tr><td><code>cc</code></td><td>mude a linha (apaga o conteúdo e começa a digitar)</td></tr>
+<tr><td><code>yy</code></td><td>copie a linha</td></tr>
+<tr><td><code>&gt;&gt;</code></td><td>indente a linha</td></tr>
+<tr><td><code>3dd</code></td><td>apague três linhas</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Objetos de texto: "dentro de" e "em volta de"</h2>
+<p>Um movimento depende de onde o cursor está: <code>dw</code> apaga só do cursor em diante. Às vezes você quer agir sobre uma <strong>coisa inteira</strong>, como uma palavra, o texto entre aspas ou um parágrafo, com o cursor em qualquer lugar dentro dela. Para isso existem os <strong>objetos de texto</strong>, que começam com <code>i</code> ou <code>a</code>:</p>
+
+<dl class="anatomy">
+  <dt>c</dt><dd>Verbo: <strong>mude</strong>.</dd>
+  <dt>i</dt><dd><strong>dentro de</strong> (de <em>inner</em>). Pega só o conteúdo, sem as bordas.</dd>
+  <dt>"</dt><dd>O objeto: o texto entre <strong>aspas</strong>.</dd>
+</dl>
+
+<p>Lido em voz alta: "mude dentro das aspas". O cursor pode estar em qualquer letra do nome:</p>
+
+<div class="vimdemo" data-file="dados.py" data-col="12" data-keys="ci&quot;José&lt;Esc&gt;">
+<pre class="vim-inicial">nome = "Ana Maria"</pre>
+</div>
+
+<p>As aspas ficaram, só o conteúdo mudou. Com <code>a</code> (de <em>a</em>, "um/uma", lido como "em volta de"), as bordas vão junto: <code>da"</code> apagaria também as aspas.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Frase</th><th>Lê-se</th></tr>
+<tr><td><code>diw</code></td><td>apague dentro da palavra</td></tr>
+<tr><td><code>daw</code></td><td>apague a palavra (com um espaço)</td></tr>
+<tr><td><code>ci"</code></td><td>mude dentro das aspas</td></tr>
+<tr><td><code>di(</code></td><td>apague dentro dos parênteses</td></tr>
+<tr><td><code>yap</code></td><td>copie o parágrafo</td></tr>
+<tr><td><code>dit</code></td><td>apague dentro da tag HTML</td></tr>
+</table>
+</div>
+
+<p>A aula <a href="objetos.html">Objetos de Texto</a> mostra todos.</p>
+
+<div class="vimtry" data-file="calculo.js" data-col="17">
+<pre class="vim-inicial">resultado = soma(10, 20, 30)</pre>
+<pre class="vim-meta">resultado = soma()</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está dentro dos parênteses. Apague todos os argumentos de uma vez, deixando só <code>soma()</code>. Leia a frase antes de digitar: "apague dentro dos parênteses".</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de dizer a mesma coisa</h2>
+<p>Como na língua falada, há várias frases para a mesma ideia. Para apagar "rato roeu " na frase abaixo, com o cursor no <code>r</code> de "rato":</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Frase</th><th>Lê-se</th><th>Quando usar</th></tr>
+<tr><td><code>d2w</code></td><td>apague duas palavras</td><td>Você contou as palavras.</td></tr>
+<tr><td><code>2dw</code></td><td>duas vezes, apague uma palavra</td><td>Mesmo resultado; questão de gosto.</td></tr>
+<tr><td><code>dw.</code></td><td>apague uma palavra e repita</td><td>Você não quer contar: vai apertando <code>.</code> até chegar.</td></tr>
+<tr><td><code>dta</code></td><td>apague até antes do "a"</td><td>Há um caractere fácil de mirar logo depois.</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="frase.txt" data-col="3" data-keys="dw.">
+<pre class="vim-inicial">o rato roeu a roupa</pre>
+</div>
+
+<p>O <code>.</code> (ponto) repete a última alteração. Ele aparece em detalhe em <a href="contadores.html">Números e Repetição</a>.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Digitei "d2w" e apareceu "d2w" no texto</strong>
+<p><strong>O que aconteceu:</strong> você estava no modo de inserção (rodapé com <code>-- INSERÇÃO --</code>). Lá, toda tecla é texto.</p>
+<p><strong>Como resolver:</strong> <kbd>Esc</kbd>, depois <code>u</code> para desfazer o que foi digitado, e então repita o comando.</p>
+</div>
+
+<div class="cenario">
+<strong>Comecei uma frase e desisti</strong>
+<p><strong>O que aconteceu:</strong> você apertou <kbd>d</kbd> e percebeu que não era isso. O <code>d</code> fica esperando no canto do rodapé.</p>
+<p><strong>Como resolver:</strong> <kbd>Esc</kbd> cancela a frase pela metade. Nada é alterado.</p>
+</div>
+
+<div class="cenario">
+<strong>O movimento não existe ali, e o comando não fez nada</strong>
+<p><strong>O que aconteceu:</strong> se o movimento falha, a frase inteira falha. Por exemplo, <code>df;</code> numa linha sem ponto e vírgula: o <code>f;</code> não acha o caractere, e nada é apagado.</p>
+<p><strong>Como resolver:</strong> confira o caractere ou use outro movimento. É uma proteção: o Vim não apaga "um pouco" quando não entendeu até onde ir.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Exemplo</th><th>Lê-se</th></tr>
+<tr><td>verbo + movimento</td><td><code>dw</code></td><td>apague palavra</td></tr>
+<tr><td>verbo + número + movimento</td><td><code>c3w</code></td><td>mude três palavras</td></tr>
+<tr><td>número + verbo + movimento</td><td><code>3dw</code></td><td>três vezes, apague palavra</td></tr>
+<tr><td>verbo + objeto</td><td><code>ci(</code></td><td>mude dentro dos parênteses</td></tr>
+<tr><td>verbo dobrado</td><td><code>yy</code></td><td>copie a linha</td></tr>
+<tr><td>verbo + busca</td><td><code>d/fim&lt;CR&gt;</code></td><td>apague até a palavra "fim"</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Monte a frase</h3>
+<p>Escreva o comando que se lê "copie até o fim da linha":</p>
+<div class="ex-code"><input data-answer="y$" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Monte a frase</h3>
+<p>Escreva o comando que se lê "mude três palavras":</p>
+<div class="ex-code"><input data-answer="c3w|3cw" aria-label="comando"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. Como se lê <code>di(</code>?</p>
+<label><input type="radio" name="q3"> apague os parênteses</label>
+<label><input type="radio" name="q3"> apague dentro dos parênteses</label>
+<label><input type="radio" name="q3"> apague até o próximo parêntese</label>
+<label><input type="radio" name="q3"> apague a linha com parênteses</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. Você aprendeu o movimento <code>}</code> (fim do parágrafo). Qual destes comandos você ganhou de graça?</p>
+<label><input type="radio" name="q4"> <code>d}</code></label>
+<label><input type="radio" name="q4"> <code>y}</code></label>
+<label><input type="radio" name="q4"> <code>c}</code></label>
+<label><input type="radio" name="q4"> Todos os anteriores</label>
+</div>
+
+<div class="vimtry" data-file="config.ini">
+<pre class="vim-inicial">usuario = "admin"
+senha = "123"
+porta = 8080 ; porta antiga</pre>
+<pre class="vim-meta">usuario = "ana"
+senha = "123"
+porta = 8080</pre>
+<p class="try-task"><strong>Missão final:</strong> troque <code>admin</code> por <code>ana</code> com "mude dentro das aspas" e apague o comentário <code> ; porta antiga</code> da última linha com "apague até o fim da linha".</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Um comando do Vim é uma frase: <strong>verbo</strong> + <strong>(número)</strong> + <strong>movimento ou objeto</strong>.</li>
+  <li>Verbos principais: <code>d</code> apague, <code>c</code> mude, <code>y</code> copie.</li>
+  <li>Qualquer movimento serve: <code>w</code>, <code>e</code>, <code>$</code>, <code>}</code>, <code>G</code>, <code>f,</code>…</li>
+  <li>Objetos de texto (<code>iw</code>, <code>i"</code>, <code>i(</code>) agem sobre uma coisa inteira, com o cursor em qualquer lugar dentro.</li>
+  <li>Verbo dobrado = linha inteira: <code>dd</code>, <code>cc</code>, <code>yy</code>.</li>
+  <li>Cada movimento novo funciona com todos os verbos que você já conhece.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

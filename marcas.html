@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — marcas (ma, 'a, `a) e saltos (Ctrl-o, Ctrl-i) | Guia Vim</title>
+<meta name="description" content="Aprenda a marcar posições no Vim com m, voltar a elas com ' e `, usar marcas como faixa de comandos (d'a), as marcas especiais, :marks e a lista de saltos com Ctrl-o e Ctrl-i.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Marcas e Saltos</span></h1>
+
+<p class="intro">Você está editando a linha 40, precisa conferir algo na linha 300 e depois voltar. Em vez de lembrar o número da linha, deixe uma <strong>marca</strong>: um marcador de página invisível. E mesmo sem marcar nada, o Vim guarda um histórico dos lugares por onde você "pulou", e <kbd>Ctrl</kbd>+<kbd>o</kbd> volta por ele, como o botão Voltar do navegador.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Criar uma marca com <code>m</code> e voltar a ela com <code>'</code> ou <code>`</code>.</li>
+  <li>A diferença entre <code>'a</code> (a linha) e <code>`a</code> (a posição exata).</li>
+  <li>Usar uma marca como limite de um verbo: <code>d'a</code>, <code>y`a</code>.</li>
+  <li>Voltar ao último salto com <code>''</code> e navegar pela lista de saltos com <kbd>Ctrl</kbd>+<kbd>o</kbd> e <kbd>Ctrl</kbd>+<kbd>i</kbd>.</li>
+  <li>Ver todas as marcas com <code>:marks</code> e conhecer as marcas especiais.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Tudo aqui é do modo normal. Ajuda ter visto <a href="linhas.html">Início, Fim e Linhas</a> (<code>gg</code> e <code>G</code>) e <a href="busca.html">Buscar</a>.</p>
+</div>
+
+<hr>
+
+<h2>m: deixar uma marca</h2>
+<p>O <code>m</code> (de <em>mark</em>) seguido de uma letra de <code>a</code> a <code>z</code> grava a posição atual do cursor com esse nome. Você pode ter 26 marcas por arquivo. Nada muda na tela: a marca é invisível.</p>
+
+<dl class="anatomy">
+  <dt>m</dt><dd>"Marque a posição atual…"</dd>
+  <dt>a</dt><dd>…com o nome <code>a</code>. Qualquer letra minúscula serve.</dd>
+</dl>
+
+<h3>'a: voltar para a linha da marca</h3>
+<p>O apóstrofo <code>'</code> seguido da letra leva à <strong>linha</strong> da marca, no primeiro caractere que não é espaço.</p>
+
+<div class="vimdemo" data-file="texto.txt" data-keys="jjmaG'a">
+<pre class="vim-inicial">linha 1
+linha 2
+linha 3
+linha 4
+linha 5
+linha 6</pre>
+</div>
+
+<p>Acompanhe: <code>jj</code> desce até a linha 3, <code>ma</code> marca ali, <code>G</code> vai para o fim do arquivo e <code>'a</code> volta direto para a linha 3.</p>
+
+<h3>`a: voltar para a posição exata</h3>
+<p>A crase <code>`</code> leva à <strong>linha e coluna</strong> exatas onde a marca foi feita:</p>
+
+<div class="vimdemo" data-file="texto.txt" data-keys="jjllmaG`a">
+<pre class="vim-inicial">linha 1
+linha 2
+linha 3
+linha 4
+linha 5
+linha 6</pre>
+</div>
+
+<p>Agora a marca foi feita na coluna 3 (depois de <code>ll</code>), e a crase voltou exatamente para a linha 3, coluna 3. O apóstrofo teria ido para a coluna 1.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Vai para</th><th>Tipo de movimento</th></tr>
+<tr><td><code>'a</code></td><td>A linha da marca (primeiro caractere visível)</td><td>De linha inteira</td></tr>
+<tr><td><code>`a</code></td><td>A linha e a coluna exatas</td><td>De caractere</td></tr>
+</table>
+</div>
+
+<div class="tip">
+<strong>Onde fica a crase no teclado brasileiro</strong>
+<p>No ABNT2, a crase é <kbd>Shift</kbd>+<kbd>´</kbd>. Como ela é uma tecla "morta", às vezes é preciso apertar <kbd>Espaço</kbd> depois para ela sair sozinha.</p>
+</div>
+
+<hr>
+
+<h2>Marcas como limite de um verbo</h2>
+<p>Marcas são movimentos. Por isso servem de alvo para verbos: <code>d'a</code> apaga da linha atual até a linha da marca, com as duas incluídas. É ótimo para apagar ou copiar trechos grandes, que você delimita andando pelo arquivo.</p>
+
+<dl class="anatomy">
+  <dt>d</dt><dd>Verbo: apagar.</dd>
+  <dt>'a</dt><dd>Movimento: até a linha da marca <code>a</code>. Como <code>'</code> é de linha, o apagamento é de linhas inteiras.</dd>
+</dl>
+
+<div class="vimdemo" data-file="texto.txt" data-keys="jjmaGd'a">
+<pre class="vim-inicial">linha 1
+linha 2
+linha 3
+linha 4
+linha 5
+linha 6</pre>
+</div>
+
+<p>Da linha 6 (onde estava o cursor) até a 3 (a marca): 4 linhas, e o rodapé confirma <code>4 linhas a menos</code>. Com <code>y'a</code> você copiaria o trecho, e com <code>&gt;'a</code> indentaria.</p>
+
+<div class="vimtry" data-file="relatorio.txt">
+<pre class="vim-inicial">Relatório mensal
+Resumo: tudo certo.
+--- RASCUNHO ---
+ideia 1
+ideia 2
+ideia 3
+--- FIM DO RASCUNHO ---
+Assinado: Ana</pre>
+<pre class="vim-meta">Relatório mensal
+Resumo: tudo certo.
+Assinado: Ana</pre>
+<p class="try-task"><strong>Missão:</strong> apague o rascunho inteiro, da linha "--- RASCUNHO ---" até "--- FIM DO RASCUNHO ---". Vá até a primeira (por exemplo, <code>/RASC</code> e <kbd>Enter</kbd>), marque com <code>ma</code>, vá até a última e use <code>d'a</code>.</p>
+</div>
+
+<hr>
+
+<h2>'' : voltar de onde você pulou</h2>
+<p>Comandos que levam o cursor para longe, como <code>G</code>, <code>gg</code>, <code>/busca</code>, <code>n</code>, <code>%</code> e <code>'a</code>, são chamados de <strong>saltos</strong>. Antes de cada salto, o Vim grava de onde você saiu numa marca especial. Para voltar, use <code>''</code> (dois apóstrofos) ou <code>``</code> (duas crases, para a coluna exata).</p>
+
+<div class="vimdemo" data-file="texto.txt" data-keys="G''">
+<pre class="vim-inicial">linha 1
+linha 2
+linha 3
+linha 4
+linha 5
+linha 6</pre>
+</div>
+
+<p>O <code>G</code> pulou para a linha 6 e o <code>''</code> voltou para a linha 1. Apertando <code>''</code> de novo, você volta à 6: ele alterna entre os dois lugares, ótimo para comparar duas partes do arquivo.</p>
+
+<hr>
+
+<h2>Ctrl-o e Ctrl-i: a lista de saltos</h2>
+<p>O Vim guarda <strong>todos</strong> os saltos recentes numa lista (a <em>jumplist</em>). <kbd>Ctrl</kbd>+<kbd>o</kbd> volta um salto (pense em <em>old</em>, "antigo") e <kbd>Ctrl</kbd>+<kbd>i</kbd> avança de novo. É o "Voltar" e "Avançar" do navegador.</p>
+
+<div class="vimdemo" data-file="texto.txt" data-keys="Ggg&lt;C-o&gt;&lt;C-o&gt;">
+<pre class="vim-inicial">linha 1
+linha 2
+linha 3
+linha 4
+linha 5
+linha 6</pre>
+</div>
+
+<p>O caminho foi: linha 1 → <code>G</code> → linha 6 → <code>gg</code> → linha 1. O primeiro <kbd>Ctrl</kbd>+<kbd>o</kbd> volta para a 6. O segundo tentaria voltar para a linha 1, onde você já esteve, e o Vim fica onde está porque a lista não guarda duas vezes o mesmo lugar seguido. Num arquivo grande, com vários saltos, cada <kbd>Ctrl</kbd>+<kbd>o</kbd> volta um passo.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Conta como salto</th><th>Não conta</th></tr>
+<tr><td><code>G</code>, <code>gg</code>, <code>42G</code>, <code>:42</code></td><td><code>j</code>, <code>k</code>, <code>h</code>, <code>l</code></td></tr>
+<tr><td><code>/</code>, <code>?</code>, <code>n</code>, <code>N</code>, <code>*</code>, <code>#</code></td><td><code>w</code>, <code>b</code>, <code>e</code></td></tr>
+<tr><td><code>%</code>, <code>(</code>, <code>)</code>, <code>{</code>, <code>}</code></td><td><code>f</code>, <code>t</code>, <code>0</code>, <code>$</code></td></tr>
+<tr><td><code>'a</code>, <code>`a</code>, <code>H</code>, <code>M</code>, <code>L</code></td><td>Movimentos dentro da linha</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>Ctrl-i e Tab</strong>
+<p>No terminal, <kbd>Ctrl</kbd>+<kbd>i</kbd> e <kbd>Tab</kbd> mandam o mesmo código. Por isso, no modo normal, <kbd>Tab</kbd> também avança na lista de saltos. Para ver a lista inteira, use <code>:jumps</code> no Vim real.</p>
+</div>
+
+<hr>
+
+<h2>:marks: ver as marcas</h2>
+<p>O comando <code>:marks</code> lista as marcas que existem, com a linha, a coluna e o texto da linha:</p>
+
+<div class="vimdemo" data-file="texto.txt" data-keys="jjmaGmb:marks&lt;CR&gt;">
+<pre class="vim-inicial">linha 1
+linha 2
+linha 3
+linha 4
+linha 5
+linha 6</pre>
+</div>
+
+<p>Leia o resultado assim: a marca <code>a</code> está na linha 3, coluna 0 (a contagem de colunas aqui começa em zero); a <code>b</code> na linha 6. A marca <code>'</code> é a de "onde eu estava antes do último salto". No Vim real a lista mostra também as marcas especiais e termina com <code>Aperte ENTER ou digite um comando para continuar</code>.</p>
+
+<hr>
+
+<h2>Marcas especiais</h2>
+<p>O Vim cria algumas marcas sozinho. As mais úteis:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Marca</th><th>Guarda</th><th>Uso típico</th></tr>
+<tr><td><code>''</code> / <code>``</code></td><td>Onde você estava antes do último salto</td><td>Voltar de um <code>G</code> ou de uma busca</td></tr>
+<tr><td><code>'.</code> / <code>`.</code></td><td>Onde foi a última alteração</td><td>"Onde eu estava editando mesmo?"</td></tr>
+<tr><td><code>'^</code> / <code>`^</code></td><td>Onde você saiu do modo de inserção</td><td>Usada pelo <code>gi</code>, que volta a inserir ali</td></tr>
+<tr><td><code>'[</code> e <code>']</code></td><td>Começo e fim do último texto alterado ou colado</td><td>Selecionar o que acabou de colar: <code>`[v`]</code></td></tr>
+<tr><td><code>'&lt;</code> e <code>'&gt;</code></td><td>Começo e fim da última seleção visual</td><td>A faixa <code>:'&lt;,'&gt;</code></td></tr>
+</table>
+</div>
+
+<div class="tip">
+<strong>A mais prática: `.</strong>
+<p>Abriu um arquivo, rolou para ler outra parte e se perdeu? <code>`.</code> leva de volta ao ponto exato da última alteração. Com o arquivo <code>~/.viminfo</code> ativo (o padrão), o Vim também guarda essa marca entre sessões, então ela funciona até depois de fechar e abrir o arquivo de novo. O simulador desta página não tem essa marca; experimente no seu Vim.</p>
+</div>
+
+<hr>
+
+<h2>Marcas maiúsculas: entre arquivos</h2>
+<p>As marcas de <code>a</code> a <code>z</code> valem só dentro do arquivo. As maiúsculas, de <code>A</code> a <code>Z</code>, são <strong>globais</strong>: guardam o arquivo e a posição. Se você fizer <code>mV</code> dentro do seu <code>.vimrc</code>, em qualquer outro arquivo <code>'V</code> abre o <code>.vimrc</code> naquele ponto. Elas são gravadas no arquivo <code>~/.viminfo</code> e sobrevivem quando você fecha o Vim. Veja <a href="buffers.html">Vários Arquivos</a>.</p>
+
+<hr>
+
+<h2>Formas diferentes de voltar a um lugar</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Como</th><th>Quando usar</th></tr>
+<tr><td>Marca</td><td><code>ma</code> … <code>'a</code></td><td>Você sabe de antemão que vai querer voltar.</td></tr>
+<tr><td>Último salto</td><td><code>''</code></td><td>Alternar entre dois lugares.</td></tr>
+<tr><td>Lista de saltos</td><td><kbd>Ctrl</kbd>+<kbd>o</kbd> / <kbd>Ctrl</kbd>+<kbd>i</kbd></td><td>Voltar vários pulos, sem ter marcado nada.</td></tr>
+<tr><td>Última alteração</td><td><code>`.</code></td><td>Voltar para onde estava editando.</td></tr>
+<tr><td>Número da linha</td><td><code>42G</code></td><td>Você sabe o número (de um erro, por exemplo).</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="texto.txt">
+<pre class="vim-inicial">linha 1
+linha 2
+linha 3
+linha 4
+linha 5
+linha 6</pre>
+<pre class="vim-meta">linha 1
+linha 2
+linha 3
+linha 4
+linha 5
+linha 6
+linha 2
+linha 3</pre>
+<p class="try-task"><strong>Missão:</strong> copie as linhas 2 e 3 para o fim do arquivo usando uma marca. Vá à linha 2 e marque com <code>ma</code>, desça para a linha 3, copie de lá até a marca com <code>y'a</code>, vá ao fim com <code>G</code> e cole com <code>p</code>.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>E20: Marca não definida</strong>
+<p><strong>O que aconteceu:</strong> você usou <code>'x</code> sem ter feito <code>mx</code> antes neste arquivo. A mensagem em inglês é <code>E20: Mark not set</code>.</p>
+<p><strong>Como resolver:</strong> confira com <code>:marks</code> quais existem. Lembre que <code>a</code> e <code>A</code> são marcas diferentes.</p>
+</div>
+
+<div class="cenario">
+<strong>A marca foi parar em outra linha</strong>
+<p><strong>O que aconteceu:</strong> marcas acompanham as edições. Se você apagar linhas acima dela, ela "sobe" junto com o texto marcado. Se a própria linha marcada for apagada, a marca some.</p>
+<p><strong>Como resolver:</strong> nada a corrigir; é o comportamento esperado. Refaça a marca se a linha sumiu.</p>
+</div>
+
+<div class="cenario">
+<strong>A crase não sai, ou sai junto com a letra ("à")</strong>
+<p><strong>O que aconteceu:</strong> no teclado ABNT2, a crase é uma tecla morta e se combina com a próxima vogal.</p>
+<p><strong>Como resolver:</strong> aperte <kbd>Espaço</kbd> depois da crase, ou use o apóstrofo <code>'</code> quando a linha basta.</p>
+</div>
+
+<div class="cenario">
+<strong>Ctrl+O não voltou para onde eu esperava</strong>
+<p><strong>O que aconteceu:</strong> só saltos entram na lista. Se você chegou com <code>j</code>, <code>w</code> ou <code>f</code>, não há salto para desfazer.</p>
+<p><strong>Como resolver:</strong> antes de ir para longe, use um salto (<code>/</code>, <code>G</code>) ou deixe uma marca.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>m</code>{a-z}</td><td>Marca a posição neste arquivo</td></tr>
+<tr><td><code>m</code>{A-Z}</td><td>Marca global (arquivo + posição)</td></tr>
+<tr><td><code>'</code>{marca}</td><td>Vai para a linha da marca</td></tr>
+<tr><td><code>`</code>{marca}</td><td>Vai para a posição exata</td></tr>
+<tr><td><code>''</code> / <code>``</code></td><td>Volta para antes do último salto</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>o</kbd> / <kbd>Ctrl</kbd>+<kbd>i</kbd></td><td>Volta / avança na lista de saltos</td></tr>
+<tr><td><code>d'a</code> / <code>y`a</code></td><td>Apaga até a linha / copia até a posição da marca</td></tr>
+<tr><td><code>:marks</code></td><td>Lista as marcas</td></tr>
+<tr><td><code>:jumps</code></td><td>Lista os saltos (Vim real)</td></tr>
+<tr><td><code>:delmarks a</code></td><td>Apaga a marca <code>a</code> (Vim real)</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Marcar</h3>
+<p>Quais teclas criam a marca <code>x</code> na posição atual?</p>
+<div class="ex-code"><input data-answer="mx" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Posição exata</h3>
+<p>Quais teclas voltam à linha <strong>e coluna</strong> da marca <code>x</code>?</p>
+<div class="ex-code"><input data-answer="`x" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Voltar um salto</h3>
+<p>Qual atalho volta para o salto anterior da lista?</p>
+<div class="ex-code"><input data-answer="Ctrl+o|Ctrl-o|ctrl+o|ctrl-o|<C-o>|^O" aria-label="atalho"></div>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. Você fez <code>ma</code> na linha 10 e está na linha 20. O que <code>d'a</code> apaga?</p>
+<label><input type="radio" name="q4"> Só a linha 10.</label>
+<label><input type="radio" name="q4"> Só a linha 20.</label>
+<label><input type="radio" name="q4"> As linhas 11 a 19.</label>
+<label><input type="radio" name="q4"> As linhas 10 a 20, inclusive.</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">5. Qual destes comandos <strong>não</strong> entra na lista de saltos?</p>
+<label><input type="radio" name="q5"> <code>w</code></label>
+<label><input type="radio" name="q5"> <code>G</code></label>
+<label><input type="radio" name="q5"> <code>/erro</code></label>
+<label><input type="radio" name="q5"> <code>%</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>ma</code> marca; <code>'a</code> volta à linha, <code>`a</code> à posição exata.</li>
+  <li>Marcas são movimentos: <code>d'a</code>, <code>y'a</code>, <code>&gt;'a</code>.</li>
+  <li><code>''</code> alterna com o lugar de antes do último salto.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>o</kbd> e <kbd>Ctrl</kbd>+<kbd>i</kbd> navegam pela lista de saltos.</li>
+  <li><code>`.</code> volta à última alteração; maiúsculas marcam entre arquivos.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

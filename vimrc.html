@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — .vimrc básico, linha por linha | Guia Vim</title>
+<meta name="description" content="Onde fica o .vimrc no Linux, macOS e Windows, um .vimrc inicial comentado linha por linha, o defaults.vim, como recarregar a configuração e como testar o Vim sem ela.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">.vimrc Básico</span></h1>
+
+<p class="intro">O <code>.vimrc</code> é um arquivo de texto com comandos que o Vim executa toda vez que abre. Tudo o que você testou com <code>:set</code> e gostou vai para lá, e passa a valer para sempre. O nome vem de <em>Vim run commands</em>, "comandos que o Vim roda".</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Onde fica o <code>.vimrc</code> no Linux, no macOS e no Windows.</li>
+  <li>Um <code>.vimrc</code> inicial, explicado linha por linha.</li>
+  <li>Por que criar um <code>.vimrc</code> pode "desligar" coisas, e como evitar.</li>
+  <li>Recarregar a configuração sem fechar o Vim.</li>
+  <li>Abrir o Vim sem nenhuma configuração, para achar problemas.</li>
+</ul>
+</div>
+
+<hr>
+
+<h2>Onde fica o .vimrc</h2>
+<p>O Vim procura o arquivo em alguns lugares, nesta ordem, e usa o primeiro que existir:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Sistema</th><th>Caminho</th><th>Observação</th></tr>
+<tr><td>Linux, macOS, BSD</td><td><code>~/.vimrc</code></td><td>O mais comum. <code>~</code> é a sua pasta pessoal.</td></tr>
+<tr><td>Linux, macOS, BSD</td><td><code>~/.vim/vimrc</code></td><td>Deixa tudo do Vim dentro de <code>~/.vim/</code>.</td></tr>
+<tr><td>Linux, macOS, BSD</td><td><code>~/.config/vim/vimrc</code></td><td>Aceito a partir do Vim 9.1.</td></tr>
+<tr><td>Windows</td><td><code>$HOME\_vimrc</code> ou <code>$HOME\vimfiles\vimrc</code></td><td>No Windows o nome começa com sublinhado.</td></tr>
+</table>
+</div>
+
+<p>Não precisa decorar: o próprio Vim diz onde procura. No terminal:</p>
+
+<pre class="term">$ vim --version | grep vimrc
+   system vimrc file: "/etc/vim/vimrc"            « configuração do sistema (para todos)
+     user vimrc file: "$HOME/.vimrc"              « a sua: 1ª opção
+ 2nd user vimrc file: "~/.vim/vimrc"
+ 3rd user vimrc file: "~/.config/vim/vimrc"</pre>
+
+<p>Dentro do Vim, <code>:version</code> mostra a mesma lista, e <code>:echo $MYVIMRC</code> mostra qual arquivo foi carregado de fato.</p>
+
+<div class="tip">
+<strong>Neovim é diferente</strong>
+<p>O Neovim não lê o <code>.vimrc</code>: ele usa <code>~/.config/nvim/init.vim</code> ou <code>init.lua</code>. Veja <a href="neovim.html">Neovim</a>.</p>
+</div>
+
+<hr>
+
+<h2>Criar o arquivo</h2>
+<p>Abra o <code>.vimrc</code> com o próprio Vim. Se ele não existir, o Vim cria quando você salvar:</p>
+
+<pre class="term">$ vim ~/.vimrc</pre>
+
+<p>Já dentro do Vim, de qualquer lugar: <code>:e $MYVIMRC</code> (se já existe um carregado) ou <code>:e ~/.vimrc</code>.</p>
+
+<p>No <code>.vimrc</code> você escreve os mesmos comandos da linha de comando, <strong>sem os dois-pontos</strong>. O que era <code>:set number</code> vira <code>set number</code>. Comentários começam com aspas duplas (<code>"</code>).</p>
+
+<hr>
+
+<h2>Um .vimrc para começar</h2>
+<p>Copie, salve e adapte. Cada bloco está explicado logo abaixo.</p>
+
+<pre class="file" data-file="~/.vimrc">" ~/.vimrc — configuração inicial do Guia Vim
+
+" 1. Comece pelos padrões do Vim (showcmd, ruler, incsearch, mouse...).
+"    Sem estas duas linhas, ter um .vimrc DESLIGA o defaults.vim.
+unlet! skip_defaults_vim
+source $VIMRUNTIME/defaults.vim
+
+" 2. Cores e regras por tipo de arquivo (Python, HTML, Markdown...)
+syntax on
+filetype plugin indent on
+
+" 3. Números de linha: o da linha atual e a distância até as outras
+set number
+set relativenumber
+
+" 4. Busca
+set ignorecase          " não diferencia maiúsculas...
+set smartcase           " ...a não ser que a busca tenha uma maiúscula
+set incsearch           " mostra o resultado enquanto você digita
+set hlsearch            " pinta todas as ocorrências (:noh apaga)
+
+" 5. Indentação com 4 espaços
+set expandtab           " Tab vira espaços
+set shiftwidth=4        " &gt;&gt; e &lt;&lt; andam 4 colunas
+set tabstop=4           " um Tab do arquivo ocupa 4 colunas na tela
+set softtabstop=4       " a tecla Tab anda 4 colunas
+set autoindent          " linha nova com a mesma indentação
+
+" 6. Conforto
+set scrolloff=5         " 5 linhas de margem acima e abaixo do cursor
+set mouse=a             " mouse em todos os modos
+set hidden              " trocar de buffer sem precisar salvar
+
+" 7. Copiar e colar com o sistema (só num Vim com +clipboard)
+if has('clipboard')
+  set clipboard=unnamedplus
+endif
+
+" 8. Desfazer mesmo depois de fechar e abrir o arquivo
+if has('persistent_undo')
+  if !isdirectory(expand('~/.vim/undo'))
+    call mkdir(expand('~/.vim/undo'), 'p')
+  endif
+  set undodir=~/.vim/undo//
+  set undofile
+endif</pre>
+
+<h3>O que cada bloco faz</h3>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Bloco</th><th>Explicação</th></tr>
+<tr><td>1. <code>defaults.vim</code></td><td>O Vim traz um arquivo de padrões sensatos, o <code>defaults.vim</code>. Ele só é carregado quando você <strong>não</strong> tem <code>.vimrc</code>. Essas duas linhas carregam os padrões de propósito, para você não perder nada ao criar o seu arquivo.</td></tr>
+<tr><td>2. <code>syntax</code> e <code>filetype</code></td><td><code>syntax on</code> colore o código. <code>filetype plugin indent on</code> faz o Vim reconhecer o tipo do arquivo e aplicar as regras dele (por exemplo, a indentação do Python).</td></tr>
+<tr><td>3. Números</td><td>Com as duas opções juntas, a linha atual mostra o número real e as outras mostram a distância, útil para <code>5j</code> ou <code>3dd</code>.</td></tr>
+<tr><td>4. Busca</td><td>Busca sem diferenciar maiúsculas, a menos que você digite uma. Veja <a href="opcoes.html">Opções Úteis</a>.</td></tr>
+<tr><td>5. Indentação</td><td>O padrão do Vim é indentar com Tab de 8 colunas. Estas opções trocam por 4 espaços, o mais comum hoje.</td></tr>
+<tr><td>6. Conforto</td><td>Margem de rolagem, mouse e buffers escondidos (veja <a href="buffers.html">buffers</a>).</td></tr>
+<tr><td>7. Área de transferência</td><td>Faz <code>y</code> e <code>p</code> usarem a área de transferência do sistema. O <code>if has(...)</code> evita erro num Vim sem esse recurso. Veja <a href="area-transferencia.html">Área de Transferência</a>.</td></tr>
+<tr><td>8. Desfazer persistente</td><td>Guarda o histórico de desfazer em <code>~/.vim/undo/</code>. A pasta é criada se não existir; sem ela, o Vim não consegue gravar o histórico. Veja <a href="sessoes.html">Sessões e Undo Persistente</a>.</td></tr>
+</table>
+</div>
+
+<div class="warning">
+<strong>Este .vimrc é para o Vim completo</strong>
+<p>Linhas como <code>unlet!</code>, <code>if</code> e <code>call</code> são Vimscript. O <code>vim-tiny</code>, que vem em instalações mínimas do Debian e do Ubuntu, não tem Vimscript e mostra erros com esse arquivo. Instale o pacote <code>vim</code> (veja <a href="instalar.html">Instalar</a>).</p>
+</div>
+
+<hr>
+
+<h2>Testar antes de salvar no .vimrc</h2>
+<p>Toda linha <code>set</code> do <code>.vimrc</code> pode ser testada antes com <code>:set</code>, num Vim aberto. Experimente aqui algumas opções do arquivo acima:</p>
+
+<div class="vimtry" data-file="teste.txt">
+<pre class="vim-inicial">Teste as opções com :set
+digite :set number relativenumber e aperte Enter
+depois :set list e :set nolist
+e busque com /opções depois de :set hlsearch</pre>
+<p class="try-task"><strong>Treino livre:</strong> teste <code>:set number</code>, <code>:set relativenumber</code>, <code>:set list</code>, <code>:set hlsearch</code> e <code>:set ignorecase</code>. Use <code>:set opção?</code> para conferir e <code>:set noopção</code> para desligar.</p>
+</div>
+
+<hr>
+
+<h2>Recarregar sem fechar o Vim</h2>
+
+<dl class="anatomy">
+  <dt>:source</dt><dd>Executa os comandos de um arquivo, linha por linha.</dd>
+  <dt>$MYVIMRC</dt><dd>Variável com o caminho do <code>.vimrc</code> carregado.</dd>
+</dl>
+
+<p>Se você está editando o próprio <code>.vimrc</code>, salve e use <code>:source %</code> (<code>%</code> é o arquivo atual). A forma curta é <code>:so %</code>.</p>
+
+<div class="tip">
+<strong>Recarregar não desfaz</strong>
+<p>Se você apagar <code>set number</code> do arquivo e recarregar, os números continuam: o <code>:source</code> só executa o que está escrito. Para desligar na hora, use <code>:set nonumber</code>, ou feche e abra o Vim.</p>
+</div>
+
+<hr>
+
+<h2>Abrir o Vim sem configuração</h2>
+<p>Quando algo estranho acontece, a primeira pergunta é: "é o Vim ou é a minha configuração?". Abra o Vim sem ela e compare:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que carrega</th><th>Quando usar</th></tr>
+<tr><td><code>vim --clean</code></td><td>O <code>defaults.vim</code> e os plugins que vêm com o Vim; nada seu</td><td>Ver o Vim "de fábrica".</td></tr>
+<tr><td><code>vim -u NONE -N</code></td><td>Nada: nem o <code>defaults.vim</code>, nem plugins</td><td>Testar o Vim mais cru possível. O <code>-N</code> desliga o modo compatível com o vi antigo.</td></tr>
+<tr><td><code>vim -u DEFAULTS</code></td><td>Só o <code>defaults.vim</code>, sem plugins</td><td>Ver se o problema vem de um plugin.</td></tr>
+<tr><td><code>vim -u ~/teste.vim</code></td><td>Outro arquivo no lugar do seu <code>.vimrc</code></td><td>Testar uma configuração nova sem mexer na atual.</td></tr>
+</table>
+</div>
+
+<pre class="term">$ vim --clean notas.txt</pre>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>"Erro detectado ao processar /home/ana/.vimrc:"</strong>
+<pre class="term" data-title="Vim">Erro detectado ao processar /home/ana/.vimrc:
+linha    9:
+E518: Opção desconhecida: numbers
+Aperte ENTER ou digite um comando para continuar</pre>
+<p><strong>O que aconteceu:</strong> a linha 9 do <code>.vimrc</code> tem um nome de opção errado (<code>numbers</code> em vez de <code>number</code>). O Vim avisa, pula a linha e abre normalmente.</p>
+<p><strong>Como resolver:</strong> aperte <kbd>Enter</kbd>, abra o arquivo com <code>:e $MYVIMRC</code>, vá para a linha com <code>9G</code> e corrija.</p>
+</div>
+
+<div class="cenario">
+<strong>Criei o .vimrc e o Vim ficou "pior"</strong>
+<p><strong>O que aconteceu:</strong> sem <code>.vimrc</code>, o Vim carrega o <code>defaults.vim</code>. Com um <code>.vimrc</code>, deixa de carregar, e somem coisas como o <code>showcmd</code>, a régua e a busca incremental.</p>
+<p><strong>Como resolver:</strong> coloque no começo do arquivo as duas linhas do bloco 1: <code>unlet! skip_defaults_vim</code> e <code>source $VIMRUNTIME/defaults.vim</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>"E319: Desculpe, esse comando não está disponível nesta versão"</strong>
+<p><strong>O que aconteceu:</strong> você está no <code>vim-tiny</code> (ou o comando <code>vi</code> aponta para ele), que não tem Vimscript.</p>
+<p><strong>Como resolver:</strong> instale o Vim completo: <code>sudo apt install vim</code> no Debian e no Ubuntu.</p>
+</div>
+
+<div class="cenario">
+<strong>Escrevi <code>:set number</code> no arquivo e deu erro</strong>
+<p><strong>O que aconteceu:</strong> no <code>.vimrc</code> os dois-pontos são opcionais e funcionam, mas costumam vir de cópias com outros erros junto, como aspas tipográficas (“ ”) no lugar de <code>"</code>.</p>
+<p><strong>Como resolver:</strong> escreva sem os dois-pontos e confira se os comentários usam aspas retas (<code>"</code>).</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>vim ~/.vimrc</code></td><td>Abrir (ou criar) o arquivo</td></tr>
+<tr><td><code>:e $MYVIMRC</code></td><td>Abrir o <code>.vimrc</code> carregado, de dentro do Vim</td></tr>
+<tr><td><code>:source $MYVIMRC</code> / <code>:so %</code></td><td>Recarregar</td></tr>
+<tr><td><code>:version</code></td><td>Ver onde o Vim procura o <code>.vimrc</code> e os recursos compilados</td></tr>
+<tr><td><code>vim --clean</code></td><td>Abrir sem a sua configuração</td></tr>
+<tr><td><code>vim -u NONE -N</code></td><td>Abrir sem nenhuma configuração</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Do :set para o arquivo</h3>
+<p>Como fica <code>:set ignorecase</code> dentro do <code>.vimrc</code>?</p>
+<div class="ex-code"><input data-answer="set ignorecase|set ic|:set ignorecase|:set ic" aria-label="linha"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Recarregar</h3>
+<p>Você está editando o <code>.vimrc</code> e acabou de salvar. Complete para aplicar as mudanças:</p>
+<div class="ex-code">:<input data-answer="source %|so %|source $MYVIMRC|so $MYVIMRC" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Comentário</h3>
+<p>Qual caractere começa um comentário no <code>.vimrc</code>?</p>
+<div class="ex-code"><input data-answer="&quot;" aria-label="caractere"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. Você criou um <code>.vimrc</code> com uma linha só, <code>set number</code>. O que acontece com os padrões do <code>defaults.vim</code>?</p>
+<label><input type="radio" name="q4"> Continuam valendo.</label>
+<label><input type="radio" name="q4"> Deixam de ser carregados, a não ser que você os carregue no arquivo.</label>
+<label><input type="radio" name="q4"> Viram erro.</label>
+<label><input type="radio" name="q4"> São copiados para o seu arquivo.</label>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">5. O Vim começou a agir estranho. Qual comando abre o Vim sem a sua configuração para comparar?</p>
+<label><input type="radio" name="q5"> <code>vim --version</code></label>
+<label><input type="radio" name="q5"> <code>vim -p</code></label>
+<label><input type="radio" name="q5"> <code>vim --clean</code></label>
+<label><input type="radio" name="q5"> <code>vimtutor</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>O <code>.vimrc</code> fica em <code>~/.vimrc</code> (ou <code>~/.vim/vimrc</code>); no Windows, <code>_vimrc</code>.</li>
+  <li>Dentro dele, comandos sem os dois-pontos; comentários com <code>"</code>.</li>
+  <li>Ter um <code>.vimrc</code> desliga o <code>defaults.vim</code>; carregue-o de propósito no começo.</li>
+  <li><code>:source %</code> recarrega; <code>vim --clean</code> abre sem nada seu.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

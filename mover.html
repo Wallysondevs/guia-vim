@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — mover o cursor com h, j, k, l | Guia Vim</title>
+<meta name="description" content="Aprenda a mover o cursor no Vim com h, j, k e l: por que não usar as setas, contagens como 5j, a coluna desejada, gj e gk em linhas longas, com demonstrações e um Vim simulado.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Mover o Cursor (hjkl)</span></h1>
+
+<p class="intro">Antes de editar, você precisa levar o cursor até o lugar certo. No Vim, isso se faz no <strong>modo normal</strong> com quatro teclas que ficam embaixo dos seus dedos: <kbd>h</kbd>, <kbd>j</kbd>, <kbd>k</kbd> e <kbd>l</kbd>. Parece estranho no primeiro dia e vira automático na primeira semana.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Para onde cada uma das teclas <code>h j k l</code> leva o cursor.</li>
+  <li>Por que o Vim prefere essas teclas às setas.</li>
+  <li>Andar várias linhas de uma vez com um número antes: <code>5j</code>.</li>
+  <li>A "coluna desejada": o que acontece ao descer por linhas curtas.</li>
+  <li>Andar dentro de uma linha muito longa com <code>gj</code> e <code>gk</code>.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Tudo nesta aula funciona no <strong>modo normal</strong>. Se o rodapé mostrar <code>-- INSERÇÃO --</code>, aperte <kbd>Esc</kbd>. Reveja em <a href="modos.html">Os Modos do Vim</a>.</p>
+</div>
+
+<hr>
+
+<h2>As quatro teclas</h2>
+<p>Coloque a mão direita na fileira do meio do teclado, com o indicador sobre o <kbd>j</kbd>. As quatro teclas de movimento estão bem ali:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tecla</th><th>Direção</th><th>Como lembrar</th></tr>
+<tr><td><code>h</code></td><td>← esquerda</td><td>É a tecla mais à esquerda das quatro.</td></tr>
+<tr><td><code>j</code></td><td>↓ baixo</td><td>O "j" tem uma perninha que desce.</td></tr>
+<tr><td><code>k</code></td><td>↑ cima</td><td>O "k" tem uma haste que sobe.</td></tr>
+<tr><td><code>l</code></td><td>→ direita</td><td>É a tecla mais à direita das quatro.</td></tr>
+</table>
+</div>
+
+<p>Por que essas letras? O <code>vi</code>, avô do Vim, foi criado em 1976 num terminal chamado ADM-3A. Aquele teclado não tinha teclas de seta separadas: as setas estavam desenhadas justamente nas teclas H, J, K e L.</p>
+
+<dl class="anatomy">
+  <dt>j</dt><dd>Desce uma linha. O cursor tenta ficar na mesma coluna.</dd>
+</dl>
+
+<p>Clique em <strong>Próxima tecla</strong> e acompanhe o cursor (o quadrado claro) e a posição no canto direito do rodapé:</p>
+
+<div class="vimdemo" data-file="mapa.txt" data-keys="jjllkh">
+<pre class="vim-inicial">primeira linha
+segunda linha
+terceira linha</pre>
+</div>
+
+<p>A sequência foi: desce, desce, direita, direita, sobe, esquerda. A régua termina em <code>2,2</code>, ou seja, linha 2, coluna 2.</p>
+
+<div class="vimtry" data-file="tesouro.txt">
+<pre class="vim-inicial">.......
+...X...
+.......</pre>
+<pre class="vim-meta">.......
+......
+.......</pre>
+<p class="try-task"><strong>Missão:</strong> leve o cursor até o <code>X</code> usando só <kbd>h</kbd>, <kbd>j</kbd>, <kbd>k</kbd> e <kbd>l</kbd>, e apague-o com <code>x</code> (a tecla que apaga o caractere sob o cursor). Clique na tela antes de digitar.</p>
+</div>
+
+<hr>
+
+<h2>Por que não usar as setas?</h2>
+<p>As setas funcionam no Vim, inclusive aqui no simulador. Mas quem usa o Vim no dia a dia prefere <code>hjkl</code> por três motivos:</p>
+<ul>
+  <li><strong>As mãos não saem do lugar.</strong> Para chegar nas setas você move a mão direita inteira e depois precisa voltar.</li>
+  <li><strong>Combinam com o resto do Vim.</strong> <code>j</code> é um movimento, e movimentos aceitam números (<code>5j</code>) e se juntam com comandos (<code>dj</code> apaga esta linha e a de baixo).</li>
+  <li><strong>Funcionam em qualquer terminal.</strong> Em conexões SSH ruins ou terminais antigos, as setas às vezes chegam como letras estranhas.</li>
+</ul>
+
+<div class="tip">
+<strong>Dica para treinar</strong>
+<p>Na primeira semana, tente não usar as setas nem o mouse. Se escapar, tudo bem: a memória muscular vem com a repetição, não com a força de vontade.</p>
+</div>
+
+<hr>
+
+<h2>Andar várias linhas: 5j</h2>
+<p>Quase todo movimento do Vim aceita um <strong>número antes</strong>. O número diz quantas vezes repetir.</p>
+
+<dl class="anatomy">
+  <dt>5</dt><dd>A contagem: quantas vezes repetir o movimento.</dd>
+  <dt>j</dt><dd>O movimento: descer uma linha.</dd>
+</dl>
+
+<p>Repare: depois do <kbd>5</kbd>, ele aparece no canto do rodapé, esperando o resto do comando.</p>
+
+<div class="vimdemo" data-file="lista.txt" data-set="number" data-keys="5j3k">
+<pre class="vim-inicial">segunda-feira
+terça-feira
+quarta-feira
+quinta-feira
+sexta-feira
+sábado
+domingo</pre>
+</div>
+
+<p>Com <code>5j</code> o cursor foi da linha 1 para a 6, e <code>3k</code> subiu para a 3. A opção <code>number</code>, ligada aqui, mostra o número de cada linha.</p>
+
+<h3>Números relativos: saber quanto andar</h3>
+<p>Para descobrir "quantas linhas faltam" sem contar, ligue também <code>relativenumber</code>. Cada linha passa a mostrar a distância até o cursor:</p>
+
+<div class="vimdemo" data-file="lista.txt" data-set="number relativenumber" data-line="3">
+<pre class="vim-inicial">segunda-feira
+terça-feira
+quarta-feira
+quinta-feira
+sexta-feira
+sábado
+domingo</pre>
+</div>
+
+<p>A linha do cursor mostra o número real (3). As outras mostram a distância: "sábado" está a 3 linhas, então <code>3j</code> leva até lá. Você liga isso com <code>:set number relativenumber</code>, ou de forma permanente no <a href="vimrc.html">.vimrc</a>.</p>
+
+<div class="vimtry" data-file="estoque.txt" data-set="number relativenumber" data-max-keys="3">
+<pre class="vim-inicial">caneta
+lápis
+borracha
+régua
+caderno
+cola
+tesoura
+*grampeador
+clipes</pre>
+<pre class="vim-meta">caneta
+lápis
+borracha
+régua
+caderno
+cola
+tesoura
+grampeador
+clipes</pre>
+<p class="try-task"><strong>Missão:</strong> apague o <code>*</code> do começo de "grampeador" com no máximo 3 teclas. Use a distância mostrada à esquerda, um <code>j</code> com número e depois <code>x</code> (que apaga o caractere sob o cursor).</p>
+</div>
+
+<hr>
+
+<h2>A coluna desejada</h2>
+<p>O que acontece quando você desce de uma linha longa para uma linha curta? O cursor não pode ficar "no ar", então vai para o fim da linha curta. Mas o Vim <strong>lembra</strong> a coluna em que você estava e volta para ela na próxima linha longa.</p>
+
+<div class="vimdemo" data-file="texto.txt" data-keys="10ljj">
+<pre class="vim-inicial">uma linha bem comprida aqui
+curta
+outra linha bem comprida</pre>
+</div>
+
+<p>O cursor estava na coluna 11. Na linha "curta" ele parou no último caractere, mas ao descer de novo voltou para a coluna 11. Essa coluna lembrada se chama <strong>coluna desejada</strong>.</p>
+
+<p>Com <code>$</code> (fim da linha), a coluna desejada vira "sempre o fim": ao descer, o cursor vai para o fim de cada linha, seja qual for o tamanho.</p>
+
+<div class="vimdemo" data-file="texto.txt" data-keys="$jj">
+<pre class="vim-inicial">uma linha bem comprida aqui
+curta
+outra linha bem comprida</pre>
+</div>
+
+<hr>
+
+<h2>Os limites</h2>
+<p>O <code>h</code> e o <code>l</code> não mudam de linha. No começo da linha, <code>h</code> simplesmente não anda; no último caractere, <code>l</code> também para. O mesmo vale para <code>k</code> na primeira linha e <code>j</code> na última. O Vim não mostra erro: em alguns terminais ele só dá um "bipe" ou pisca a tela.</p>
+
+<div class="vimdemo" data-file="limite.txt" data-keys="hhhkkk">
+<pre class="vim-inicial">aqui é o começo
+e aqui o fim</pre>
+</div>
+
+<p>Para ir ao fim da linha de cima, use <code>k</code> e depois <code>$</code>. Esses saltos dentro da linha estão em <a href="linhas.html">Início, Fim e Linhas</a>.</p>
+
+<hr>
+
+<h2>Linhas longas: gj e gk</h2>
+<p>Um parágrafo de texto costuma ser <strong>uma linha só</strong> no arquivo, que o Vim quebra na tela para caber na janela. Para o <code>j</code>, essa linha inteira conta como uma: ele pula todas as linhas da tela de uma vez e vai para o próximo parágrafo.</p>
+
+<p>Quando você quer descer <strong>uma linha da tela</strong>, use <code>gj</code>. Para subir, <code>gk</code>.</p>
+
+<dl class="anatomy">
+  <dt>g</dt><dd>Prefixo que dá um sentido "visual" ao próximo movimento.</dd>
+  <dt>j</dt><dd>Descer. Junto com <code>g</code>: descer uma linha da tela, não do arquivo.</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Situação</th><th><code>j</code></th><th><code>gj</code></th></tr>
+<tr><td>Linhas curtas (código, listas)</td><td>Desce uma linha</td><td>Igual ao <code>j</code></td></tr>
+<tr><td>Parágrafo quebrado em 4 linhas na tela</td><td>Pula o parágrafo inteiro</td><td>Desce uma linha da tela</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>No simulador</strong>
+<p>O Vim simulado deste guia não quebra linhas longas na tela; ele as corta. Por isso <code>gj</code> e <code>gk</code> se comportam aqui como <code>j</code> e <code>k</code>. Para ver a diferença, abra um arquivo de texto com parágrafos longos no seu Vim e compare.</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de descer 5 linhas</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que acontece</th><th>Quando usar</th></tr>
+<tr><td><code>jjjjj</code></td><td>Desce uma linha por vez</td><td>Para 1 ou 2 linhas. Mais que isso cansa.</td></tr>
+<tr><td><code>5j</code></td><td>Desce 5 linhas de uma vez</td><td>Quando você sabe a distância (use <code>relativenumber</code>).</td></tr>
+<tr><td><kbd>↓</kbd> 5 vezes</td><td>Igual a <code>jjjjj</code></td><td>Funciona, mas tira a mão do lugar.</td></tr>
+<tr><td><code>:+5</code> e <kbd>Enter</kbd></td><td>Comando de linha: "5 linhas abaixo"</td><td>Raramente; é mais útil dentro de outros comandos.</td></tr>
+<tr><td><code>12G</code></td><td>Vai direto para a linha 12</td><td>Quando você sabe o número da linha (veja <a href="linhas.html">Início, Fim e Linhas</a>).</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="grade.txt">
+<pre class="vim-inicial">1 2 3 4 5
+6 7 8 9 0
+a b c d e</pre>
+<pre class="vim-meta">1 2 3 4 5
+6 7  9 0
+a b c d e</pre>
+<p class="try-task"><strong>Missão:</strong> apague o <code>8</code> com <code>x</code>. Caminho sugerido: <code>j</code> para descer e <code>4l</code> para andar 4 colunas.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Apertei j e apareceu a letra "j" no texto</strong>
+<p><strong>O que aconteceu:</strong> você estava no modo de inserção. Nesse modo, toda tecla vira texto.</p>
+<p><strong>Como resolver:</strong> apague o "j" com <kbd>Backspace</kbd>, aperte <kbd>Esc</kbd> e tente de novo.</p>
+</div>
+
+<div class="cenario">
+<strong>O j desceu várias linhas de uma vez</strong>
+<p><strong>O que aconteceu:</strong> sobrou um número digitado antes, sem você perceber. O canto direito do rodapé mostra o que está pendente, por exemplo <code>3</code>.</p>
+<p><strong>Como resolver:</strong> aperte <kbd>Esc</kbd> para cancelar o número pendente antes de mover.</p>
+</div>
+
+<div class="cenario">
+<strong>As setas escrevem A, B, C, D no texto</strong>
+<p><strong>O que aconteceu:</strong> você abriu o <code>vi</code> mínimo que vem no Debian e no Ubuntu (<code>vim.tiny</code>). Ele funciona em modo "compatível com o vi antigo", e no modo de inserção as setas viram letras.</p>
+<p><strong>Como resolver:</strong> instale o Vim completo (<code>sudo apt install vim</code>) e abra com <code>vim</code>. Detalhes em <a href="instalar.html">Instalar em Qualquer Sistema</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>O cursor "pulou" para outra coluna ao descer</strong>
+<p><strong>O que aconteceu:</strong> é a coluna desejada. O cursor passou por uma linha curta e voltou para a coluna lembrada.</p>
+<p><strong>Como resolver:</strong> nada a resolver; é o comportamento esperado. Para ir a uma coluna exata, use <code>0</code> e depois <code>l</code> com número, ou os saltos de <a href="f-t.html">f e t</a>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>Movimento</th><th>Exemplo</th></tr>
+<tr><td><code>h</code></td><td>Um caractere para a esquerda</td><td><code>4h</code></td></tr>
+<tr><td><code>l</code></td><td>Um caractere para a direita</td><td><code>10l</code></td></tr>
+<tr><td><code>j</code></td><td>Uma linha para baixo</td><td><code>5j</code></td></tr>
+<tr><td><code>k</code></td><td>Uma linha para cima</td><td><code>3k</code></td></tr>
+<tr><td><code>gj</code> / <code>gk</code></td><td>Uma linha da tela para baixo/cima</td><td>Parágrafos longos</td></tr>
+<tr><td>Setas</td><td>O mesmo que <code>h j k l</code></td><td>Funcionam também no modo de inserção</td></tr>
+<tr><td><code>:set number</code></td><td>Mostra o número das linhas</td><td><code>:set nu</code></td></tr>
+<tr><td><code>:set relativenumber</code></td><td>Mostra a distância de cada linha até o cursor</td><td><code>:set rnu</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Descer quatro linhas</h3>
+<p>Qual comando desce 4 linhas de uma vez?</p>
+<div class="ex-code"><input data-answer="4j" aria-label="teclas"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Para a direita</h3>
+<p>Qual tecla move o cursor um caractere para a direita?</p>
+<div class="ex-code"><input data-answer="l" aria-label="tecla"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. O cursor está na coluna 20 e a linha de baixo tem só 5 caracteres. Você aperta <code>j</code> e depois <code>j</code> de novo, chegando a uma linha longa. Em que coluna o cursor fica?</p>
+<label><input type="radio" name="q3"> Coluna 5.</label>
+<label><input type="radio" name="q3"> Coluna 20, a coluna desejada.</label>
+<label><input type="radio" name="q3"> Coluna 1.</label>
+<label><input type="radio" name="q3"> No fim da linha.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. Você está num parágrafo longo que ocupa 5 linhas na tela, e quer descer só uma linha da tela. O que usar?</p>
+<label><input type="radio" name="q4"> <code>j</code></label>
+<label><input type="radio" name="q4"> <code>5j</code></label>
+<label><input type="radio" name="q4"> <code>J</code></label>
+<label><input type="radio" name="q4"> <code>gj</code></label>
+</div>
+
+<div class="vimtry" data-file="nomes.txt" data-max-keys="8">
+<pre class="vim-inicial">Ana
+Bruno
+Carlaa
+Diego
+Eduardoo</pre>
+<pre class="vim-meta">Ana
+Bruno
+Carla
+Diego
+Eduardo</pre>
+<p class="try-task"><strong>Missão final:</strong> dois nomes têm uma letra sobrando no fim. Apague-as com <code>x</code> usando no máximo 8 teclas. Dica: <code>$</code> leva ao fim da linha, e você já sabe descer.</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>h</code> esquerda, <code>j</code> baixo, <code>k</code> cima, <code>l</code> direita, tudo no modo normal.</li>
+  <li>Um número antes repete o movimento: <code>5j</code> desce 5 linhas.</li>
+  <li><code>:set relativenumber</code> mostra quantas linhas faltam até cada lugar.</li>
+  <li>Ao descer por linhas curtas, o Vim lembra a coluna desejada.</li>
+  <li><code>gj</code> e <code>gk</code> andam pelas linhas da tela em parágrafos longos.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

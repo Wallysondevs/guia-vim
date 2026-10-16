@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — glossário de termos | Guia Vim</title>
+<meta name="description" content="Glossário do Vim em português: buffer, registrador, operador, movimento, objeto de texto, modos, macro, marca, jumplist, vimrc, plugin, Vimscript e mais, com link para cada aula.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Glossário</span></h1>
+
+<p class="intro">O Vim tem um vocabulário próprio: buffer não é arquivo, janela não é aba, e "registrador" é o que outros editores chamam de área de transferência. Aqui estão os termos usados no guia, em ordem alfabética, cada um com uma explicação curta e o link para a aula em que ele aparece.</p>
+
+<div class="tip">
+<strong>Três confusões comuns</strong>
+<ul>
+  <li><strong>Buffer x janela x aba:</strong> o buffer é o arquivo na memória; a janela é a área da tela que mostra um buffer; a aba é um conjunto de janelas.</li>
+  <li><strong>Palavra x PALAVRA:</strong> <code>w</code> para na pontuação; <code>W</code> só para nos espaços.</li>
+  <li><strong>Registrador x área de transferência:</strong> o Vim tem dezenas de registradores; só o <code>+</code> e o <code>*</code> falam com o resto do sistema.</li>
+</ul>
+</div>
+
+<hr>
+
+<p class="indice-letras"><a href="#g-A">A</a> · <a href="#g-B">B</a> · <a href="#g-C">C</a> · <a href="#g-D">D</a> · <a href="#g-E">E</a> · <a href="#g-F">F</a> · <a href="#g-G">G</a> · <a href="#g-H">H</a> · <a href="#g-I">I</a> · <a href="#g-J">J</a> · <a href="#g-L">L</a> · <a href="#g-M">M</a> · <a href="#g-N">N</a> · <a href="#g-O">O</a> · <a href="#g-P">P</a> · <a href="#g-R">R</a> · <a href="#g-S">S</a> · <a href="#g-T">T</a> · <a href="#g-U">U</a> · <a href="#g-V">V</a></p>
+<h2 id="g-A">A</h2>
+<dl class="glossario">
+<dt><strong>Abas (tab pages)</strong></dt>
+<dd>Conjuntos de janelas. Cada aba guarda seu próprio arranjo de janelas; não é o mesmo que um arquivo aberto. Veja: <a href="abas.html">Abas</a>.</dd>
+<dt><strong>Área de transferência</strong></dt>
+<dd>O "copiar e colar" do sistema. No Vim, fica nos registradores <code>+</code> e <code>*</code>, e só funciona se o Vim tiver o recurso <code>+clipboard</code>. Veja: <a href="area-transferencia.html">Área de Transferência do Sistema</a>.</dd>
+<dt><strong>augroup</strong></dt>
+<dd>Grupo de autocomandos. Com <code>autocmd!</code> no começo, evita que eles se dupliquem ao recarregar o <code>.vimrc</code>. Veja: <a href="autocmd.html">Autocomandos</a>.</dd>
+<dt><strong>autocmd (autocomando)</strong></dt>
+<dd>Comando que o Vim roda sozinho quando um evento acontece, como abrir ou salvar um arquivo de certo tipo. Veja: <a href="autocmd.html">Autocomandos</a>.</dd>
+</dl>
+<h2 id="g-B">B</h2>
+<dl class="glossario">
+<dt><strong>Buffer</strong></dt>
+<dd>Um arquivo carregado na memória do Vim. Você pode ter vários buffers abertos e ver só um deles na tela. Veja: <a href="buffers.html">Vários Arquivos (buffers)</a>.</dd>
+</dl>
+<h2 id="g-C">C</h2>
+<dl class="glossario">
+<dt><strong>Changelist (lista de alterações)</strong></dt>
+<dd>Lista dos lugares onde você alterou o texto. <code>g;</code> e <code>g,</code> andam por ela, e a marca <code>'.</code> aponta a última. Veja: <a href="marcas.html">Marcas e Saltos</a>.</dd>
+<dt><strong>clipboard (opção)</strong></dt>
+<dd>Opção que faz <code>y</code> e <code>p</code> usarem a área de transferência do sistema (<code>set clipboard=unnamedplus</code>). Veja: <a href="area-transferencia.html">Área de Transferência do Sistema</a>.</dd>
+<dt><strong>Coluna desejada</strong></dt>
+<dd>A coluna que o Vim tenta manter quando você sobe e desce com <code>j</code> e <code>k</code> por linhas mais curtas. Veja: <a href="mover.html">Mover o Cursor (hjkl)</a>.</dd>
+<dt><strong>compatible / nocompatible</strong></dt>
+<dd>Modo de imitar o vi antigo. Com um <code>.vimrc</code>, o Vim já liga <code>nocompatible</code>; sem ele, o <code>defaults.vim</code> faz isso. Veja: <a href="vimrc.html">.vimrc Básico</a>.</dd>
+<dt><strong>Contagem (count)</strong></dt>
+<dd>Número digitado antes de um comando ou movimento para repeti-lo: <code>3dd</code>, <code>d2w</code>, <code>10j</code>. Veja: <a href="contadores.html">Números e Repetição (.)</a>.</dd>
+<dt><strong>ctags</strong></dt>
+<dd>Programa que gera um índice (<code>tags</code>) das definições do código, para pular até elas com <kbd>Ctrl</kbd>+<kbd>]</kbd>. Veja: <a href="tags.html">ctags e Navegação em Código</a>.</dd>
+<dt><strong>Cursor</strong></dt>
+<dd>O quadrado claro na tela: a posição em que os comandos agem. No modo de inserção vira uma barra fina. Veja: <a href="mover.html">Mover o Cursor (hjkl)</a>.</dd>
+</dl>
+<h2 id="g-D">D</h2>
+<dl class="glossario">
+<dt><strong>defaults.vim</strong></dt>
+<dd>Configuração que o Vim carrega quando você não tem <code>.vimrc</code>: liga <code>showcmd</code>, <code>ruler</code>, <code>incsearch</code> e outras. Veja: <a href="vimrc.html">.vimrc Básico</a>.</dd>
+<dt><strong>Dobra (fold)</strong></dt>
+<dd>Trecho do texto escondido numa linha só, como <code>+--  4 lines: …</code>. Abre com <code>zo</code> e fecha com <code>zc</code>. Veja: <a href="dobras.html">Dobras (folding)</a>.</dd>
+</dl>
+<h2 id="g-E">E</h2>
+<dl class="glossario">
+<dt><strong>Ex</strong></dt>
+<dd>O editor de linha do qual o Vim descende. Os comandos que começam com <code>:</code> são comandos Ex. Veja: <a href="ex-avancado.html">Comandos Ex (:g, :norm, faixas)</a>.</dd>
+<dt><strong>Ex mode (modo Ex)</strong></dt>
+<dd>Modo em que o Vim vira um editor de linha, entrado sem querer com <code>Q</code>. Saia com <code>:vi</code>. Veja: <a href="socorro.html">Estou Preso no Vim!</a>.</dd>
+<dt><strong>Expressão regular</strong></dt>
+<dd>Padrão de busca com símbolos especiais (<code>^</code>, <code>$</code>, <code>.</code>, <code>*</code>, <code>\(</code>), usado em <code>/</code> e <code>:s</code>. Veja: <a href="regex.html">Expressões Regulares do Vim</a>.</dd>
+</dl>
+<h2 id="g-F">F</h2>
+<dl class="glossario">
+<dt><strong>Faixa (range)</strong></dt>
+<dd>As linhas em que um comando Ex age: <code>%</code> (todas), <code>2,5</code>, <code>.,$</code>, <code>'&lt;,'&gt;</code> (a seleção). Veja: <a href="ex-avancado.html">Comandos Ex (:g, :norm, faixas)</a>.</dd>
+<dt><strong>+feature / -feature</strong></dt>
+<dd>Recursos com que o Vim foi compilado, listados em <code>vim --version</code>: <code>+clipboard</code> tem, <code>-clipboard</code> não tem. Veja: <a href="instalar.html">Instalar em Qualquer Sistema</a>.</dd>
+<dt><strong>filetype</strong></dt>
+<dd>O tipo do arquivo (python, markdown…) detectado pelo Vim; ativa recuo e cores próprios com <code>filetype plugin indent on</code>. Veja: <a href="vimrc.html">.vimrc Básico</a>.</dd>
+</dl>
+<h2 id="g-G">G</h2>
+<dl class="glossario">
+<dt><strong>gvim</strong></dt>
+<dd>Versão gráfica do Vim, com janela própria e menus. Os comandos são os mesmos. Veja: <a href="o-que-e.html">O que é o Vim</a>.</dd>
+</dl>
+<h2 id="g-H">H</h2>
+<dl class="glossario">
+<dt><strong>Helptags</strong></dt>
+<dd>Índice da ajuda dos plugins, gerado com <code>:helptags</code> para o <code>:help</code> encontrar os tópicos deles. Veja: <a href="plugins.html">Plugins</a>.</dd>
+<dt><strong>hlsearch</strong></dt>
+<dd>Opção que destaca todos os resultados da busca. <code>:noh</code> apaga o destaque até a próxima busca. Veja: <a href="busca.html">Buscar (/ ? n *)</a>.</dd>
+</dl>
+<h2 id="g-I">I</h2>
+<dl class="glossario">
+<dt><strong>incsearch</strong></dt>
+<dd>Opção que mostra o resultado enquanto você digita a busca. Veja: <a href="busca.html">Buscar (/ ? n *)</a>.</dd>
+<dt><strong>Inserção em bloco</strong></dt>
+<dd>Inserir o mesmo texto em várias linhas de uma vez com <kbd>Ctrl</kbd>+<kbd>v</kbd> e <code>I</code> ou <code>A</code>. Veja: <a href="bloco.html">Modo Visual de Bloco</a>.</dd>
+</dl>
+<h2 id="g-J">J</h2>
+<dl class="glossario">
+<dt><strong>Janela</strong></dt>
+<dd>Uma área da tela mostrando um buffer. Várias janelas podem mostrar o mesmo arquivo. Veja: <a href="janelas.html">Janelas (split)</a>.</dd>
+<dt><strong>Jumplist (lista de saltos)</strong></dt>
+<dd>Lista dos lugares por onde você "saltou" (com <code>G</code>, <code>/</code>, <code>%</code>…). <kbd>Ctrl</kbd>+<kbd>o</kbd> volta e <kbd>Ctrl</kbd>+<kbd>i</kbd> avança. Veja: <a href="marcas.html">Marcas e Saltos</a>.</dd>
+</dl>
+<h2 id="g-L">L</h2>
+<dl class="glossario">
+<dt><strong>Leader</strong></dt>
+<dd>Tecla-prefixo dos seus atalhos (<code>&lt;leader&gt;</code>), definida com <code>let mapleader</code>; a padrão é <code>\</code>. Veja: <a href="mapeamentos.html">Mapeamentos (map)</a>.</dd>
+<dt><strong>Linha de comando</strong></dt>
+<dd>A última linha da tela quando você digita <code>:</code>, <code>/</code> ou <code>?</code>. Veja: <a href="modos.html">Os Modos do Vim</a>.</dd>
+<dt><strong>LSP</strong></dt>
+<dd>Protocolo que permite a um servidor de linguagem dar ao editor autocompletar, erros e "ir para definição". Veja: <a href="lsp.html">Vim como IDE (LSP)</a>.</dd>
+</dl>
+<h2 id="g-M">M</h2>
+<dl class="glossario">
+<dt><strong>Macro</strong></dt>
+<dd>Sequência de teclas gravada num registrador com <code>q</code> e repetida com <code>@</code>. Veja: <a href="macros.html">Macros</a>.</dd>
+<dt><strong>magic / very magic</strong></dt>
+<dd>Modos das expressões regulares. No padrão (magic), <code>+</code> e <code>(</code> precisam de <code>\</code>; com <code>\v</code> (very magic), não. Veja: <a href="regex.html">Expressões Regulares do Vim</a>.</dd>
+<dt><strong>Mapeamento</strong></dt>
+<dd>Atalho criado por você: uma tecla que vira outra sequência. Prefira as versões <code>noremap</code>. Veja: <a href="mapeamentos.html">Mapeamentos (map)</a>.</dd>
+<dt><strong>mapleader</strong></dt>
+<dd>Variável que define a tecla <code>&lt;leader&gt;</code>: <code>let mapleader = " "</code>. Veja: <a href="mapeamentos.html">Mapeamentos (map)</a>.</dd>
+<dt><strong>Marca</strong></dt>
+<dd>Posição guardada com <code>m</code> e uma letra, para voltar depois com <code>'</code> ou <code>`</code>. Veja: <a href="marcas.html">Marcas e Saltos</a>.</dd>
+<dt><strong>Modo de inserção</strong></dt>
+<dd>Modo em que as teclas viram texto. Rodapé: <code>-- INSERÇÃO --</code>. Veja: <a href="modos.html">Os Modos do Vim</a>.</dd>
+<dt><strong>Modo de substituição</strong></dt>
+<dd>Modo em que o texto digitado substitui o existente, entrado com <code>R</code>. Rodapé: <code>-- SUBSTITUIÇÃO --</code>. Veja: <a href="modos.html">Os Modos do Vim</a>.</dd>
+<dt><strong>Modo normal</strong></dt>
+<dd>O modo em que o Vim abre e em que as teclas são comandos. <kbd>Esc</kbd> sempre volta para ele. Veja: <a href="modos.html">Os Modos do Vim</a>.</dd>
+<dt><strong>Modo visual</strong></dt>
+<dd>Modo de seleção: <code>v</code> (caracteres), <code>V</code> (linhas) e <kbd>Ctrl</kbd>+<kbd>v</kbd> (bloco). Veja: <a href="visual.html">Modo Visual</a>.</dd>
+<dt><strong>Movimento</strong></dt>
+<dd>Comando que move o cursor (<code>w</code>, <code>$</code>, <code>}</code>…). Depois de um operador, define o trecho em que ele age. Veja: <a href="gramatica.html">Verbo + Movimento</a>.</dd>
+</dl>
+<h2 id="g-N">N</h2>
+<dl class="glossario">
+<dt><strong>Neovim</strong></dt>
+<dd>Projeto derivado do Vim, com configuração em Lua e LSP embutido. Os comandos básicos são os mesmos. Veja: <a href="neovim.html">Neovim</a>.</dd>
+<dt><strong>netrw</strong></dt>
+<dd>O explorador de arquivos que vem com o Vim, aberto com <code>:Ex</code>. Veja: <a href="plugins.html">Plugins</a>.</dd>
+<dt><strong>noremap</strong></dt>
+<dd>Mapeamento "não recursivo": o lado direito usa o significado original das teclas. Evita surpresas. Veja: <a href="mapeamentos.html">Mapeamentos (map)</a>.</dd>
+</dl>
+<h2 id="g-O">O</h2>
+<dl class="glossario">
+<dt><strong>Objeto de texto</strong></dt>
+<dd>Trecho com forma definida (palavra, frase, parágrafo, aspas, parênteses) usado depois de um operador: <code>iw</code>, <code>a"</code>, <code>ip</code>. Veja: <a href="objetos.html">Objetos de Texto</a>.</dd>
+<dt><strong>Omnicompletion</strong></dt>
+<dd>Completar "inteligente", que conhece a linguagem, com <kbd>Ctrl</kbd>+<kbd>x</kbd> <kbd>Ctrl</kbd>+<kbd>o</kbd>. Veja: <a href="completar.html">Autocompletar</a>.</dd>
+<dt><strong>Opção</strong></dt>
+<dd>Configuração do Vim, ligada com <code>:set</code>: <code>number</code>, <code>ignorecase</code>, <code>shiftwidth=4</code>. Veja: <a href="opcoes.html">Opções Úteis (:set)</a>.</dd>
+<dt><strong>Operador</strong></dt>
+<dd>Verbo que age sobre um trecho: <code>d</code> apaga, <code>c</code> troca, <code>y</code> copia, <code>&gt;</code> recua. Veja: <a href="operadores.html">Operadores d, c, y</a>.</dd>
+<dt><strong>Ortografia (spell)</strong></dt>
+<dd>Verificação ortográfica do Vim, ligada com <code>:set spell spelllang=pt_br</code>. Veja: <a href="ortografia.html">Verificação Ortográfica</a>.</dd>
+</dl>
+<h2 id="g-P">P</h2>
+<dl class="glossario">
+<dt><strong>Pacote (package)</strong></dt>
+<dd>Pasta em <code>~/.vim/pack/</code> com plugins. Os de <code>start/</code> carregam sozinhos; os de <code>opt/</code>, com <code>:packadd</code>. Veja: <a href="plugins.html">Plugins</a>.</dd>
+<dt><strong>PALAVRA (WORD)</strong></dt>
+<dd>Tudo entre espaços, incluindo pontuação: <code>ana@email.com</code> é uma PALAVRA só. Movimentos <code>W</code>, <code>B</code>, <code>E</code>. Veja: <a href="palavras.html">Pular Palavras (w, b, e)</a>.</dd>
+<dt><strong>Palavra (word)</strong></dt>
+<dd>Sequência de letras, números e <code>_</code>, ou de pontuação. Movimentos <code>w</code>, <code>b</code>, <code>e</code>. Veja: <a href="palavras.html">Pular Palavras (w, b, e)</a>.</dd>
+<dt><strong>paste (opção)</strong></dt>
+<dd>Opção que desliga a autoindentação ao colar texto no terminal. Em Vims recentes raramente é preciso. Veja: <a href="inserir.html">Inserir Texto (i, a, o)</a>.</dd>
+<dt><strong>Plugin</strong></dt>
+<dd>Script que adiciona recursos ao Vim. Instala-se com pacotes nativos ou um gerenciador como o vim-plug. Veja: <a href="plugins.html">Plugins</a>.</dd>
+<dt><strong>Ponto (.)</strong></dt>
+<dd>Comando que repete a última alteração. Junto com <code>n</code>, forma o padrão "busca e repete". Veja: <a href="contadores.html">Números e Repetição (.)</a>.</dd>
+<dt><strong>Prompt de continuação</strong></dt>
+<dd>A mensagem "Aperte ENTER ou digite um comando para continuar", que aparece depois de saídas longas. Veja: <a href="mensagens.html">Mensagens e Erros Comuns</a>.</dd>
+</dl>
+<h2 id="g-R">R</h2>
+<dl class="glossario">
+<dt><strong>Recuo (indentação)</strong></dt>
+<dd>Espaços ou tabs no começo da linha. <code>&gt;&gt;</code> aumenta, <code>&lt;&lt;</code> diminui, <code>shiftwidth</code> define o tamanho. Veja: <a href="operadores.html">Operadores d, c, y</a>.</dd>
+<dt><strong>Registrador</strong></dt>
+<dd>Gaveta com nome onde fica o texto copiado ou apagado: <code>"</code>, <code>0</code>–<code>9</code>, <code>a</code>–<code>z</code>, <code>+</code>… Veja: <a href="registradores.html">Registradores</a>.</dd>
+<dt><strong>Registrador sem nome</strong></dt>
+<dd>O <code>"</code>: recebe tudo o que é copiado ou apagado, e é o que o <code>p</code> cola. Veja: <a href="registradores.html">Registradores</a>.</dd>
+<dt><strong>Régua (ruler)</strong></dt>
+<dd>A posição do cursor no rodapé, como <code>12,5</code> (linha, coluna), seguida de <code>Tudo</code>, <code>Topo</code>, <code>Fim</code> ou uma porcentagem. Veja: <a href="mensagens.html">Mensagens e Erros Comuns</a>.</dd>
+<dt><strong>relativenumber</strong></dt>
+<dd>Opção que mostra a distância de cada linha até o cursor, útil para <code>5j</code>, <code>3dd</code>. Veja: <a href="opcoes.html">Opções Úteis (:set)</a>.</dd>
+<dt><strong>runtimepath</strong></dt>
+<dd>Lista de pastas em que o Vim procura arquivos de configuração, sintaxe e plugins (<code>:set rtp?</code>). Veja: <a href="plugins.html">Plugins</a>.</dd>
+</dl>
+<h2 id="g-S">S</h2>
+<dl class="glossario">
+<dt><strong>Sessão</strong></dt>
+<dd>Arquivo com o estado do Vim (arquivos, janelas, abas), salvo com <code>:mksession</code> e reaberto com <code>vim -S</code>. Veja: <a href="sessoes.html">Sessões e Undo Persistente</a>.</dd>
+<dt><strong>shiftwidth</strong></dt>
+<dd>Quantas colunas <code>&gt;&gt;</code> e o recuo automático usam. O padrão é 8. Veja: <a href="opcoes.html">Opções Úteis (:set)</a>.</dd>
+<dt><strong>showcmd</strong></dt>
+<dd>Opção que mostra, no canto do rodapé, as teclas de um comando ainda incompleto (ex.: <code>2d</code>). Veja: <a href="mensagens.html">Mensagens e Erros Comuns</a>.</dd>
+<dt><strong>smartcase</strong></dt>
+<dd>Com <code>ignorecase</code>, faz a busca diferenciar maiúsculas só quando você digita alguma maiúscula. Veja: <a href="busca.html">Buscar (/ ? n *)</a>.</dd>
+<dt><strong>Split</strong></dt>
+<dd>Divisão da tela em janelas, com <code>:sp</code> (horizontal) ou <code>:vs</code> (vertical). Veja: <a href="janelas.html">Janelas (split)</a>.</dd>
+<dt><strong>Substituição (:s)</strong></dt>
+<dd>Comando Ex que troca texto: <code>:s/velho/novo/g</code>. Veja: <a href="substituir.html">Substituir (:s)</a>.</dd>
+<dt><strong>Swap file (arquivo de troca)</strong></dt>
+<dd>Arquivo <code>.swp</code> em que o Vim guarda as alterações ainda não salvas. Se ele sobra, aparece o aviso <code>E325: ATENÇÃO</code>. Veja: <a href="socorro.html">Estou Preso no Vim!</a>.</dd>
+</dl>
+<h2 id="g-T">T</h2>
+<dl class="glossario">
+<dt><strong>tabstop / expandtab</strong></dt>
+<dd><code>tabstop</code> é a largura de um tab na tela; <code>expandtab</code> faz o <kbd>Tab</kbd> inserir espaços. Veja: <a href="opcoes.html">Opções Úteis (:set)</a>.</dd>
+<dt><strong>Tag</strong></dt>
+<dd>Nome de uma definição no código (função, classe) registrado no arquivo <code>tags</code>. Veja: <a href="tags.html">ctags e Navegação em Código</a>.</dd>
+</dl>
+<h2 id="g-U">U</h2>
+<dl class="glossario">
+<dt><strong>Undo tree (árvore de desfazer)</strong></dt>
+<dd>O histórico completo de alterações, com ramos. <code>:earlier</code> e <code>:later</code> andam por ele no tempo. Veja: <a href="desfazer.html">Desfazer e Refazer</a>.</dd>
+<dt><strong>undofile</strong></dt>
+<dd>Opção que salva o histórico de desfazer em disco, para desfazer até depois de fechar o arquivo. Veja: <a href="sessoes.html">Sessões e Undo Persistente</a>.</dd>
+</dl>
+<h2 id="g-V">V</h2>
+<dl class="glossario">
+<dt><strong>vi</strong></dt>
+<dd>O editor modal original dos sistemas Unix (1976). Em muitos Linux, o comando <code>vi</code> abre o Vim. Veja: <a href="o-que-e.html">O que é o Vim</a>.</dd>
+<dt><strong>Vim</strong></dt>
+<dd>Vi IMproved, "vi melhorado": editor modal criado por Bram Moolenaar em 1991, baseado no vi. Veja: <a href="o-que-e.html">O que é o Vim</a>.</dd>
+<dt><strong>Vim Golf</strong></dt>
+<dd>Desafio de fazer uma edição com o menor número de teclas. Veja: <a href="projeto-golf.html">Desafios Vim Golf</a>.</dd>
+<dt><strong>vim-tiny</strong></dt>
+<dd>Versão mínima do Vim que vem em muitas distribuições, sem ajuda completa, cores ou Vimscript. Veja: <a href="instalar.html">Instalar em Qualquer Sistema</a>.</dd>
+<dt><strong>Vim9 script</strong></dt>
+<dd>Nova linguagem de script do Vim 9, mais rápida, com <code>vim9script</code> e <code>def</code>. Veja: <a href="vimscript.html">Vimscript Básico</a>.</dd>
+<dt><strong>vimdiff</strong></dt>
+<dd>O Vim mostrando dois ou mais arquivos lado a lado com as diferenças destacadas. Veja: <a href="diff.html">vimdiff</a>.</dd>
+<dt><strong>viminfo</strong></dt>
+<dd>Arquivo em que o Vim guarda histórico de comandos, buscas, marcas e registradores entre uma sessão e outra. Veja: <a href="sessoes.html">Sessões e Undo Persistente</a>.</dd>
+<dt><strong>vimrc</strong></dt>
+<dd>O arquivo de configuração do Vim (<code>~/.vimrc</code>), lido toda vez que ele abre. Veja: <a href="vimrc.html">.vimrc Básico</a>.</dd>
+<dt><strong>Vimscript</strong></dt>
+<dd>A linguagem de configuração e de plugins do Vim (<code>let</code>, <code>if</code>, <code>function</code>). Veja: <a href="vimscript.html">Vimscript Básico</a>.</dd>
+<dt><strong>vimtutor</strong></dt>
+<dd>Tutorial interativo de 30 minutos que vem com o Vim. Veja: <a href="vimtutor.html">vimtutor</a>.</dd>
+</dl>
+
+<hr>
+
+<h2>Teste rápido</h2>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">1. Você abriu três arquivos com <code>vim a.txt b.txt c.txt</code> e vê só um na tela. Os outros dois são…</p>
+<label><input type="radio" name="q1"> abas escondidas.</label>
+<label><input type="radio" name="q1"> janelas minimizadas.</label>
+<label><input type="radio" name="q1"> buffers carregados, prontos para <code>:bn</code>.</label>
+<label><input type="radio" name="q1"> arquivos de troca (<code>.swp</code>).</label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">2. Em <code>d2w</code>, o que é o <code>w</code>?</p>
+<label><input type="radio" name="q2"> Um movimento.</label>
+<label><input type="radio" name="q2"> Um operador.</label>
+<label><input type="radio" name="q2"> Um registrador.</label>
+<label><input type="radio" name="q2"> Um objeto de texto.</label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">3. Qual destes é um <strong>objeto de texto</strong>?</p>
+<label><input type="radio" name="q3"> <code>dd</code></label>
+<label><input type="radio" name="q3"> <code>$</code></label>
+<label><input type="radio" name="q3"> <code>"a</code></label>
+<label><input type="radio" name="q3"> <code>i(</code></label>
+</div>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

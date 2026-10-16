@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — a ajuda interna (:help) | Guia Vim</title>
+<meta name="description" content="Como usar a ajuda do Vim: :help, :h tópico, navegar com Ctrl-] e Ctrl-o, as convenções 'opção', :comando, i_CTRL-W e v_, :helpgrep, quickref e o que fazer quando a ajuda não está instalada.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">A Ajuda Interna (:help)</span></h1>
+
+<p class="intro">O Vim vem com um manual completo dentro dele. Toda tecla, todo comando, toda opção e toda mensagem de erro têm uma página de ajuda, e você chega nela em segundos com <code>:help</code>. Saber usar a ajuda é o que transforma alguém que decorou atalhos em alguém que resolve qualquer coisa no Vim.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Abrir a ajuda e fechá-la.</li>
+  <li>Navegar entre os tópicos com <kbd>Ctrl</kbd>+<kbd>]</kbd> e voltar com <kbd>Ctrl</kbd>+<kbd>o</kbd>.</li>
+  <li>Pedir ajuda certeira: opção, comando, tecla de cada modo, mensagem de erro.</li>
+  <li>Procurar uma palavra em toda a ajuda com <code>:helpgrep</code>.</li>
+  <li>O que fazer se a ajuda não estiver instalada.</li>
+</ul>
+</div>
+
+<div class="warning">
+<strong>A ajuda está em inglês</strong>
+<p>As mensagens do Vim aparecem em português, mas os arquivos de ajuda são em inglês. Esta aula mostra como achar o tópico certo; se precisar, use um tradutor no trecho que encontrar. O simulador deste guia não tem a ajuda: pratique no Vim do seu sistema.</p>
+</div>
+
+<hr>
+
+<h2>Abrir e fechar</h2>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Abre a linha de comando.</dd>
+  <dt>help</dt><dd>O comando. A forma curta é <code>:h</code>.</dd>
+</dl>
+
+<pre class="term" data-title="help.txt — Vim">*help.txt*      For Vim version 9.1.                                         « o título do tópico
+
+                        VIM - main help file
+                                                                         k
+      Move around:  Use the cursor keys, or "h" to go left,            h   l
+                    "j" to go down, "k" to go up, "l" to go right.       j
+Close this window:  Use ":q&lt;Enter&gt;".                                         « como fechar
+   Get out of Vim:  Use ":qa!&lt;Enter&gt;" (careful, all changes are lost!).
+
+Jump to a subject:  Position the cursor on a tag (e.g. |bars|) and hit CTRL-].
+help.txt [Ajuda][S/L]                             1,1           Topo     « janela de ajuda, somente leitura
+seu_arquivo.txt                                   1,1           Tudo     « seu arquivo continua embaixo</pre>
+
+<p>A ajuda abre numa <strong>janela</strong> em cima do seu arquivo (veja <a href="janelas.html">Janelas</a>). Ela é somente leitura: <code>[S/L]</code>. Para fechar, use <code>:q</code>. Para pular entre a ajuda e o seu arquivo, <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>w</kbd>.</p>
+
+<p>A tecla <kbd>F1</kbd> também abre a ajuda, mas muitos terminais usam <kbd>F1</kbd> para a ajuda deles próprios. <code>:h</code> sempre funciona.</p>
+
+<hr>
+
+<h2>Navegar: links e voltar</h2>
+<p>Na ajuda, palavras entre barras, como <code>|bars|</code>, são <strong>links</strong> (o Vim chama de <em>tags</em>). Palavras entre asteriscos, como <code>*help.txt*</code>, são o destino desses links.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>O que faz</th></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>]</kbd></td><td>Segue o link sob o cursor</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>o</kbd></td><td>Volta para onde você estava (repita para voltar mais)</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>i</kbd> ou <kbd>Tab</kbd></td><td>Avança de novo depois de voltar</td></tr>
+<tr><td>Duplo clique</td><td>Segue o link com o mouse (com <code>mouse=a</code>)</td></tr>
+<tr><td><code>/palavra</code></td><td>Busca dentro da página de ajuda, como em qualquer arquivo</td></tr>
+</table>
+</div>
+
+<div class="tip">
+<strong>Ctrl+] num teclado ABNT2</strong>
+<p>Em muitos teclados brasileiros, o <kbd>]</kbd> exige combinações que o terminal não repassa. Se <kbd>Ctrl</kbd>+<kbd>]</kbd> não funcionar, use o duplo clique ou abra o link pelo nome com <code>:h</code>: para <code>|bars|</code>, digite <code>:h bars</code>.</p>
+</div>
+
+<hr>
+
+<h2>Pedir ajuda sobre um tópico</h2>
+
+<dl class="anatomy">
+  <dt>:h</dt><dd>O comando de ajuda.</dd>
+  <dt>dd</dt><dd>O tópico: aqui, o comando <code>dd</code> do modo normal.</dd>
+</dl>
+
+<p>O segredo é escrever o tópico do jeito que a ajuda o identifica. Cada tipo de coisa tem a sua forma:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Você quer ajuda sobre…</th><th>Escreva</th><th>Exemplo</th></tr>
+<tr><td>Um comando do modo normal</td><td>As teclas</td><td><code>:h dd</code>, <code>:h gu</code>, <code>:h %</code></td></tr>
+<tr><td>Uma tecla com <kbd>Ctrl</kbd> no modo normal</td><td><code>CTRL-</code> e a letra</td><td><code>:h CTRL-R</code> (refazer)</td></tr>
+<tr><td>Uma tecla do modo de inserção</td><td>Prefixo <code>i_</code></td><td><code>:h i_CTRL-W</code> (apagar palavra digitando)</td></tr>
+<tr><td>Uma tecla do modo visual</td><td>Prefixo <code>v_</code></td><td><code>:h v_o</code>, <code>:h v_J</code></td></tr>
+<tr><td>Uma tecla da linha de comando</td><td>Prefixo <code>c_</code></td><td><code>:h c_CTRL-R</code></td></tr>
+<tr><td>Um comando Ex (com dois-pontos)</td><td>Com <code>:</code></td><td><code>:h :s</code>, <code>:h :g</code>, <code>:h :w</code></td></tr>
+<tr><td>Uma opção</td><td>Entre apóstrofos</td><td><code>:h 'number'</code>, <code>:h 'sw'</code></td></tr>
+<tr><td>Uma mensagem de erro</td><td>O código</td><td><code>:h E37</code>, <code>:h E486</code></td></tr>
+<tr><td>Um assunto</td><td>Uma palavra</td><td><code>:h pattern</code>, <code>:h registers</code>, <code>:h text-objects</code></td></tr>
+</table>
+</div>
+
+<p>Por que tantos formatos? Porque a mesma letra significa coisas diferentes em cada modo. <code>:h o</code> é "abrir linha abaixo" (modo normal); <code>:h v_o</code> é "ir para a outra ponta da seleção" (modo visual); <code>:h 'o'</code> não existe.</p>
+
+<h3>Deixe o Vim completar</h3>
+<p>Você não precisa saber o nome exato:</p>
+<ul>
+  <li>Digite <code>:h patt</code> e aperte <kbd>Tab</kbd>: o Vim completa e mostra opções.</li>
+  <li>Digite <code>:h CTRL-W</code> e aperte <kbd>Ctrl</kbd>+<kbd>d</kbd>: o Vim lista <strong>todos</strong> os tópicos que combinam (<code>CTRL-W_s</code>, <code>CTRL-W_v</code>, <code>i_CTRL-W</code>…).</li>
+</ul>
+
+<hr>
+
+<h2>Procurar em toda a ajuda: <code>:helpgrep</code></h2>
+<p>Quando você não sabe o nome do tópico, procure uma palavra em todos os arquivos de ajuda:</p>
+
+<dl class="anatomy">
+  <dt>:helpgrep</dt><dd>Busca um padrão em toda a ajuda.</dd>
+  <dt>uppercase</dt><dd>O que procurar (aceita <a href="regex.html">expressões regulares</a>).</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Depois do <code>:helpgrep</code></th><th>O que faz</th></tr>
+<tr><td><code>:cnext</code> / <code>:cn</code></td><td>Próximo resultado</td></tr>
+<tr><td><code>:cprev</code> / <code>:cp</code></td><td>Resultado anterior</td></tr>
+<tr><td><code>:copen</code></td><td>Abre a lista de todos os resultados numa janela</td></tr>
+</table>
+</div>
+
+<p>O <code>:helpgrep</code> usa a lista de resultados do Vim (a <em>quickfix</em>), que não existe no <code>vim-tiny</code>.</p>
+
+<hr>
+
+<h2>Pontos de partida</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tópico</th><th>O que tem</th></tr>
+<tr><td><code>:h quickref</code></td><td>Referência rápida de quase tudo, em uma página longa</td></tr>
+<tr><td><code>:h usr_toc</code></td><td>Índice do <strong>manual do usuário</strong>, escrito como um livro, do básico ao avançado</td></tr>
+<tr><td><code>:h index</code></td><td>Todos os comandos de todos os modos, numa tabela</td></tr>
+<tr><td><code>:h option-list</code></td><td>Lista de todas as opções com uma frase cada</td></tr>
+<tr><td><code>:h help-summary</code></td><td>Como usar a própria ajuda</td></tr>
+</table>
+</div>
+
+<p>Se preferir ler no navegador, o site <a href="https://vimhelp.org/">vimhelp.org</a> tem a mesma ajuda em HTML, com links. E para praticar o básico em 30 minutos, há o <a href="vimtutor.html">vimtutor</a>.</p>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>A ajuda abre um texto dizendo "fake help file for vim-tiny"</strong>
+<pre class="term" data-title="help.txt — Vim">*help.txt*      Vim
+
+                  VIM - fake help file for vim-tiny
+
+The Vim online help is not installed on this Debian GNU/Linux system.</pre>
+<p><strong>O que aconteceu:</strong> no Debian e no Ubuntu, o comando <code>vi</code> e algumas instalações mínimas usam o <code>vim-tiny</code>, que vem com uma ajuda "falsa", só com esse aviso.</p>
+<p><strong>Como resolver:</strong> instale o Vim completo, que traz a ajuda de verdade:</p>
+<pre class="term">$ sudo apt install vim</pre>
+</div>
+
+<div class="cenario">
+<strong>"E149: Desculpe, nenhuma ajuda para numbers"</strong>
+<p><strong>O que aconteceu:</strong> não existe tópico com esse nome. Aqui faltaram os apóstrofos e sobrou um "s": a opção é <code>'number'</code>.</p>
+<p><strong>Como resolver:</strong> use <kbd>Tab</kbd> ou <kbd>Ctrl</kbd>+<kbd>d</kbd> para ver os nomes possíveis, ou procure com <code>:helpgrep</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Fechei a ajuda e o Vim inteiro fechou</strong>
+<p><strong>O que aconteceu:</strong> você usou <code>:qa</code> ou <code>:q</code> com o cursor na janela do seu arquivo. O <code>:q</code> fecha a janela onde o cursor está.</p>
+<p><strong>Como resolver:</strong> antes do <code>:q</code>, confira se o cursor está na janela de ajuda (a linha de status mostra <code>[Ajuda]</code>). Use <kbd>Ctrl</kbd>+<kbd>w</kbd> <kbd>w</kbd> para trocar.</p>
+</div>
+
+<div class="cenario">
+<strong>Ctrl+] não segue o link</strong>
+<p><strong>O que aconteceu:</strong> o terminal ou o layout do teclado não está entregando a tecla ao Vim (comum no ABNT2).</p>
+<p><strong>Como resolver:</strong> dê duplo clique no link (com <code>:set mouse=a</code>) ou abra-o pelo nome: <code>:h nome-do-link</code>.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:h</code> / <kbd>F1</kbd></td><td>Abre a ajuda principal</td></tr>
+<tr><td><code>:h tópico</code></td><td>Abre um tópico</td></tr>
+<tr><td><code>:q</code></td><td>Fecha a janela de ajuda</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>]</kbd> / <kbd>Ctrl</kbd>+<kbd>o</kbd></td><td>Segue um link / volta</td></tr>
+<tr><td><code>:h tópico</code> + <kbd>Tab</kbd> / <kbd>Ctrl</kbd>+<kbd>d</kbd></td><td>Completa / lista os tópicos possíveis</td></tr>
+<tr><td><code>:helpgrep palavra</code></td><td>Busca em toda a ajuda (<code>:cn</code> para o próximo)</td></tr>
+<tr><td><code>'opção'</code>, <code>:comando</code>, <code>i_</code>, <code>v_</code>, <code>c_</code>, <code>CTRL-X</code>, <code>E123</code></td><td>Formas de escrever cada tipo de tópico</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Ajuda sobre uma opção</h3>
+<p>Complete para abrir a ajuda da opção <code>shiftwidth</code>:</p>
+<div class="ex-code">:h <input data-answer="'shiftwidth'|'sw'" aria-label="tópico"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Ajuda sobre um comando Ex</h3>
+<p>Complete para abrir a ajuda do comando de substituir (<code>:s</code>):</p>
+<div class="ex-code">:h <input data-answer=":s|:substitute" aria-label="tópico"></div>
+</div>
+
+<div class="exercise">
+<h3>3. Modo de inserção</h3>
+<p>Complete para ver o que <kbd>Ctrl</kbd>+<kbd>u</kbd> faz no modo de inserção:</p>
+<div class="ex-code">:h <input data-answer="i_CTRL-U|i_ctrl-u|i_CTRL-u" aria-label="tópico"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">4. Você está na ajuda e quer voltar ao tópico anterior depois de seguir um link. Qual tecla?</p>
+<label><input type="radio" name="q4"> <kbd>Ctrl</kbd>+<kbd>]</kbd></label>
+<label><input type="radio" name="q4"> <code>u</code></label>
+<label><input type="radio" name="q4"> <kbd>Ctrl</kbd>+<kbd>o</kbd></label>
+<label><input type="radio" name="q4"> <code>:q</code></label>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">5. Apareceu <code>E486</code> na tela e você não sabe o que é. Como descobrir?</p>
+<label><input type="radio" name="q5"> <code>:h E486</code></label>
+<label><input type="radio" name="q5"> <code>:h 'E486'</code></label>
+<label><input type="radio" name="q5"> <code>:helpgrep</code> sem nada</label>
+<label><input type="radio" name="q5"> Não há ajuda para erros.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>:h</code> abre a ajuda numa janela; <code>:q</code> fecha.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>]</kbd> segue links e <kbd>Ctrl</kbd>+<kbd>o</kbd> volta.</li>
+  <li>Opção entre apóstrofos (<code>'sw'</code>), comando Ex com dois-pontos (<code>:s</code>), modos com prefixo (<code>i_</code>, <code>v_</code>, <code>c_</code>), erros pelo código (<code>E37</code>).</li>
+  <li><kbd>Tab</kbd> e <kbd>Ctrl</kbd>+<kbd>d</kbd> completam nomes; <code>:helpgrep</code> procura em tudo.</li>
+  <li>No <code>vim-tiny</code> a ajuda é falsa: instale o pacote <code>vim</code>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

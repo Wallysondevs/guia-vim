@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — objetos de texto iw, i&quot;, i(, ip, it | Guia Vim</title>
+<meta name="description" content="Objetos de texto do Vim: iw, aw, iW, i&quot;, i', i(, i{, i[, i&lt;, it, ip e ap. Aja sobre palavras, aspas, parênteses, tags e parágrafos com o cursor em qualquer lugar dentro deles.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Objetos de Texto</span></h1>
+
+<p class="intro">Um movimento como <code>w</code> depende de onde o cursor está: <code>dw</code> apaga só dali para a frente. Um <strong>objeto de texto</strong> é diferente: ele representa uma <strong>coisa inteira</strong>, como uma palavra, o texto entre aspas ou um bloco entre chaves. Com o cursor em qualquer ponto dentro dela, o operador age sobre tudo.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>A diferença entre <code>i</code> ("dentro de") e <code>a</code> ("em volta de").</li>
+  <li>Os objetos de palavra (<code>iw</code>, <code>aW</code>…), aspas (<code>i"</code>), blocos (<code>i(</code>, <code>i{</code>, <code>i[</code>, <code>i&lt;</code>), tags HTML (<code>it</code>) e parágrafos (<code>ip</code>).</li>
+  <li>Os usos mais comuns em código: <code>ci"</code>, <code>di(</code>, <code>ci{</code>, <code>dit</code>, <code>dap</code>.</li>
+  <li>O que acontece quando o cursor não está dentro do objeto.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Objetos de texto só funcionam depois de um operador (<code>d</code>, <code>c</code>, <code>y</code>…) ou no <a href="visual.html">modo visual</a>. Sozinho, <code>iw</code> no modo normal significa "entrar no modo de inserção e digitar w". Reveja <a href="operadores.html">Operadores</a>.</p>
+</div>
+
+<hr>
+
+<h2>i e a: dentro ou em volta</h2>
+<p>Todo objeto tem duas versões. A primeira letra diz quanto pegar, a segunda diz o quê:</p>
+
+<dl class="anatomy">
+  <dt>d</dt><dd>O operador: apagar.</dd>
+  <dt>i</dt><dd><strong>dentro de</strong> (de <em>inner</em>): só o conteúdo, sem bordas nem espaços em volta.</dd>
+  <dt>w</dt><dd>O objeto: uma palavra (<em>word</em>).</dd>
+</dl>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Letra</th><th>Origem</th><th>Pega</th></tr>
+<tr><td><code>i</code></td><td><em>inner</em> (interno)</td><td>Só o conteúdo</td></tr>
+<tr><td><code>a</code></td><td><em>a/an</em> (um, uma)</td><td>O conteúdo <strong>e</strong> a borda: o espaço, as aspas, os parênteses</td></tr>
+</table>
+</div>
+
+<p>Compare na mesma frase, com o cursor no meio de "dois":</p>
+
+<div class="vimdemo" data-file="frase.txt" data-col="6" data-keys="diw">
+<pre class="vim-inicial">um dois tres</pre>
+</div>
+
+<p><code>diw</code> tirou só a palavra e deixou os dois espaços, um de cada lado. Agora com <code>daw</code>:</p>
+
+<div class="vimdemo" data-file="frase.txt" data-col="6" data-keys="daw">
+<pre class="vim-inicial">um dois tres</pre>
+</div>
+
+<p><code>daw</code> levou a palavra e um espaço, e a frase continua bem formada. Por isso a regra prática é: <strong>para apagar use <code>a</code>, para trocar use <code>i</code></strong>. Ao trocar (<code>ciw</code>) você quer manter os espaços; ao apagar (<code>daw</code>) você quer que eles saiam junto.</p>
+
+<hr>
+
+<h2>Palavras: iw e iW</h2>
+<p>Para o Vim existem dois tipos de palavra:</p>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Objeto</th><th>O que é uma "palavra"</th><th>Em <code>/usr/local/bin</code></th></tr>
+<tr><td><code>iw</code> (minúsculo)</td><td>Letras, números e <code>_</code> seguidos; a pontuação forma outra palavra</td><td>Só <code>local</code></td></tr>
+<tr><td><code>iW</code> (maiúsculo)</td><td>Tudo que não é espaço (<em>WORD</em>)</td><td>O caminho inteiro</td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="caminho.txt" data-col="15" data-keys="ciWDESTINO&lt;Esc&gt;">
+<pre class="vim-inicial">o caminho /usr/local/bin é bom</pre>
+</div>
+
+<p>Com o cursor em "local", <code>ciW</code> trocou o caminho inteiro, porque para o <code>W</code> maiúsculo as barras fazem parte da palavra.</p>
+
+<div class="vimtry" data-file="variavel.py" data-col="10">
+<pre class="vim-inicial">contador_total = contador_total + 1</pre>
+<pre class="vim-meta">soma = contador_total + 1</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está no meio do primeiro <code>contador_total</code>. Troque esse nome por <code>soma</code> sem mover o cursor antes. Lembre: o <code>_</code> faz parte da palavra.</p>
+</div>
+
+<hr>
+
+<h2>Aspas: i" i' i`</h2>
+<p>O texto entre aspas duplas, simples ou crases. É o objeto que você mais vai usar em código.</p>
+
+<dl class="anatomy">
+  <dt>c</dt><dd>Operador: mudar.</dd>
+  <dt>i"</dt><dd>Objeto: o conteúdo entre as aspas duplas, sem elas.</dd>
+</dl>
+
+<div class="vimdemo" data-file="dados.py" data-col="13" data-keys="ci&quot;Bia Souza&lt;Esc&gt;">
+<pre class="vim-inicial">nome = "Ana Maria"</pre>
+</div>
+
+<p>Há uma vantagem extra: com aspas, o cursor nem precisa estar dentro. Se ele estiver antes das aspas na mesma linha, o Vim procura o primeiro par à direita:</p>
+
+<div class="vimdemo" data-file="dados.py" data-keys="ci&quot;Bia&lt;Esc&gt;">
+<pre class="vim-inicial">nome = "Ana Maria"</pre>
+</div>
+
+<p>Com <code>a"</code>, as aspas vão junto (e um espaço depois delas, se houver). <code>da'</code> apaga a string inteira com aspas simples.</p>
+
+<div class="vimtry" data-file="config.js">
+<pre class="vim-inicial">const url = "http://localhost:3000"</pre>
+<pre class="vim-meta">const url = "https://meusite.com.br"</pre>
+<p class="try-task"><strong>Missão:</strong> troque o endereço inteiro por <code>https://meusite.com.br</code>. O cursor está no começo da linha, e você não precisa movê-lo.</p>
+</div>
+
+<hr>
+
+<h2>Blocos: i( i{ i[ i&lt;</h2>
+<p>O conteúdo entre parênteses, chaves, colchetes ou sinais de menor e maior. Cada um tem apelidos:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Bloco</th><th>Objetos (todos iguais)</th><th>Uso típico</th></tr>
+<tr><td><code>( )</code></td><td><code>i(</code> <code>i)</code> <code>ib</code> (de <em>block</em>)</td><td>Argumentos de função, condições</td></tr>
+<tr><td><code>{ }</code></td><td><code>i{</code> <code>i}</code> <code>iB</code></td><td>Corpo de função, objetos JSON</td></tr>
+<tr><td><code>[ ]</code></td><td><code>i[</code> <code>i]</code></td><td>Listas, índices</td></tr>
+<tr><td><code>&lt; &gt;</code></td><td><code>i&lt;</code> <code>i&gt;</code></td><td>Tipos genéricos, <code>Map&lt;K, V&gt;</code></td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="calculo.js" data-col="16" data-keys="di(">
+<pre class="vim-inicial">resultado = soma(10, 20, 30)</pre>
+</div>
+
+<p>Com blocos aninhados, o Vim pega o bloco <strong>mais interno</strong> em volta do cursor:</p>
+
+<div class="vimdemo" data-file="chamada.py" data-col="12" data-keys="di(">
+<pre class="vim-inicial">print(soma(1, 2), 3)</pre>
+</div>
+
+<p>O cursor estava no <code>1</code>, dentro de <code>soma(…)</code>, que está dentro de <code>print(…)</code>. Só o bloco de dentro foi esvaziado. Para pegar o de fora, use uma contagem: <code>2di(</code> esvazia o segundo nível e deixa <code>print()</code>.</p>
+
+<h3>Blocos de várias linhas</h3>
+<p>Quando o bloco ocupa várias linhas, <code>i{</code> pega as linhas de dentro inteiras e mantém as chaves nas linhas delas:</p>
+
+<div class="vimdemo" data-file="funcao.js" data-line="2" data-keys="di{">
+<pre class="vim-inicial">function saudar() {
+  console.log("oi");
+  return true;
+}</pre>
+</div>
+
+<p>Com o parêntese, a chave ou o colchete <strong>embaixo do cursor</strong>, o objeto também funciona. E se o cursor estiver numa linha antes de qualquer parêntese, o Vim procura o primeiro bloco à direita na mesma linha.</p>
+
+<div class="vimtry" data-file="lista.py" data-col="12">
+<pre class="vim-inicial">numeros = [3, 1, 4, 1, 5, 9]</pre>
+<pre class="vim-meta">numeros = [1, 2, 3]</pre>
+<p class="try-task"><strong>Missão:</strong> troque o conteúdo da lista por <code>1, 2, 3</code>, mantendo os colchetes.</p>
+</div>
+
+<hr>
+
+<h2>Tags HTML e XML: it e at</h2>
+<p><code>it</code> é o conteúdo entre uma tag de abertura e a de fechamento (<em>tag</em>). <code>at</code> inclui as próprias tags.</p>
+
+<div class="vimdemo" data-file="pagina.html" data-col="12" data-keys="cittudo&lt;Esc&gt;">
+<pre class="vim-inicial">&lt;p&gt;Olá &lt;b&gt;mundo&lt;/b&gt;&lt;/p&gt;</pre>
+</div>
+
+<p>O cursor estava em "mundo", dentro de <code>&lt;b&gt;</code>, então <code>cit</code> trocou só o conteúdo do <code>&lt;b&gt;</code>. Com o cursor em "Olá", fora do <code>&lt;b&gt;</code>, o mesmo comando trocaria todo o conteúdo do <code>&lt;p&gt;</code>. E <code>dat</code> apagaria a tag inteira:</p>
+
+<div class="vimdemo" data-file="pagina.html" data-col="12" data-keys="dat">
+<pre class="vim-inicial">&lt;p&gt;Olá &lt;b&gt;mundo&lt;/b&gt;&lt;/p&gt;</pre>
+</div>
+
+<div class="vimtry" data-file="menu.html" data-line="3" data-col="9">
+<pre class="vim-inicial">&lt;ul&gt;
+  &lt;li&gt;Início&lt;/li&gt;
+  &lt;li&gt;Contato&lt;/li&gt;
+&lt;/ul&gt;</pre>
+<pre class="vim-meta">&lt;ul&gt;
+  &lt;li&gt;Início&lt;/li&gt;
+  &lt;li&gt;Sobre&lt;/li&gt;
+&lt;/ul&gt;</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está em "Contato". Troque o texto do item por "Sobre" com um objeto de tag.</p>
+</div>
+
+<hr>
+
+<h2>Parágrafos: ip e ap</h2>
+<p>Um parágrafo, para o Vim, é um grupo de linhas sem linha vazia no meio. <code>ip</code> pega as linhas do parágrafo; <code>ap</code> pega também a linha vazia depois dele.</p>
+
+<div class="vimdemo" data-file="texto.md" data-line="4" data-keys="dap">
+<pre class="vim-inicial">Primeiro parágrafo,
+com duas linhas.
+
+Segundo parágrafo,
+que vai sair.
+
+Terceiro parágrafo.</pre>
+</div>
+
+<p>O segundo parágrafo saiu com a linha vazia, e o texto continua com um espaço só entre os parágrafos que sobraram. É o mesmo princípio do <code>daw</code>: <code>a</code> leva a separação junto.</p>
+
+<p>Um uso clássico: <code>yap</code> copia um parágrafo (ou uma função inteira, se ela não tiver linhas vazias), e <code>&gt;ip</code> indenta um bloco de código.</p>
+
+<div class="vimtry" data-file="notas.md" data-line="5">
+<pre class="vim-inicial">Lista de compras:
+- pão
+
+RASCUNHO VELHO
+apagar tudo isto
+
+Fim.</pre>
+<pre class="vim-meta">Lista de compras:
+- pão
+
+Fim.</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está no rascunho. Apague o parágrafo inteiro com a linha vazia, deixando só uma linha vazia entre "- pão" e "Fim.".</p>
+</div>
+
+<hr>
+
+<h2>Frases: is e as</h2>
+<p>Uma frase (<em>sentence</em>) termina em <code>.</code>, <code>!</code> ou <code>?</code> seguido de espaço ou fim de linha. <code>dis</code> apaga a frase em que o cursor está; <code>das</code> apaga também o espaço depois dela. É útil para quem escreve textos em prosa, como documentação em Markdown.</p>
+<p>Por exemplo, em <code>Primeira frase. Segunda frase aqui. Terceira.</code>, com o cursor em "Segunda", <code>das</code> deixa <code>Primeira frase. Terceira.</code>. Os objetos de frase não estão no simulador; experimente no seu Vim.</p>
+
+<hr>
+
+<h2>Formas diferentes de fazer</h2>
+<p>Objetivo: trocar <code>"Ana Maria"</code> por <code>"Bia"</code> em <code>nome = "Ana Maria"</code>, com o cursor no começo da linha.</p>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Teclas</th><th>Como funciona</th><th>Quando usar</th></tr>
+<tr><td><code>ci"</code> + texto</td><td>Muda dentro das aspas; procura as aspas à direita</td><td>Quase sempre: é o mais curto.</td></tr>
+<tr><td><code>f"lct"</code> + texto</td><td>Pula para a aspa, avança uma letra e muda até antes da próxima aspa</td><td>Em Vims muito antigos, sem objetos de texto.</td></tr>
+<tr><td><code>$F"…</code> e visual</td><td>Seleciona à mão</td><td>Quando você quer ver antes o que vai mudar.</td></tr>
+<tr><td><code>:s/Ana Maria/Bia/</code></td><td>Substituição por texto</td><td>Quando são muitas linhas (veja <a href="substituir.html">Substituir</a>).</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Digitei "ciw" e entrou "w" no texto</strong>
+<p><strong>O que aconteceu:</strong> faltou o operador ou você estava no modo de inserção. No modo normal, <code>i</code> sozinho entra no modo de inserção, e o <code>w</code> vira texto.</p>
+<p><strong>Como resolver:</strong> <kbd>Esc</kbd>, <code>u</code> e repita: o operador vem primeiro (<code>c</code>), depois o objeto (<code>iw</code>).</p>
+</div>
+
+<div class="cenario">
+<strong>di( não fez nada</strong>
+<p><strong>O que aconteceu:</strong> o cursor não está dentro de parênteses e não há nenhum à direita na linha. Ou os parênteses não estão balanceados (falta um fechamento).</p>
+<p><strong>Como resolver:</strong> leve o cursor para dentro do bloco. Use <code>%</code> sobre um parêntese para ver qual é o par dele (veja <a href="pares.html">Parênteses e Blocos</a>).</p>
+</div>
+
+<div class="cenario">
+<strong>ci" mudou o texto errado</strong>
+<p><strong>O que aconteceu:</strong> numa linha com várias strings, como <code>"nome": "fulano"</code>, o cursor estava <strong>entre</strong> elas (no <code>:</code>). O Vim olha a aspa mais próxima antes e depois do cursor e considera o que está entre elas como "dentro das aspas". Ele trocou o <code>: </code> e deixou a linha assim:</p>
+<pre class="syntax">  "nome"Ana"fulano",</pre>
+<p>O Vim só procura o primeiro par à direita quando não há nenhuma aspa antes do cursor na linha.</p>
+<p><strong>Como resolver:</strong> <code>u</code>, coloque o cursor <strong>dentro</strong> da string certa (por exemplo com <code>ff</code> para pular até o "f" de "fulano") e repita o <code>ci"</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>dit apagou mais do que eu queria</strong>
+<p><strong>O que aconteceu:</strong> o cursor estava fora da tag interna, então o Vim pegou a tag de fora.</p>
+<p><strong>Como resolver:</strong> <code>u</code>, coloque o cursor dentro do texto da tag certa e repita. Se as tags estiverem quebradas (uma tag sem fechamento), o objeto pode falhar.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Objeto</th><th>Dentro (<code>i</code>)</th><th>Em volta (<code>a</code>)</th></tr>
+<tr><td>Palavra</td><td><code>iw</code></td><td><code>aw</code> (+ espaço)</td></tr>
+<tr><td>PALAVRA (até o espaço)</td><td><code>iW</code></td><td><code>aW</code></td></tr>
+<tr><td>Frase</td><td><code>is</code></td><td><code>as</code></td></tr>
+<tr><td>Parágrafo</td><td><code>ip</code></td><td><code>ap</code> (+ linha vazia)</td></tr>
+<tr><td>Aspas duplas / simples / crase</td><td><code>i"</code> <code>i'</code> <code>i`</code></td><td><code>a"</code> <code>a'</code> <code>a`</code></td></tr>
+<tr><td>Parênteses</td><td><code>i(</code> <code>i)</code> <code>ib</code></td><td><code>a(</code> <code>a)</code> <code>ab</code></td></tr>
+<tr><td>Chaves</td><td><code>i{</code> <code>i}</code> <code>iB</code></td><td><code>a{</code> <code>a}</code> <code>aB</code></td></tr>
+<tr><td>Colchetes</td><td><code>i[</code> <code>i]</code></td><td><code>a[</code> <code>a]</code></td></tr>
+<tr><td>Menor/maior</td><td><code>i&lt;</code> <code>i&gt;</code></td><td><code>a&lt;</code> <code>a&gt;</code></td></tr>
+<tr><td>Tag HTML/XML</td><td><code>it</code></td><td><code>at</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Argumentos</h3>
+<p>Complete para apagar tudo entre os parênteses de <code>soma(1, 2, 3)</code>, com o cursor no 2:</p>
+<div class="ex-code">d<input data-answer="i(|i)|ib" aria-label="objeto"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Tag</h3>
+<p>Complete para trocar o texto dentro de <code>&lt;h1&gt;Título&lt;/h1&gt;</code>:</p>
+<div class="ex-code">c<input data-answer="it" aria-label="objeto"></div>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">3. Em <code>um dois tres</code>, com o cursor em "dois", o que sobra depois de <code>daw</code>?</p>
+<label><input type="radio" name="q3"> <code>um  tres</code> (dois espaços)</label>
+<label><input type="radio" name="q3"> <code>um tres</code></label>
+<label><input type="radio" name="q3"> <code>um</code></label>
+<label><input type="radio" name="q3"> <code>tres</code></label>
+</div>
+
+<div class="mc" data-answer="4">
+<p class="mc-q">4. Qual objeto pega <code>/usr/local/bin</code> inteiro com o cursor em "local"?</p>
+<label><input type="radio" name="q4"> <code>iw</code></label>
+<label><input type="radio" name="q4"> <code>ip</code></label>
+<label><input type="radio" name="q4"> <code>i/</code></label>
+<label><input type="radio" name="q4"> <code>iW</code></label>
+</div>
+
+<div class="vimtry" data-file="usuario.json" data-line="2">
+<pre class="vim-inicial">{
+  "nome": "fulano",
+  "tags": ["a", "b", "c"],
+  "ativo": false
+}</pre>
+<pre class="vim-meta">{
+  "nome": "Ana",
+  "tags": [],
+  "ativo": false
+}</pre>
+<p class="try-task"><strong>Missão final:</strong> troque "fulano" por "Ana" (atenção: a linha tem dois pares de aspas; leve o cursor até "fulano" antes) e esvazie a lista de tags, mantendo os colchetes.</p>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li>Objeto de texto = operador + <code>i</code>/<code>a</code> + tipo: <code>ciw</code>, <code>da"</code>, <code>yi(</code>.</li>
+  <li><code>i</code> pega só o conteúdo; <code>a</code> pega também a borda (espaço, aspas, parênteses, linha vazia).</li>
+  <li>Para trocar use <code>i</code> (<code>ciw</code>, <code>ci"</code>); para apagar use <code>a</code> (<code>daw</code>, <code>dap</code>).</li>
+  <li>O cursor pode estar em qualquer lugar dentro do objeto; com aspas e blocos, o Vim procura à direita na linha.</li>
+  <li>Em código: <code>ci"</code>, <code>di(</code>, <code>ci{</code>, <code>dit</code>, <code>yap</code>.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

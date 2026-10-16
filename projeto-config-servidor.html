@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — editar configurações de servidor | Guia Vim</title>
+<meta name="description" content="Laboratório de Vim: editar um sshd_config e um nginx.conf, achar linhas com /, trocar valores com cw e :s, comentar e descomentar blocos e salvar com segurança usando sudoedit.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Editar Configurações de Servidor</span></h1>
+
+<p class="intro">Este é o motivo número um de muita gente aprender Vim: você entra num servidor por SSH e precisa mudar uma linha de configuração. Não há mouse nem editor gráfico, e o Vim (ou o <code>vi</code>) está sempre lá. Neste laboratório você edita cópias de mentira de um <code>sshd_config</code> e de um <code>nginx.conf</code>, como faria num servidor de verdade.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>Achar a linha certa num arquivo grande com <code>/</code>.</li>
+  <li>Trocar um valor com <code>cw</code> e com <code>:s</code>.</li>
+  <li>Descomentar uma linha com <code>x</code> e várias de uma vez com <code>:s/^#//</code>.</li>
+  <li>Comentar um bloco inteiro com <kbd>Ctrl</kbd>+<kbd>V</kbd> e <code>I#</code>.</li>
+  <li>Editar arquivos do sistema com segurança usando <code>sudoedit</code> e testar a configuração antes de aplicar.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>Você vai usar <a href="busca.html">Buscar</a>, <a href="operadores.html">Operadores</a>, <a href="substituir.html">Substituir</a> e <a href="bloco.html">Modo Visual de Bloco</a>. Se algum comando parecer estranho, a aula dele está no link.</p>
+</div>
+
+<h2>O roteiro</h2>
+<ol class="passo">
+  <li>Proibir o login direto do root (<code>PermitRootLogin no</code>).</li>
+  <li>Descomentar a porta e trocar para <code>2222</code>.</li>
+  <li>Desligar o login por senha com <code>:s</code>.</li>
+  <li>Descomentar várias linhas de uma vez.</li>
+  <li>No <code>nginx.conf</code>, comentar um bloco <code>location</code> inteiro.</li>
+  <li>Ajustar dois valores e salvar.</li>
+</ol>
+
+<hr>
+
+<h2>Etapa 1: achar a linha e trocar o valor</h2>
+<p>Num arquivo de configuração real há dezenas de linhas. Rolar com <kbd>j</kbd> até achar é lento. O jeito Vim é <strong>buscar</strong>: <code>/</code>, o texto e <kbd>Enter</kbd>. O cursor pula para a primeira ocorrência.</p>
+
+<dl class="anatomy">
+  <dt>/Root</dt><dd>Busca o texto "Root". Ele está dentro de <code>PermitRootLogin</code>; não precisa digitar a palavra inteira.</dd>
+  <dt>&lt;Enter&gt;</dt><dd>Confirma a busca. O cursor vai para o "R".</dd>
+  <dt>w</dt><dd>Pula para a próxima palavra: o <code>yes</code>.</dd>
+  <dt>cw</dt><dd>Troca (<em>change</em>) a palavra: apaga <code>yes</code> e entra no modo de inserção.</dd>
+  <dt>no&lt;Esc&gt;</dt><dd>Digita o novo valor e volta ao modo normal.</dd>
+</dl>
+
+<div class="vimdemo" data-file="sshd_config" data-keys="/Root&lt;CR&gt;wcwno&lt;Esc&gt;">
+<pre class="vim-inicial"># Configuração do servidor SSH
+#Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+#PubkeyAuthentication yes
+X11Forwarding yes
+MaxAuthTries 6</pre>
+</div>
+
+<p>Repare que, ao apertar <kbd>Enter</kbd>, o rodapé mostra <code>/Root</code>: é o Vim confirmando o que buscou. Agora faça você:</p>
+
+<div class="vimtry" data-file="sshd_config">
+<pre class="vim-inicial"># Configuração do servidor SSH
+#Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+#PubkeyAuthentication yes
+X11Forwarding yes
+MaxAuthTries 6</pre>
+<pre class="vim-meta"># Configuração do servidor SSH
+#Port 22
+PermitRootLogin no
+PasswordAuthentication yes
+#PubkeyAuthentication yes
+X11Forwarding yes
+MaxAuthTries 6</pre>
+<p class="try-task"><strong>Missão:</strong> troque <code>PermitRootLogin yes</code> por <code>PermitRootLogin no</code>, sem usar as setas.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>/Root&lt;Enter&gt;</code> leva o cursor até a linha; <code>w</code> vai para o <code>yes</code>; <code>cwno&lt;Esc&gt;</code> troca a palavra. Total: 12 teclas.</p>
+</details>
+
+<hr>
+
+<h2>Etapa 2: descomentar e mudar a porta</h2>
+<p>Em arquivos de configuração, o <code>#</code> no começo da linha transforma a linha em <strong>comentário</strong>: o programa ignora. Para ativar a opção, basta apagar o <code>#</code>, e o <code>x</code> faz isso com uma tecla.</p>
+
+<dl class="anatomy">
+  <dt>/#Port&lt;Enter&gt;</dt><dd>Vai até a linha <code>#Port 22</code>, com o cursor sobre o <code>#</code>.</dd>
+  <dt>x</dt><dd>Apaga o <code>#</code>: a linha vira <code>Port 22</code>.</dd>
+  <dt>$</dt><dd>Vai para o último caractere da linha, o <code>2</code> final.</dd>
+  <dt>a22&lt;Esc&gt;</dt><dd>Acrescenta (<em>append</em>) <code>22</code> depois do cursor: <code>22</code> vira <code>2222</code>.</dd>
+</dl>
+
+<div class="vimtry" data-file="sshd_config">
+<pre class="vim-inicial"># Configuração do servidor SSH
+#Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+#PubkeyAuthentication yes
+X11Forwarding yes
+MaxAuthTries 6</pre>
+<pre class="vim-meta"># Configuração do servidor SSH
+Port 2222
+PermitRootLogin yes
+PasswordAuthentication yes
+#PubkeyAuthentication yes
+X11Forwarding yes
+MaxAuthTries 6</pre>
+<p class="try-task"><strong>Missão:</strong> descomente a linha da porta e troque <code>22</code> por <code>2222</code>.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>/#Port&lt;Enter&gt;x$a22&lt;Esc&gt;</code> (13 teclas). Outra forma: <code>/#Port&lt;Enter&gt;x</code> e depois <code>wcw2222&lt;Esc&gt;</code>.</p>
+</details>
+
+<div class="warning">
+<strong>Mudou a porta do SSH num servidor de verdade?</strong>
+<p>Libere a porta nova no firewall <strong>antes</strong> de reiniciar o SSH, e não feche a sessão atual até testar a conexão pela porta nova em outro terminal. Senão você perde o acesso.</p>
+</div>
+
+<hr>
+
+<h2>Etapa 3: trocar com :s</h2>
+<p>O <code>cw</code> é ótimo quando o cursor já está na palavra. Outra forma é o comando <code>:s</code> (de <em>substitute</em>, substituir), que troca um texto por outro na linha atual, sem precisar mover o cursor até a palavra.</p>
+
+<dl class="anatomy">
+  <dt>/Password&lt;Enter&gt;</dt><dd>Leva o cursor até a linha certa.</dd>
+  <dt>:s</dt><dd>Substituir, na linha do cursor.</dd>
+  <dt>/yes</dt><dd>O que procurar.</dd>
+  <dt>/no/</dt><dd>Pelo que trocar.</dd>
+  <dt>&lt;Enter&gt;</dt><dd>Executa.</dd>
+</dl>
+
+<div class="vimtry" data-file="sshd_config">
+<pre class="vim-inicial"># Configuração do servidor SSH
+#Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+#PubkeyAuthentication yes
+X11Forwarding yes
+MaxAuthTries 6</pre>
+<pre class="vim-meta"># Configuração do servidor SSH
+#Port 22
+PermitRootLogin yes
+PasswordAuthentication no
+#PubkeyAuthentication yes
+X11Forwarding yes
+MaxAuthTries 6</pre>
+<p class="try-task"><strong>Missão:</strong> desligue o login por senha (<code>PasswordAuthentication no</code>) usando <code>:s</code>.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>/Password&lt;Enter&gt;</code> e depois <code>:s/yes/no/&lt;Enter&gt;</code>. Sem a busca antes, o <code>:s</code> atuaria na linha 1, que não tem "yes", e o Vim avisaria <code>E486: Padrão não encontrado: yes</code>.</p>
+</details>
+
+<div class="warning">
+<strong>Senha desligada só com chave funcionando</strong>
+<p>No servidor real, só desligue o login por senha depois de entrar com sua chave SSH com sucesso. Senão, ninguém mais entra.</p>
+</div>
+
+<hr>
+
+<h2>Etapa 4: descomentar várias linhas de uma vez</h2>
+<p>Quando são muitas linhas, apagar <code>#</code> por <code>#</code> cansa. O <code>:s</code> aceita uma <strong>faixa de linhas</strong> antes do <code>s</code>, e o <code>^</code> significa "começo da linha".</p>
+
+<dl class="anatomy">
+  <dt>:2,$</dt><dd>Faixa: da linha 2 até a última (<code>$</code>). A linha 1 é um comentário de verdade e deve continuar comentada.</dd>
+  <dt>s/^#//</dt><dd>Troca o <code>#</code> do começo da linha (<code>^#</code>) por nada.</dd>
+  <dt>&lt;Enter&gt;</dt><dd>Executa em todas as linhas da faixa. Linhas sem <code>#</code> no começo ficam como estão.</dd>
+</dl>
+
+<div class="vimdemo" data-file="sshd_config" data-keys=":2,$s/^#//&lt;CR&gt;">
+<pre class="vim-inicial"># Configuração do servidor SSH
+#Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+#PubkeyAuthentication yes
+X11Forwarding yes
+MaxAuthTries 6</pre>
+</div>
+
+<div class="vimtry" data-file="sshd_config">
+<pre class="vim-inicial"># Configuração do servidor SSH
+#Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+#PubkeyAuthentication yes
+X11Forwarding yes
+MaxAuthTries 6</pre>
+<pre class="vim-meta"># Configuração do servidor SSH
+Port 22
+PermitRootLogin yes
+PasswordAuthentication yes
+PubkeyAuthentication yes
+X11Forwarding yes
+MaxAuthTries 6</pre>
+<p class="try-task"><strong>Missão:</strong> descomente todas as opções, mas deixe a linha 1 como comentário.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>:2,$s/^#//&lt;Enter&gt;</code>. Com <code>:%s/^#//</code> (o arquivo inteiro), a linha 1 também perderia o <code>#</code>.</p>
+</details>
+
+<hr>
+
+<h2>Etapa 5: comentar um bloco no nginx.conf</h2>
+<p>Agora o contrário: desativar um bloco inteiro do nginx sem apagá-lo, para poder voltar atrás depois. O <strong>modo visual de bloco</strong> seleciona uma coluna, e o <code>I</code> escreve o mesmo texto no começo de todas as linhas selecionadas.</p>
+
+<dl class="anatomy">
+  <dt>/location&lt;Enter&gt;</dt><dd>Vai até a linha do bloco.</dd>
+  <dt>0</dt><dd>Vai para a coluna 1 da linha.</dd>
+  <dt>&lt;Ctrl-V&gt;</dt><dd>Começa a seleção em bloco (retângulo).</dd>
+  <dt>jj</dt><dd>Estende a seleção duas linhas para baixo: três linhas no total.</dd>
+  <dt>I#</dt><dd>Insere <code>#</code> no começo do bloco. Enquanto você digita, só a primeira linha muda.</dd>
+  <dt>&lt;Esc&gt;</dt><dd>Ao sair, o Vim copia o <code>#</code> para todas as linhas do bloco.</dd>
+</dl>
+
+<div class="vimdemo" data-file="nginx.conf" data-keys="/location&lt;CR&gt;0&lt;C-v&gt;jjI#&lt;Esc&gt;">
+<pre class="vim-inicial">server {
+    listen 80;
+    server_name exemplo.com;
+    location /antigo {
+        return 301 /novo;
+    }
+}</pre>
+</div>
+
+<p>Avance tecla por tecla e veja: depois do <code>I#</code> só a primeira linha tem <code>#</code>; o <kbd>Esc</kbd> completa as outras duas.</p>
+
+<div class="vimtry" data-file="nginx.conf">
+<pre class="vim-inicial">server {
+    listen 80;
+    server_name exemplo.com;
+    location /antigo {
+        return 301 /novo;
+    }
+}</pre>
+<pre class="vim-meta">server {
+    listen 80;
+    server_name exemplo.com;
+#    location /antigo {
+#        return 301 /novo;
+#    }
+}</pre>
+<p class="try-task"><strong>Missão:</strong> comente as três linhas do bloco <code>location</code> com <code>#</code> na primeira coluna.</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>/location&lt;Enter&gt;0&lt;Ctrl-V&gt;jjI#&lt;Esc&gt;</code>. Outra forma: <code>:4,6s/^/#/&lt;Enter&gt;</code>, em que <code>^</code> é o começo da linha e o <code>#</code> entra no lugar dele.</p>
+</details>
+
+<hr>
+
+<h2>Etapa 6: ajustar valores e salvar</h2>
+<p>Duas mudanças comuns no <code>nginx.conf</code>: deixar o nginx escolher o número de processos (<code>auto</code>) e aumentar o número de conexões. Para o número, existe um truque: <kbd>Ctrl</kbd>+<kbd>A</kbd> <strong>soma</strong> ao número sob o cursor ou à frente dele. <code>256</code> seguido de <kbd>Ctrl</kbd>+<kbd>A</kbd> soma 256.</p>
+
+<dl class="anatomy">
+  <dt>w</dt><dd>Da coluna 1, pula para o <code>1</code> de <code>worker_processes 1;</code>.</dd>
+  <dt>cwauto&lt;Esc&gt;</dt><dd>Troca <code>1</code> por <code>auto</code>. O <code>;</code> fica, porque não faz parte da "palavra".</dd>
+  <dt>/768&lt;Enter&gt;</dt><dd>Vai até o número de conexões.</dd>
+  <dt>256&lt;Ctrl-A&gt;</dt><dd>Soma 256: <code>768</code> vira <code>1024</code>.</dd>
+  <dt>:w&lt;Enter&gt;</dt><dd>Salva (<em>write</em>). O rodapé confirma com <code>"nginx.conf" 4L, ...B gravado(s)</code>.</dd>
+</dl>
+
+<div class="vimtry" data-file="nginx.conf" data-save="1">
+<pre class="vim-inicial">worker_processes 1;
+events {
+    worker_connections 768;
+}</pre>
+<pre class="vim-meta">worker_processes auto;
+events {
+    worker_connections 1024;
+}</pre>
+<p class="try-task"><strong>Missão:</strong> troque <code>1</code> por <code>auto</code>, mude <code>768</code> para <code>1024</code> e <strong>salve</strong>. Enquanto não salvar, a missão avisa "falta salvar com :w".</p>
+</div>
+<details><summary>Ver uma solução</summary>
+<p><code>wcwauto&lt;Esc&gt;/768&lt;Enter&gt;256&lt;Ctrl-A&gt;:w&lt;Enter&gt;</code>. Sem o truque do <kbd>Ctrl</kbd>+<kbd>A</kbd>: <code>/768&lt;Enter&gt;cw1024&lt;Esc&gt;</code>.</p>
+</details>
+
+<hr>
+
+<h2>No servidor de verdade</h2>
+<p>Arquivos em <code>/etc</code> pertencem ao root. Abrir com <code>sudo vim</code> funciona, mas roda o Vim inteiro como administrador, com seus plugins e configurações. O jeito mais seguro é o <code>sudoedit</code>: ele copia o arquivo para uma pasta temporária, abre a cópia no seu editor como usuário comum e só grava de volta quando você sai.</p>
+
+<pre class="term" data-host="servidor">$ export EDITOR=vim          « o sudoedit usa o editor desta variável
+$ sudoedit /etc/ssh/sshd_config
+$ sudo sshd -t               « testa a configuração; sem saída = tudo certo
+$ sudo systemctl reload ssh</pre>
+
+<p>O <code>sshd -t</code> (de <em>test</em>) lê o arquivo e avisa se algo está errado, sem mexer no serviço. Se você digitou uma opção errada, ele mostra a linha:</p>
+
+<pre class="term" data-host="servidor">$ sudo sshd -t
+/etc/ssh/sshd_config: line 3: Bad configuration option: PermitRootLogn
+/etc/ssh/sshd_config: terminating, 1 bad configuration options</pre>
+
+<p>Abra de novo com <code>sudoedit</code>, vá direto à linha com <code>:3</code> e corrija. Com o nginx é igual: teste com <code>nginx -t</code> antes de recarregar.</p>
+
+<pre class="term" data-host="servidor">$ sudoedit /etc/nginx/nginx.conf
+$ sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+$ sudo systemctl reload nginx</pre>
+
+<div class="note">
+<strong>Nomes de serviço</strong>
+<p>No Debian e no Ubuntu o serviço do SSH se chama <code>ssh</code>; no Fedora, no Rocky e no Arch, <code>sshd</code>. As mensagens do <code>sshd -t</code> acima são as típicas do OpenSSH e podem variar um pouco de versão para versão.</p>
+</div>
+
+<div class="tip">
+<strong>Abrir o arquivo já na linha certa</strong>
+<p><code>vim +3 arquivo</code> abre com o cursor na linha 3, e <code>vim +/PermitRoot arquivo</code> abre já na primeira ocorrência do texto.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>Rodapé mostra [somente-leitura] e o :w não grava</strong>
+<pre class="term" data-host="servidor">$ vim /etc/ssh/sshd_config</pre>
+<p>Ao tentar salvar, o Vim responde <code>E45: opção 'readonly' está definida (adicione ! para forçar)</code>. Se você forçar com <code>:w!</code>, vem <code>E212: Impossível abrir arquivo para escrita</code>.</p>
+<p><strong>O que aconteceu:</strong> você abriu um arquivo do root como usuário comum. O Vim deixa ler, mas o sistema não deixa gravar.</p>
+<p><strong>Como resolver:</strong> saia sem salvar (<code>:q!</code>) e abra com <code>sudoedit</code>. Se já fez muitas alterações, salve uma cópia na sua pasta com <code>:w ~/sshd_config.novo</code> e copie depois com <code>sudo cp</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>E486: Padrão não encontrado</strong>
+<p><strong>O que aconteceu:</strong> o texto buscado não existe exatamente assim. A busca diferencia maiúsculas de minúsculas: <code>/permitroot</code> não acha <code>PermitRootLogin</code>.</p>
+<p><strong>Como resolver:</strong> confira a grafia, ou termine a busca com <code>\c</code> para ignorar maiúsculas: <code>/permitroot\c</code>. Veja <a href="busca.html">Buscar</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>O I# só comentou a primeira linha</strong>
+<p><strong>O que aconteceu:</strong> o bloco foi feito com <code>v</code> ou <code>V</code> em vez de <kbd>Ctrl</kbd>+<kbd>V</kbd>, ou você saiu com as setas em vez de <kbd>Esc</kbd>.</p>
+<p><strong>Como resolver:</strong> <code>u</code> para desfazer e repita com <kbd>Ctrl</kbd>+<kbd>V</kbd>, terminando com <kbd>Esc</kbd>. Em alguns terminais do Windows, <kbd>Ctrl</kbd>+<kbd>V</kbd> cola texto; use <kbd>Ctrl</kbd>+<kbd>Q</kbd>, que faz o mesmo no Vim.</p>
+</div>
+
+<hr>
+
+<h2>Referência do projeto</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Tarefa</th><th>Teclas</th></tr>
+<tr><td>Achar uma opção</td><td><code>/texto&lt;Enter&gt;</code>, depois <code>n</code> para a próxima</td></tr>
+<tr><td>Trocar um valor</td><td><code>cw</code> + novo valor + <kbd>Esc</kbd></td></tr>
+<tr><td>Trocar na linha atual</td><td><code>:s/velho/novo/</code></td></tr>
+<tr><td>Descomentar uma linha</td><td><code>x</code> sobre o <code>#</code></td></tr>
+<tr><td>Descomentar várias</td><td><code>:2,10s/^#//</code></td></tr>
+<tr><td>Comentar várias</td><td><kbd>Ctrl</kbd>+<kbd>V</kbd>, <code>jj</code>, <code>I#</code>, <kbd>Esc</kbd> ou <code>:4,6s/^/#/</code></td></tr>
+<tr><td>Somar a um número</td><td><code>256</code> + <kbd>Ctrl</kbd>+<kbd>A</kbd></td></tr>
+<tr><td>Salvar e sair</td><td><code>:wq</code> ou <code>ZZ</code></td></tr>
+<tr><td>Sair sem salvar</td><td><code>:q!</code></td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Descomentar da linha 5 à 9</h3>
+<div class="ex-code">:<input data-answer="5,9s/^#//|5,9s/^#/" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Achar a linha do MaxAuthTries</h3>
+<div class="ex-code"><input data-answer="/MaxAuthTries|/MaxAuth|/Max" aria-label="busca"></div>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">3. Qual é o jeito mais seguro de editar <code>/etc/ssh/sshd_config</code>?</p>
+<label><input type="radio" name="q3"> <code>vim /etc/ssh/sshd_config</code> e salvar com <code>:w!</code></label>
+<label><input type="radio" name="q3"> <code>sudo su</code> e depois <code>vim</code></label>
+<label><input type="radio" name="q3"> <code>sudoedit /etc/ssh/sshd_config</code> e testar com <code>sudo sshd -t</code></label>
+<label><input type="radio" name="q3"> Copiar o arquivo para o computador local por e-mail</label>
+</div>
+
+<div class="mc" data-answer="2">
+<p class="mc-q">4. O cursor está no <code>7</code> de <code>MaxAuthTries 7</code>. O que <code>3&lt;Ctrl-X&gt;</code> faz?</p>
+<label><input type="radio" name="q4"> Apaga 3 caracteres.</label>
+<label><input type="radio" name="q4"> Subtrai 3: o valor vira <code>4</code>.</label>
+<label><input type="radio" name="q4"> Recorta a linha.</label>
+<label><input type="radio" name="q4"> Soma 3: o valor vira <code>10</code>.</label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>/texto</code> leva direto à linha; não role a tela procurando.</li>
+  <li><code>cw</code> troca o valor sob o cursor; <code>:s/velho/novo/</code> troca na linha atual.</li>
+  <li><code>x</code> descomenta uma linha; <code>:2,$s/^#//</code> descomenta várias.</li>
+  <li><kbd>Ctrl</kbd>+<kbd>V</kbd>, <code>jj</code>, <code>I#</code>, <kbd>Esc</kbd> comenta um bloco.</li>
+  <li>No servidor: <code>sudoedit</code> para editar, <code>sshd -t</code> ou <code>nginx -t</code> para testar, e só então recarregar.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

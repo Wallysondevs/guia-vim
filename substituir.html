@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vim — substituir texto com :s e :%s | Guia Vim</title>
+<meta name="description" content="Aprenda o comando de substituição do Vim: :s, :%s, faixas de linhas, flags g e i, repetir com &, grupos \( \) e \1, quebrar linhas com \r e exemplos reais em arquivos de configuração.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="pager"></div>
+
+<h1>Vim <span class="hl">Substituir (:s)</span></h1>
+
+<p class="intro">"Trocar todas as ocorrências de X por Y" é uma das tarefas mais comuns ao editar texto. No Vim, ela é um comando de uma linha: <code>:%s/X/Y/g</code>. Parece código secreto, mas cada símbolo tem um papel simples. Nesta aula você vai desmontar esse comando peça por peça.</p>
+
+<div class="note">
+<strong>Você vai aprender</strong>
+<ul>
+  <li>A anatomia completa do <code>:s</code>: faixa, padrão, substituto e flags.</li>
+  <li>Trocar só na linha atual, num trecho ou no arquivo inteiro.</li>
+  <li>As flags <code>g</code>, <code>i</code>, <code>I</code>, <code>n</code> e <code>c</code>.</li>
+  <li>Reaproveitar o texto encontrado com <code>&amp;</code>, <code>\1</code>, <code>\u</code> e <code>\U</code>.</li>
+  <li>Exemplos reais: mudar uma porta, trocar aspas, colocar <code>;</code> no fim das linhas.</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>Antes de começar</strong>
+<p>O <code>:s</code> é um <strong>comando Ex</strong>: começa com <code>:</code> no modo normal e termina com <kbd>Enter</kbd>. O padrão usa as mesmas regras da busca com <code>/</code>; se ainda não viu, comece por <a href="busca.html">Buscar</a>.</p>
+</div>
+
+<hr>
+
+<h2>A anatomia do :s</h2>
+
+<dl class="anatomy">
+  <dt>:</dt><dd>Abre a linha de comando no rodapé.</dd>
+  <dt>%</dt><dd><strong>Faixa</strong>: em quais linhas trabalhar. <code>%</code> é "o arquivo inteiro". Sem faixa, só a linha do cursor.</dd>
+  <dt>s</dt><dd>O comando <em>substitute</em>, "substituir".</dd>
+  <dt>/gato</dt><dd>O <strong>padrão</strong>: o que procurar, entre barras.</dd>
+  <dt>/cão</dt><dd>O <strong>substituto</strong>: o que colocar no lugar.</dd>
+  <dt>/g</dt><dd>As <strong>flags</strong>: ajustes. <code>g</code> (de <em>global</em>) troca todas as ocorrências de cada linha, e não só a primeira.</dd>
+</dl>
+
+<p>Vamos montar esse comando em etapas, sempre no mesmo texto.</p>
+
+<hr>
+
+<h2>Só a linha atual: :s/gato/cão/</h2>
+<p>Sem faixa e sem flag, o <code>:s</code> troca <strong>apenas a primeira</strong> ocorrência, e <strong>apenas na linha do cursor</strong>:</p>
+
+<div class="vimdemo" data-file="historia.txt" data-keys=":s/gato/cão/&lt;CR&gt;">
+<pre class="vim-inicial">o gato viu o gato
+outro gato aqui
+sem nada</pre>
+</div>
+
+<p>Só o primeiro "gato" da linha 1 virou "cão". O segundo "gato" da mesma linha e o da linha 2 continuam iguais.</p>
+
+<h3>Todas as da linha: flag g</h3>
+<p>Com a flag <code>g</code> no final, todas as ocorrências da linha são trocadas:</p>
+
+<div class="vimdemo" data-file="historia.txt" data-keys=":s/gato/cão/g&lt;CR&gt;">
+<pre class="vim-inicial">o gato viu o gato
+outro gato aqui
+sem nada</pre>
+</div>
+
+<hr>
+
+<h2>O arquivo inteiro: :%s</h2>
+<p>O <code>%</code> antes do <code>s</code> estende o comando a todas as linhas. Juntando com o <code>g</code>, você tem o famoso "trocar tudo":</p>
+
+<div class="vimdemo" data-file="historia.txt" data-keys=":%s/gato/cão/g&lt;CR&gt;">
+<pre class="vim-inicial">o gato viu o gato
+outro gato aqui
+sem nada</pre>
+</div>
+
+<p>Agora o rodapé mostra <code>3 substituições em 2 linhas</code>: um resumo do que mudou. Em inglês, <code>3 substitutions on 2 lines</code>. O Vim só mostra esse resumo quando houve mais de duas trocas; com uma ou duas, ele fica em silêncio. Depois do comando, o cursor vai para a última linha alterada.</p>
+
+<div class="warning">
+<strong>Atenção</strong>
+<p><code>:%s</code> mexe no arquivo inteiro de uma vez. Se o resultado não for o esperado, aperte <code>u</code>: toda a substituição é desfeita num passo só.</p>
+</div>
+
+<hr>
+
+<h2>Faixas: escolhendo as linhas</h2>
+<p>A faixa vem entre o <code>:</code> e o <code>s</code>. Estas são as mais usadas:</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Faixa</th><th>Linhas</th><th>Exemplo</th></tr>
+<tr><td>(nada)</td><td>Só a linha do cursor</td><td><code>:s/a/b/</code></td></tr>
+<tr><td><code>%</code></td><td>O arquivo inteiro</td><td><code>:%s/a/b/g</code></td></tr>
+<tr><td><code>5</code></td><td>Só a linha 5</td><td><code>:5s/a/b/</code></td></tr>
+<tr><td><code>1,10</code></td><td>Da linha 1 à 10</td><td><code>:1,10s/a/b/g</code></td></tr>
+<tr><td><code>.,$</code></td><td>Da linha atual (<code>.</code>) até a última (<code>$</code>)</td><td><code>:.,$s/a/b/g</code></td></tr>
+<tr><td><code>.,+3</code></td><td>A linha atual e as 3 seguintes</td><td><code>:.,+3s/a/b/</code></td></tr>
+<tr><td><code>'&lt;,'&gt;</code></td><td>As linhas selecionadas no modo visual</td><td><code>:'&lt;,'&gt;s/a/b/g</code></td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="historia.txt" data-keys=":2s/gato/cão/&lt;CR&gt;">
+<pre class="vim-inicial">o gato viu o gato
+outro gato aqui
+sem nada</pre>
+</div>
+
+<h3>Selecionar e substituir</h3>
+<p>Quando é difícil saber os números das linhas, selecione-as no <a href="visual.html">modo visual</a> e aperte <code>:</code>. O Vim escreve <code>:'&lt;,'&gt;</code> sozinho no rodapé: é a faixa "da primeira à última linha selecionada". Aí é só completar com <code>s/…/…/</code>. Aqui, <code>Vjj</code> seleciona três linhas e o comando coloca <code>#</code> no começo de cada uma:</p>
+
+<div class="vimdemo" data-file="script.sh" data-keys="Vjj:s/^/# /&lt;CR&gt;">
+<pre class="vim-inicial">echo "um"
+echo "dois"
+echo "três"
+echo "fim"</pre>
+</div>
+
+<p>O <code>^</code> no padrão significa "começo da linha". Trocar "o começo da linha" por <code>#&#160;</code> é um jeito de inserir texto no início de várias linhas.</p>
+
+<hr>
+
+<h2>As flags</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Flag</th><th>Efeito</th><th>Exemplo</th></tr>
+<tr><td><code>g</code></td><td>Todas as ocorrências da linha, não só a primeira</td><td><code>:%s/a/b/g</code></td></tr>
+<tr><td><code>i</code></td><td>Ignora maiúsculas e minúsculas</td><td><code>:%s/gato/cão/gi</code></td></tr>
+<tr><td><code>I</code></td><td>Respeita maiúsculas, mesmo com <code>:set ignorecase</code></td><td><code>:%s/Ana/ANA/gI</code></td></tr>
+<tr><td><code>n</code></td><td>Não troca nada; só conta quantas ocorrências existem</td><td><code>:%s/erro//gn</code></td></tr>
+<tr><td><code>c</code></td><td>Pede confirmação a cada troca (<code>y</code> sim, <code>n</code> não, <code>a</code> todas, <code>q</code> sair)</td><td><code>:%s/a/b/gc</code></td></tr>
+<tr><td><code>e</code></td><td>Não mostra erro se não encontrar (útil em scripts)</td><td><code>:%s/a/b/ge</code></td></tr>
+</table>
+</div>
+
+<div class="vimdemo" data-file="historia.txt" data-keys=":%s/GATO/cão/gi&lt;CR&gt;">
+<pre class="vim-inicial">o gato viu o gato
+outro gato aqui
+sem nada</pre>
+</div>
+
+<p>O padrão está em maiúsculas, mas a flag <code>i</code> fez o Vim ignorar a diferença.</p>
+
+<div class="note">
+<strong>Contar sem trocar: a flag n</strong>
+<p><code>:%s/gato//gn</code> não altera o arquivo e responde no rodapé: <code>3 correspondências em 2 linhas</code> (em inglês, <code>3 matches on 2 lines</code>). É um jeito rápido de saber quantas vezes algo aparece.</p>
+</div>
+
+<div class="note">
+<strong>Confirmar cada troca: a flag c</strong>
+<p>No Vim real, <code>:%s/gato/cão/gc</code> para em cada ocorrência e pergunta <code>substituir por cão (y/n/a/q/l/^E/^Y)?</code>. Responda <code>y</code> para trocar, <code>n</code> para pular, <code>a</code> para trocar todas as restantes e <code>q</code> para parar. O simulador desta página não tem essa flag; experimente no seu terminal.</p>
+</div>
+
+<hr>
+
+<h2>Repetir a última substituição: &amp;</h2>
+<p>Fez um <code>:s</code> numa linha e quer o mesmo em outra? Vá até ela e aperte <code>&amp;</code>. Ele repete o último <code>:s</code> na linha atual. O comando <code>:&amp;</code> faz o mesmo, e <code>:%&amp;&amp;</code> repete em todas as linhas, com as mesmas flags.</p>
+
+<div class="vimdemo" data-file="historia.txt" data-keys=":s/gato/cão/&lt;CR&gt;j&amp;">
+<pre class="vim-inicial">o gato viu o gato
+outro gato aqui
+sem nada</pre>
+</div>
+
+<hr>
+
+<h2>Exemplos reais</h2>
+
+<h3>Mudar a porta num arquivo de configuração</h3>
+<div class="vimdemo" data-file="app.conf" data-keys=":%s/8080/9090/&lt;CR&gt;">
+<pre class="vim-inicial">porta = 8080
+host = localhost
+porta_admin = 8081</pre>
+</div>
+<p>Só uma linha tinha "8080", então o Vim trocou em silêncio. A <code>porta_admin = 8081</code> não foi afetada, porque "8081" não é "8080".</p>
+
+<h3>Aspas simples por duplas</h3>
+<div class="vimdemo" data-file="dados.py" data-keys=":%s/'/&quot;/g&lt;CR&gt;">
+<pre class="vim-inicial">nome = 'Ana'
+cidade = 'Recife'
+idade = 30</pre>
+</div>
+<p>Foram 4 trocas em 2 linhas, e o rodapé mostra o resumo.</p>
+
+<h3>Ponto e vírgula no fim de cada linha</h3>
+<p>Assim como <code>^</code> é o começo, <code>$</code> é o fim da linha. Trocar "o fim" por <code>;</code> acrescenta o caractere no final:</p>
+<div class="vimdemo" data-file="codigo.js" data-keys=":%s/$/;/&lt;CR&gt;">
+<pre class="vim-inicial">let a = 1
+let b = 2
+let c = 3</pre>
+</div>
+
+<h3>Quando o padrão tem uma barra</h3>
+<p>Endereços e caminhos têm <code>/</code>, que é o separador do <code>:s</code>. Em vez de escapar cada barra, troque o separador. O Vim aceita outros, como <code>#</code> ou <code>|</code>, desde que você use o mesmo nas três posições:</p>
+<pre class="term" data-title="duas formas equivalentes">:%s/http:\/\//https:\/\//g
+:%s#http://#https://#g</pre>
+
+<div class="vimtry" data-file="links.txt">
+<pre class="vim-inicial">site: http://exemplo.com
+docs: http://exemplo.com/docs
+blog: http://blog.exemplo.com</pre>
+<pre class="vim-meta">site: https://exemplo.com
+docs: https://exemplo.com/docs
+blog: https://blog.exemplo.com</pre>
+<p class="try-task"><strong>Missão:</strong> troque todos os "http://" por "https://" com um único comando. Dica: use <code>#</code> como separador.</p>
+</div>
+
+<hr>
+
+<h2>Reaproveitando o que foi encontrado</h2>
+<p>No substituto, alguns símbolos representam o texto que o padrão encontrou. Com eles você <strong>transforma</strong> o texto em vez de só trocar.</p>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>No substituto</th><th>Significa</th></tr>
+<tr><td><code>&amp;</code></td><td>Todo o texto encontrado</td></tr>
+<tr><td><code>\1</code>, <code>\2</code>…</td><td>O que casou com o 1º, 2º… grupo <code>\( \)</code> do padrão</td></tr>
+<tr><td><code>\r</code></td><td>Quebra de linha</td></tr>
+<tr><td><code>\u</code> / <code>\l</code></td><td>Próxima letra em maiúscula / minúscula</td></tr>
+<tr><td><code>\U</code> / <code>\L</code></td><td>Tudo daí em diante em maiúsculas / minúsculas</td></tr>
+<tr><td><code>\&amp;</code></td><td>Um <code>&amp;</code> de verdade</td></tr>
+</table>
+</div>
+
+<h3>&amp;: o texto encontrado</h3>
+<div class="vimdemo" data-file="precos.txt" data-keys=":s/[0-9]\+/R$ &amp;/g&lt;CR&gt;">
+<pre class="vim-inicial">preço 10 e 20 e 30</pre>
+</div>
+<p>O padrão <code>[0-9]\+</code> casa com "um ou mais dígitos". O <code>&amp;</code> devolve cada número encontrado, agora com "R$ " na frente.</p>
+
+<h3>Grupos: inverter "Sobrenome, Nome"</h3>
+<p>Partes do padrão entre <code>\(</code> e <code>\)</code> viram grupos numerados. No substituto, <code>\1</code> é o primeiro grupo e <code>\2</code> o segundo, e você pode mudá-los de ordem:</p>
+
+<dl class="anatomy">
+  <dt>\(\w\+\)</dt><dd>Grupo 1: uma ou mais letras (o sobrenome).</dd>
+  <dt>,&#160;</dt><dd>Uma vírgula e um espaço, que serão descartados.</dd>
+  <dt>\(\w\+\)</dt><dd>Grupo 2: o nome.</dd>
+  <dt>\2 \1</dt><dd>No substituto: o grupo 2, um espaço e o grupo 1.</dd>
+</dl>
+
+<div class="vimdemo" data-file="nomes.txt" data-keys=":%s/\(\w\+\), \(\w\+\)/\2 \1/&lt;CR&gt;">
+<pre class="vim-inicial">Silva, Ana
+Souza, Bruno
+Lima, Carla</pre>
+</div>
+
+<h3>\r: quebrar uma linha em várias</h3>
+<div class="vimdemo" data-file="frutas.txt" data-keys=":s/, /\r/g&lt;CR&gt;">
+<pre class="vim-inicial">maçã, banana, uva</pre>
+</div>
+<div class="warning">
+<strong>Cuidado: \r e \n</strong>
+<p>No <strong>substituto</strong>, quebra de linha é <code>\r</code>. Um <code>\n</code> ali insere um caractere estranho (<code>^@</code>). No <strong>padrão</strong> é o contrário: para encontrar uma quebra de linha, use <code>\n</code>.</p>
+</div>
+
+<h3>\u e \U: maiúsculas</h3>
+<div class="vimdemo" data-file="titulo.txt" data-keys=":s/\&lt;\w/\u&amp;/g&lt;CR&gt;">
+<pre class="vim-inicial">o rato roeu a roupa</pre>
+</div>
+<p>O padrão <code>\&lt;\w</code> casa com a primeira letra de cada palavra, e <code>\u&amp;</code> a devolve em maiúscula. Já <code>:s/erro/\U&amp;/</code> transformaria "erro" em "ERRO".</p>
+
+<div class="vimtry" data-file="contatos.txt">
+<pre class="vim-inicial">Silva, Ana
+Souza, Bruno
+Lima, Carla
+Rocha, Diego</pre>
+<pre class="vim-meta">Ana Silva
+Bruno Souza
+Carla Lima
+Diego Rocha</pre>
+<p class="try-task"><strong>Missão:</strong> deixe os nomes na ordem "Nome Sobrenome" com um único <code>:%s</code>, usando dois grupos <code>\( \)</code> e <code>\2 \1</code>.</p>
+</div>
+
+<hr>
+
+<h2>Formas diferentes de trocar texto</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Forma</th><th>Como</th><th>Quando usar</th></tr>
+<tr><td><code>:%s/a/b/g</code></td><td>Troca tudo de uma vez</td><td>Você tem certeza de que todas as ocorrências devem mudar.</td></tr>
+<tr><td><code>:%s/a/b/gc</code></td><td>Pergunta uma por uma</td><td>Algumas ocorrências devem ficar.</td></tr>
+<tr><td><code>/a</code>, <code>cw</code>, depois <code>n</code> e <code>.</code></td><td>Busca, troca a primeira, e repete com <code>n.</code> onde quiser</td><td>Você quer olhar cada caso, sem o comando longo.</td></tr>
+<tr><td><code>*</code> e <code>:%s//b/g</code></td><td>O padrão vazio reaproveita a última busca</td><td>A palavra já estava sob o cursor.</td></tr>
+<tr><td>Modo visual + <code>:s</code></td><td><code>:'&lt;,'&gt;s/a/b/g</code></td><td>Só um trecho do arquivo.</td></tr>
+</table>
+</div>
+
+<div class="vimtry" data-file="codigo.js">
+<pre class="vim-inicial">let x = 1
+let y = 2
+let z = x + y
+console.log(z)</pre>
+<pre class="vim-meta">let x = 1;
+let y = 2;
+let z = x + y;
+console.log(z)</pre>
+<p class="try-task"><strong>Missão:</strong> coloque <code>;</code> no fim só das três primeiras linhas. Use uma faixa (<code>:1,3s</code>) ou selecione com <code>Vjj</code> antes do <code>:</code>.</p>
+</div>
+
+<hr>
+
+<h2>Quando não funciona</h2>
+
+<div class="cenario">
+<strong>E486: Padrão não encontrado</strong>
+<p><strong>O que aconteceu:</strong> o padrão não existe na faixa escolhida. Lembre que, sem <code>%</code>, o <code>:s</code> só olha a linha do cursor.</p>
+<p><strong>Como resolver:</strong> confira maiúsculas (use a flag <code>i</code>), a faixa (<code>%</code>) e caracteres especiais como <code>.</code> e <code>*</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>Só trocou a primeira ocorrência de cada linha</strong>
+<p><strong>O que aconteceu:</strong> faltou a flag <code>g</code>.</p>
+<p><strong>Como resolver:</strong> <code>u</code> para desfazer e rode de novo com <code>g</code> no final. Ou, sem desfazer, repita com <code>:%s//cão/g</code> (padrão vazio = o último usado).</p>
+</div>
+
+<div class="cenario">
+<strong>Troquei "casa" e estraguei "casamento"</strong>
+<p><strong>O que aconteceu:</strong> o padrão casa com o texto em qualquer lugar, inclusive dentro de outras palavras.</p>
+<p><strong>Como resolver:</strong> use os limites de palavra: <code>:%s/\&lt;casa\&gt;/lar/g</code>. Veja <a href="regex.html">Expressões Regulares</a>.</p>
+</div>
+
+<div class="cenario">
+<strong>E488 ou "Caracteres em excesso" depois de um caminho com /</strong>
+<p><strong>O que aconteceu:</strong> as barras do caminho foram confundidas com os separadores do <code>:s</code>.</p>
+<p><strong>Como resolver:</strong> troque o separador: <code>:%s#/var/www#/srv/www#g</code>.</p>
+</div>
+
+<div class="cenario">
+<strong>A substituição estragou o arquivo inteiro</strong>
+<p><strong>Como resolver:</strong> <code>u</code> desfaz a substituição inteira de uma vez. Antes de comandos grandes, teste com a flag <code>n</code> para ver quantas ocorrências vão mudar.</p>
+</div>
+
+<hr>
+
+<h2>Referência</h2>
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Comando</th><th>O que faz</th></tr>
+<tr><td><code>:s/a/b/</code></td><td>Troca a primeira ocorrência na linha atual</td></tr>
+<tr><td><code>:s/a/b/g</code></td><td>Todas na linha atual</td></tr>
+<tr><td><code>:%s/a/b/g</code></td><td>Todas no arquivo</td></tr>
+<tr><td><code>:1,10s/a/b/g</code></td><td>Todas nas linhas 1 a 10</td></tr>
+<tr><td><code>:'&lt;,'&gt;s/a/b/g</code></td><td>Todas na seleção visual</td></tr>
+<tr><td><code>:%s/a/b/gc</code></td><td>Todas, perguntando uma a uma</td></tr>
+<tr><td><code>:%s/a//gn</code></td><td>Conta as ocorrências sem trocar</td></tr>
+<tr><td><code>&amp;</code> / <code>:&amp;</code></td><td>Repete o último <code>:s</code> na linha atual</td></tr>
+<tr><td><code>:%&amp;&amp;</code></td><td>Repete o último <code>:s</code>, com as mesmas flags, no arquivo todo</td></tr>
+<tr><td><code>:%s#a#b#g</code></td><td>O mesmo, com <code>#</code> como separador</td></tr>
+</table>
+</div>
+
+<hr>
+
+<h2>Exercícios</h2>
+
+<div class="exercise">
+<h3>1. Trocar tudo</h3>
+<p>Complete para trocar todas as ocorrências de "azul" por "verde" no arquivo inteiro:</p>
+<div class="ex-code">:<input data-answer="%s/azul/verde/g" aria-label="comando"></div>
+</div>
+
+<div class="exercise">
+<h3>2. Faixa</h3>
+<p>Complete para trocar só nas linhas 5 a 12:</p>
+<div class="ex-code">:<input data-answer="5,12" aria-label="faixa">s/azul/verde/g</div>
+</div>
+
+<div class="exercise">
+<h3>3. Só contar</h3>
+<p>Qual flag faz o <code>:%s/erro//g</code> apenas contar as ocorrências?</p>
+<div class="ex-code">:%s/erro//g<input data-answer="n" aria-label="flag"></div>
+</div>
+
+<div class="mc" data-answer="1">
+<p class="mc-q">4. O cursor está na linha 3. O que <code>:s/a/b/</code> faz?</p>
+<label><input type="radio" name="q4"> Troca o primeiro "a" da linha 3.</label>
+<label><input type="radio" name="q4"> Troca todos os "a" do arquivo.</label>
+<label><input type="radio" name="q4"> Troca todos os "a" da linha 3.</label>
+<label><input type="radio" name="q4"> Troca o primeiro "a" de cada linha.</label>
+</div>
+
+<div class="mc" data-answer="3">
+<p class="mc-q">5. No substituto, como você insere uma quebra de linha?</p>
+<label><input type="radio" name="q5"> <code>\n</code></label>
+<label><input type="radio" name="q5"> <code>&lt;Enter&gt;</code></label>
+<label><input type="radio" name="q5"> <code>\r</code></label>
+<label><input type="radio" name="q5"> <code>$</code></label>
+</div>
+
+<hr>
+
+<h2>Resumo</h2>
+<ul>
+  <li><code>:[faixa]s/padrão/substituto/[flags]</code>.</li>
+  <li>Sem faixa, só a linha atual; <code>%</code> é o arquivo todo; <code>'&lt;,'&gt;</code>, a seleção.</li>
+  <li><code>g</code> troca todas da linha; <code>i</code> ignora maiúsculas; <code>c</code> pergunta; <code>n</code> só conta.</li>
+  <li>No substituto: <code>&amp;</code> é o encontrado, <code>\1</code> um grupo, <code>\r</code> uma quebra de linha.</li>
+  <li><code>&amp;</code> repete a última troca; <code>u</code> desfaz tudo de uma vez.</li>
+</ul>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>

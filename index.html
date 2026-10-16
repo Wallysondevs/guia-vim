@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guia Vim — aprenda o Vim do zero</title>
+<meta name="description" content="Curso de Vim em português, do zero ao avançado: cada tecla explicada, demonstrações passo a passo e um Vim simulado no navegador para praticar. Vale para Linux, macOS e Windows.">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+</head>
+<body>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Tópicos"></nav>
+<main class="main">
+<div class="content">
+
+<div class="hero">
+<h1>Tutorial Vim</h1>
+<p>Aprenda o Vim do zero, como numa escola: cada tecla é explicada, você vê o resultado na tela e pratica num Vim simulado aqui mesmo no navegador. Vale para qualquer sistema: Linux, macOS e Windows.</p>
+<a class="btn btn-lg" href="o-que-e.html">Comece pelo Nível 1 &#10095;</a>
+</div>
+
+<div class="pager"></div>
+
+<div class="warning">
+<strong>O Vim abriu e você não consegue sair?</strong>
+<p>Aperte <kbd>Esc</kbd> duas vezes, digite <code>:q!</code> e aperte <kbd>Enter</kbd>. Isso sai <strong>sem salvar</strong>. Para salvar e sair, troque por <code>:wq</code>. Outros apuros (tela congelada, "gravando @q", aviso de swap) estão em <a href="socorro.html">Estou Preso no Vim!</a>.</p>
+</div>
+
+<h2>Experimente agora</h2>
+<p>A caixa abaixo é um Vim simulado. Ele funciona como o Vim de verdade, mas nada do que você digitar sai da página. Clique nela e siga a missão:</p>
+
+<div class="vimtry" data-file="boas-vindas.txt" data-col="14">
+<pre class="vim-inicial">Bem-vindo ao !</pre>
+<pre class="vim-meta">Bem-vindo ao Vim!</pre>
+<p class="try-task"><strong>Missão:</strong> o cursor está sobre o <code>!</code>. Aperte <kbd>i</kbd> (de <em>insert</em>, inserir), digite <code>Vim</code> e aperte <kbd>Esc</kbd>. Repare no rodapé: aparece <code>-- INSERÇÃO --</code> enquanto você digita.</p>
+</div>
+
+<p>Conseguiu? Você acabou de usar dois <strong>modos</strong> do Vim: o modo normal, em que as teclas são comandos, e o modo de inserção, em que elas viram texto. Essa é a ideia mais importante do Vim, e ela tem uma aula própria: <a href="modos.html">Os Modos do Vim</a>.</p>
+
+<hr>
+
+<h2>Como as aulas funcionam</h2>
+<p>Nenhuma tecla aparece sem explicação. Toda aula segue o mesmo caminho:</p>
+<ol class="passo">
+  <li><strong>O problema primeiro.</strong> Antes do comando, você entende o que ele resolve.</li>
+  <li><strong>Anatomia do comando.</strong> Cada tecla é numerada e explicada: o verbo, o movimento, o número.</li>
+  <li><strong>Demonstração passo a passo.</strong> Você aperta "Próxima tecla" e vê o que cada uma faz no texto.</li>
+  <li><strong>Formas diferentes de fazer.</strong> Quase sempre há mais de um caminho, e a aula mostra quando usar cada um.</li>
+  <li><strong>Quando não funciona.</strong> Os erros reais do Vim, por que acontecem e como sair deles.</li>
+  <li><strong>Experimente e exercícios.</strong> Missões no Vim simulado, que confere sozinho se você chegou ao resultado.</li>
+</ol>
+
+<p>Veja um exemplo de anatomia. O comando <code>3dw</code> apaga três palavras:</p>
+
+<dl class="anatomy">
+  <dt>3</dt><dd>Quantas vezes. Um número antes do comando repete o que vem depois.</dd>
+  <dt>d</dt><dd>O verbo: apagar (de <em>delete</em>).</dd>
+  <dt>w</dt><dd>O movimento: até a próxima palavra (de <em>word</em>).</dd>
+</dl>
+
+<p>E aqui ele em ação. Clique em <strong>Próxima tecla</strong> e observe o canto direito do rodapé: o Vim mostra o comando sendo montado antes de executá-lo.</p>
+
+<div class="vimdemo" data-file="frase.txt" data-col="3" data-keys="3dw">
+<pre class="vim-inicial">O rato roeu a roupa do rei de Roma</pre>
+</div>
+
+<p>"rato roeu a " saiu inteiro. Ler o Vim como uma língua, com verbos e movimentos, é o que a aula <a href="gramatica.html">Verbo + Movimento</a> ensina.</p>
+
+<hr>
+
+<h2>Como ler as telas</h2>
+<p>As caixas escuras imitam o Vim num terminal, com as cores padrão dele.</p>
+
+<div class="vimdemo" data-file="exemplo.txt" data-line="2" data-col="5">
+<pre class="vim-inicial">primeira linha
+segunda linha
+terceira linha</pre>
+</div>
+
+<div class="table-wrap">
+<table class="ref">
+<tr><th>Elemento</th><th>O que significa</th></tr>
+<tr><td>Quadrado claro</td><td>O cursor no modo normal: ele fica <strong>sobre</strong> um caractere.</td></tr>
+<tr><td>Barra fina</td><td>O cursor no modo de inserção: ele fica <strong>entre</strong> dois caracteres.</td></tr>
+<tr><td><code>~</code> azul</td><td>Linha que não existe no arquivo. O Vim preenche a tela com elas.</td></tr>
+<tr><td>Rodapé, à esquerda</td><td>Mensagens e modo atual (<code>-- INSERÇÃO --</code>, <code>-- VISUAL --</code>) ou o que você digita depois de <code>:</code>.</td></tr>
+<tr><td>Rodapé, no meio</td><td>O comando que você está montando (por exemplo <code>3d</code>). Chama-se <em>showcmd</em>.</td></tr>
+<tr><td><code>2,5</code></td><td>A régua: linha 2, coluna 5.</td></tr>
+<tr><td><code>Tudo</code></td><td>O arquivo inteiro cabe na tela. Em arquivos maiores aparece <code>Topo</code>, <code>Fim</code> ou uma porcentagem.</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>Mensagens em português</strong>
+<p>O Vim fala português quando o seu sistema está em pt-BR e o pacote completo está instalado. Por isso o guia mostra <code>-- INSERÇÃO --</code> e <code>E37: Alterações não foram gravadas</code>. Se o seu Vim estiver em inglês, você verá <code>-- INSERT --</code> e <code>E37: No write since last change</code>. Os comandos são idênticos.</p>
+</div>
+
+<hr>
+
+<h2>Escolha sua trilha</h2>
+<div class="trilhas">
+  <div class="trilha n1">
+    <h3>Nível 1 · Iniciante</h3>
+    <p>Para quem nunca abriu o Vim, ou abriu e se assustou.</p>
+    <ul>
+      <li>Instalar, abrir e sair sem pânico</li>
+      <li>Os modos e o cursor</li>
+      <li>Inserir, apagar, desfazer e salvar</li>
+      <li>Sair de qualquer apuro</li>
+    </ul>
+    <a class="btn" href="o-que-e.html">Começar &#10095;</a>
+  </div>
+  <div class="trilha n2">
+    <h3>Nível 2 · Intermediário</h3>
+    <p>Editar rápido de verdade.</p>
+    <ul>
+      <li>A gramática: verbo + movimento</li>
+      <li>Objetos de texto, copiar e colar</li>
+      <li>Buscar, substituir e modo visual</li>
+      <li>Vários arquivos, janelas e .vimrc</li>
+    </ul>
+    <a class="btn" href="gramatica.html">Começar &#10095;</a>
+  </div>
+  <div class="trilha n3">
+    <h3>Nível 3 · Avançado</h3>
+    <p>O Vim como ferramenta de trabalho.</p>
+    <ul>
+      <li>Macros e comandos Ex (<code>:g</code>, <code>:norm</code>)</li>
+      <li>Mapeamentos, autocomandos e Vimscript</li>
+      <li>Plugins, LSP e Vim como IDE</li>
+      <li>vimdiff, sessões e Neovim</li>
+    </ul>
+    <a class="btn" href="macros.html">Começar &#10095;</a>
+  </div>
+  <div class="trilha proj">
+    <h3>Projetos</h3>
+    <p>Situações reais, passo a passo.</p>
+    <ul>
+      <li>Editar configurações de servidor</li>
+      <li>Montar o seu .vimrc</li>
+      <li>Refatorar com macros</li>
+      <li>Desafios de Vim Golf</li>
+    </ul>
+    <a class="btn" href="projetos.html">Ver projetos &#10095;</a>
+  </div>
+</div>
+
+<div class="tip">
+<strong>A regra de ouro</strong>
+<p>O Vim se aprende com os dedos, não com os olhos. Faça cada missão, mesmo as fáceis. Na primeira semana você vai ser mais lento do que no seu editor de sempre; na segunda, mais rápido.</p>
+</div>
+
+<div class="pager"></div>
+
+</div>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>
