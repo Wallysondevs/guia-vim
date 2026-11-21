@@ -60,7 +60,7 @@
   <dt>jj.</dt><dd>Desce até "Uso" e repete a última alteração: outro <code>## </code>.</dd>
 </dl>
 
-<div class="vimtry" data-file="README.md">
+<div class="vimtry" data-file="README.md" data-solucao="I# &lt;Esc&gt;jjI## &lt;Esc&gt;jj.">
 <pre class="vim-inicial">Meu Projeto
 Um app de tarefas.
 Instalação
@@ -97,7 +97,7 @@ leve
 grátis</pre>
 </div>
 
-<div class="vimtry" data-file="README.md">
+<div class="vimtry" data-file="README.md" data-solucao="j&lt;C-v&gt;jjI- &lt;Esc&gt;">
 <pre class="vim-inicial">Recursos:
 rápido
 leve
@@ -135,7 +135,7 @@ Licença: MIT.</pre>
 
 <p>Depois do <code>dap</code>, o rodapé avisa <code>3 linhas a menos</code>: as duas do parágrafo e a linha em branco.</p>
 
-<div class="vimtry" data-file="README.md">
+<div class="vimtry" data-file="README.md" data-solucao="dap}p">
 <pre class="vim-inicial">Uso: rode o programa
 com ./app.
 
@@ -161,7 +161,7 @@ Licença: MIT.</pre>
 <h2>Etapa 4: juntar linhas quebradas</h2>
 <p>Textos colados de e-mail ou PDF chegam quebrados no meio da frase. O <code>J</code> (de <em>join</em>) junta a linha de baixo com a atual, pondo um espaço entre elas. <code>3J</code> junta três linhas.</p>
 
-<div class="vimtry" data-file="README.md">
+<div class="vimtry" data-file="README.md" data-solucao="3J">
 <pre class="vim-inicial">Esta frase está
 quebrada em
 três linhas.</pre>
@@ -189,7 +189,7 @@ três linhas.</pre>
   <dt>A |&lt;Esc&gt;</dt><dd>Acrescenta <code> |</code> no fim de cada linha.</dd>
 </dl>
 
-<div class="vimtry" data-file="README.md">
+<div class="vimtry" data-file="README.md" data-solucao="&lt;C-v&gt;jjI| &lt;Esc&gt;&lt;C-v&gt;jj$A |&lt;Esc&gt;">
 <pre class="vim-inicial">Nome Idade
 Ana 30
 Bruno 25</pre>
@@ -218,7 +218,7 @@ Bruno 25</pre>
 | Bruno | Natal  | 25    |</pre>
 </div>
 
-<div class="vimtry" data-file="README.md">
+<div class="vimtry" data-file="README.md" data-solucao="f|&lt;C-v&gt;jjt|d">
 <pre class="vim-inicial">| Nome  | Cidade | Idade |
 | Ana   | Recife | 30    |
 | Bruno | Natal  | 25    |</pre>

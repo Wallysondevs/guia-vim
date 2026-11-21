@@ -86,7 +86,7 @@
 
 <p>Com o cursor em "local", <code>ciW</code> trocou o caminho inteiro, porque para o <code>W</code> maiúsculo as barras fazem parte da palavra.</p>
 
-<div class="vimtry" data-file="variavel.py" data-col="10">
+<div class="vimtry" data-file="variavel.py" data-col="10" data-solucao="ciwsoma&lt;Esc&gt;">
 <pre class="vim-inicial">contador_total = contador_total + 1</pre>
 <pre class="vim-meta">soma = contador_total + 1</pre>
 <p class="try-task"><strong>Missão:</strong> o cursor está no meio do primeiro <code>contador_total</code>. Troque esse nome por <code>soma</code> sem mover o cursor antes. Lembre: o <code>_</code> faz parte da palavra.</p>
@@ -114,7 +114,7 @@
 
 <p>Com <code>a"</code>, as aspas vão junto (e um espaço depois delas, se houver). <code>da'</code> apaga a string inteira com aspas simples.</p>
 
-<div class="vimtry" data-file="config.js">
+<div class="vimtry" data-file="config.js" data-solucao="ci&quot;https://meusite.com.br&lt;Esc&gt;">
 <pre class="vim-inicial">const url = "http://localhost:3000"</pre>
 <pre class="vim-meta">const url = "https://meusite.com.br"</pre>
 <p class="try-task"><strong>Missão:</strong> troque o endereço inteiro por <code>https://meusite.com.br</code>. O cursor está no começo da linha, e você não precisa movê-lo.</p>
@@ -159,7 +159,7 @@
 
 <p>Com o parêntese, a chave ou o colchete <strong>embaixo do cursor</strong>, o objeto também funciona. E se o cursor estiver numa linha antes de qualquer parêntese, o Vim procura o primeiro bloco à direita na mesma linha.</p>
 
-<div class="vimtry" data-file="lista.py" data-col="12">
+<div class="vimtry" data-file="lista.py" data-col="12" data-solucao="ci[1, 2, 3&lt;Esc&gt;">
 <pre class="vim-inicial">numeros = [3, 1, 4, 1, 5, 9]</pre>
 <pre class="vim-meta">numeros = [1, 2, 3]</pre>
 <p class="try-task"><strong>Missão:</strong> troque o conteúdo da lista por <code>1, 2, 3</code>, mantendo os colchetes.</p>
@@ -180,7 +180,7 @@
 <pre class="vim-inicial">&lt;p&gt;Olá &lt;b&gt;mundo&lt;/b&gt;&lt;/p&gt;</pre>
 </div>
 
-<div class="vimtry" data-file="menu.html" data-line="3" data-col="9">
+<div class="vimtry" data-file="menu.html" data-line="3" data-col="9" data-solucao="citSobre&lt;Esc&gt;">
 <pre class="vim-inicial">&lt;ul&gt;
   &lt;li&gt;Início&lt;/li&gt;
   &lt;li&gt;Contato&lt;/li&gt;
@@ -211,7 +211,7 @@ Terceiro parágrafo.</pre>
 
 <p>Um uso clássico: <code>yap</code> copia um parágrafo (ou uma função inteira, se ela não tiver linhas vazias), e <code>&gt;ip</code> indenta um bloco de código.</p>
 
-<div class="vimtry" data-file="notas.md" data-line="5">
+<div class="vimtry" data-file="notas.md" data-line="5" data-solucao="dap">
 <pre class="vim-inicial">Lista de compras:
 - pão
 
@@ -327,7 +327,7 @@ Fim.</pre>
 <label><input type="radio" name="q4"> <code>iW</code></label>
 </div>
 
-<div class="vimtry" data-file="usuario.json" data-line="2">
+<div class="vimtry" data-file="usuario.json" data-line="2" data-solucao="/ful&lt;CR&gt;ci&quot;Ana&lt;Esc&gt;jf[di[">
 <pre class="vim-inicial">{
   "nome": "fulano",
   "tags": ["a", "b", "c"],

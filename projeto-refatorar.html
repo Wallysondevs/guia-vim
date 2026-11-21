@@ -68,7 +68,7 @@ print(total)</pre>
 
 <p>No último <code>n</code>, a busca chega ao fim do arquivo e volta para o começo. O rodapé avisa com <code>busca atingiu FIM; continuando do TOPO</code>.</p>
 
-<div class="vimtry" data-file="conta.py">
+<div class="vimtry" data-file="conta.py" data-solucao=":%s/\&lt;lt&gt;total\&gt;/soma/g&lt;CR&gt;">
 <pre class="vim-inicial">total = 0
 for preco in precos:
     total = total + preco
@@ -120,7 +120,7 @@ print(soma)</pre>
 3,Carla,Olinda</pre>
 </div>
 
-<div class="vimtry" data-file="clientes.csv">
+<div class="vimtry" data-file="clientes.csv" data-solucao="qaIINSERT INTO clientes VALUES (&lt;Esc&gt;f,a '&lt;Esc&gt;f,i'&lt;Esc&gt;f,a '&lt;Esc&gt;A');&lt;Esc&gt;jq2@a">
 <pre class="vim-inicial">1,Ana,Recife
 2,Bruno,Natal
 3,Carla,Olinda</pre>
@@ -160,7 +160,7 @@ ovos
 café</pre>
 </div>
 
-<div class="vimtry" data-file="compras.txt">
+<div class="vimtry" data-file="compras.txt" data-solucao="I1. &lt;Esc&gt;qa0yf j0P0&lt;C-a&gt;q2@a">
 <pre class="vim-inicial">pão
 leite
 ovos
@@ -190,7 +190,7 @@ café</pre>
   <dt>u</dt><dd>Mantém só uma cópia de cada linha igual.</dd>
 </dl>
 
-<div class="vimtry" data-file="frutas.txt">
+<div class="vimtry" data-file="frutas.txt" data-solucao=":sort u&lt;CR&gt;">
 <pre class="vim-inicial">uva
 banana
 maçã
@@ -229,7 +229,7 @@ uva</pre>
 
 <p>Como foram 3 linhas apagadas, o rodapé avisa <code>3 linhas a menos</code>.</p>
 
-<div class="vimtry" data-file="app.log">
+<div class="vimtry" data-file="app.log" data-solucao=":g/DEBUG/d&lt;CR&gt;">
 <pre class="vim-inicial">10:00 INFO servidor iniciado
 10:01 DEBUG conexão aberta
 10:01 DEBUG lendo config
@@ -248,7 +248,7 @@ uva</pre>
 <h3>O contrário: manter só o que interessa</h3>
 <p>O <code>:v</code> (ou <code>:g!</code>) age nas linhas que <strong>não</strong> combinam. <code>:v/ERRO/d</code> apaga tudo que não é erro.</p>
 
-<div class="vimtry" data-file="app.log">
+<div class="vimtry" data-file="app.log" data-solucao=":v/ERRO/d&lt;CR&gt;">
 <pre class="vim-inicial">10:00 INFO servidor iniciado
 10:01 DEBUG conexão aberta
 10:01 DEBUG lendo config

@@ -45,7 +45,7 @@ segunda linha</pre>
 </div>
 ```
 - Sem `pre.vim-meta` = treino livre. `data-max-keys` = desafio de poucas teclas (Vim Golf). `data-save="1"` = exige `:w`.
-- Teste toda missão no motor antes de publicar (veja a seção 5). A missão não pode começar cumprida.
+- `data-solucao`: as teclas de uma solução, na notação de `data-keys` (não aparecem na página). Rode `node tools/testar-missoes.js` antes de publicar: ele digita a solução no motor e confere a meta, o `:w` e o limite de teclas. A missão não pode começar cumprida.
 
 ### Outros
 `dl.anatomy` (anatomia de teclas), `pre.term` (sessão de shell: `$ vim notas.txt`), `pre.file data-file="~/.vimrc"` (arquivos de configuração), `div.cenario`, `ol.passo`, `.note/.tip/.warning`, `table.ref`, `.exercise` com `input[data-answer="4dd|d3j"]`, `.mc`. Teclas avulsas em `<kbd>`, comandos em `<code>`.

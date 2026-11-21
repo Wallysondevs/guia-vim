@@ -71,7 +71,7 @@ MaxAuthTries 6</pre>
 
 <p>Repare que, ao apertar <kbd>Enter</kbd>, o rodapé mostra <code>/Root</code>: é o Vim confirmando o que buscou. Agora faça você:</p>
 
-<div class="vimtry" data-file="sshd_config">
+<div class="vimtry" data-file="sshd_config" data-solucao="/Root&lt;CR&gt;wcwno&lt;Esc&gt;">
 <pre class="vim-inicial"># Configuração do servidor SSH
 #Port 22
 PermitRootLogin yes
@@ -104,7 +104,7 @@ MaxAuthTries 6</pre>
   <dt>a22&lt;Esc&gt;</dt><dd>Acrescenta (<em>append</em>) <code>22</code> depois do cursor: <code>22</code> vira <code>2222</code>.</dd>
 </dl>
 
-<div class="vimtry" data-file="sshd_config">
+<div class="vimtry" data-file="sshd_config" data-solucao="/#Port&lt;CR&gt;x$a22&lt;Esc&gt;">
 <pre class="vim-inicial"># Configuração do servidor SSH
 #Port 22
 PermitRootLogin yes
@@ -143,7 +143,7 @@ MaxAuthTries 6</pre>
   <dt>&lt;Enter&gt;</dt><dd>Executa.</dd>
 </dl>
 
-<div class="vimtry" data-file="sshd_config">
+<div class="vimtry" data-file="sshd_config" data-solucao="/Password&lt;CR&gt;:s/yes/no/&lt;CR&gt;">
 <pre class="vim-inicial"># Configuração do servidor SSH
 #Port 22
 PermitRootLogin yes
@@ -190,7 +190,7 @@ X11Forwarding yes
 MaxAuthTries 6</pre>
 </div>
 
-<div class="vimtry" data-file="sshd_config">
+<div class="vimtry" data-file="sshd_config" data-solucao=":2,$s/^#//&lt;CR&gt;">
 <pre class="vim-inicial"># Configuração do servidor SSH
 #Port 22
 PermitRootLogin yes
@@ -237,7 +237,7 @@ MaxAuthTries 6</pre>
 
 <p>Avance tecla por tecla e veja: depois do <code>I#</code> só a primeira linha tem <code>#</code>; o <kbd>Esc</kbd> completa as outras duas.</p>
 
-<div class="vimtry" data-file="nginx.conf">
+<div class="vimtry" data-file="nginx.conf" data-solucao="/location&lt;CR&gt;0&lt;C-v&gt;jjI#&lt;Esc&gt;">
 <pre class="vim-inicial">server {
     listen 80;
     server_name exemplo.com;
@@ -271,7 +271,7 @@ MaxAuthTries 6</pre>
   <dt>:w&lt;Enter&gt;</dt><dd>Salva (<em>write</em>). O rodapé confirma com <code>"nginx.conf" 4L, ...B gravado(s)</code>.</dd>
 </dl>
 
-<div class="vimtry" data-file="nginx.conf" data-save="1">
+<div class="vimtry" data-file="nginx.conf" data-save="1" data-solucao="wcwauto&lt;Esc&gt;/768&lt;CR&gt;256&lt;C-a&gt;:w&lt;CR&gt;">
 <pre class="vim-inicial">worker_processes 1;
 events {
     worker_connections 768;

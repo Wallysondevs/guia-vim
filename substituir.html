@@ -204,7 +204,7 @@ let c = 3</pre>
 <pre class="term" data-title="duas formas equivalentes">:%s/http:\/\//https:\/\//g
 :%s#http://#https://#g</pre>
 
-<div class="vimtry" data-file="links.txt">
+<div class="vimtry" data-file="links.txt" data-solucao=":%s#http://#https://#&lt;CR&gt;">
 <pre class="vim-inicial">site: http://exemplo.com
 docs: http://exemplo.com/docs
 blog: http://blog.exemplo.com</pre>
@@ -268,7 +268,7 @@ Lima, Carla</pre>
 </div>
 <p>O padrão <code>\&lt;\w</code> casa com a primeira letra de cada palavra, e <code>\u&amp;</code> a devolve em maiúscula. Já <code>:s/erro/\U&amp;/</code> transformaria "erro" em "ERRO".</p>
 
-<div class="vimtry" data-file="contatos.txt">
+<div class="vimtry" data-file="contatos.txt" data-solucao=":%s/\(\w\+\), \(\w\+\)/\2 \1/&lt;CR&gt;">
 <pre class="vim-inicial">Silva, Ana
 Souza, Bruno
 Lima, Carla
@@ -294,7 +294,7 @@ Diego Rocha</pre>
 </table>
 </div>
 
-<div class="vimtry" data-file="codigo.js">
+<div class="vimtry" data-file="codigo.js" data-solucao=":1,3s/$/;/&lt;CR&gt;">
 <pre class="vim-inicial">let x = 1
 let y = 2
 let z = x + y

@@ -81,7 +81,7 @@ linha quatro</pre>
 <p>O <code>i</code> minúsculo no modo de bloco não insere em todas as linhas. E não saia com as setas nem com o mouse: o texto só é copiado para as outras linhas quando você aperta <kbd>Esc</kbd>.</p>
 </div>
 
-<div class="vimtry" data-file="script.sh">
+<div class="vimtry" data-file="script.sh" data-solucao="&lt;C-v&gt;jjI# &lt;Esc&gt;">
 <pre class="vim-inicial">echo "backup"
 rm -rf /tmp/teste
 echo "limpeza"
@@ -106,7 +106,7 @@ echo "fim"</pre>
 
 <p>O bloco cobriu 3 colunas (<code>//</code> e o espaço) nas 3 linhas. O <code>d</code> removeu exatamente esse retângulo.</p>
 
-<div class="vimtry" data-file="codigo.js">
+<div class="vimtry" data-file="codigo.js" data-solucao="&lt;C-v&gt;jjlld">
 <pre class="vim-inicial">// let a = 1
 // let b = 2
 // let c = 3
@@ -140,7 +140,7 @@ bb = 2
 ccc = 3</pre>
 </div>
 
-<div class="vimtry" data-file="lista.js">
+<div class="vimtry" data-file="lista.js" data-solucao="&lt;C-v&gt;jj$A,&lt;Esc&gt;">
 <pre class="vim-inicial">"maçã"
 "banana"
 "uva"

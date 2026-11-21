@@ -92,7 +92,7 @@ listar(".")</pre>
   <dt>:set smartcase</dt><dd>Mas, se você digitar alguma maiúscula, volta a diferenciar (abreviação: <code>scs</code>). <code>/ana</code> acha "Ana" e "ana"; <code>/Ana</code> só acha "Ana".</dd>
 </dl>
 
-<div class="vimtry" data-file="cadastro.txt">
+<div class="vimtry" data-file="cadastro.txt" data-solucao=":set ic&lt;CR&gt;/ana&lt;CR&gt;D">
 <pre class="vim-inicial">Nome: Ana Maria</pre>
 <pre class="vim-meta">Nome: </pre>
 <p class="try-task"><strong>Missão:</strong> primeiro tente <code>/ana</code> e veja o erro <code>E486</code>. Depois ligue <code>:set ignorecase</code>, busque <code>/ana</code> de novo e apague do cursor até o fim com <code>D</code>.</p>
@@ -137,7 +137,7 @@ print("oi")</pre>
 print("oi")</pre>
 </div>
 
-<div class="vimtry" data-file="ola.py">
+<div class="vimtry" data-file="ola.py" data-solucao=":set sw=4 et&lt;CR&gt;j&gt;j">
 <pre class="vim-inicial">def ola():
 print("oi")
 return 0</pre>
@@ -178,7 +178,7 @@ nnoremap &lt;leader&gt;h :nohlsearch&lt;CR&gt;     " espaço + h apaga o destaqu
 <h2>Etapa 5: escrever e salvar o arquivo</h2>
 <p>Primeiro um aquecimento no simulador: escreva um <code>.vimrc</code> pequeno e salve.</p>
 
-<div class="vimtry" data-file=".vimrc" data-save="1">
+<div class="vimtry" data-file=".vimrc" data-save="1" data-solucao="iset number&lt;CR&gt;set ignorecase&lt;CR&gt;set smartcase&lt;Esc&gt;:w&lt;CR&gt;">
 <pre class="vim-inicial"></pre>
 <pre class="vim-meta">set number
 set ignorecase

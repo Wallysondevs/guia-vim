@@ -25,3 +25,16 @@ Envie a pasta para um repositório e ative **Settings → Pages → Deploy from 
 ## Adicionar uma aula
 
 Leia `CONTRIBUINDO.md`, copie `apagar.html` (a página-modelo) e inclua a página na lista `NIVEIS` de `assets/site.js`.
+
+## Testes
+
+Precisa só do Node (18 ou mais novo) e do Bash. Rode na pasta do guia:
+
+```
+node tools/testar-missoes.js
+node tools/testar-missoes.js --vim-real
+PROIBIDO=/caminho/fora/do/repositorio/proibido.txt tools/checar-privacidade.sh
+```
+
+- `tools/testar-missoes.js` roda cada missão (`div.vimtry`) no mesmo Vim simulado do site: o texto inicial não pode já ser a meta, nem digitar a meta em modo de inserção pode cumprir a missão; com as teclas de `data-solucao` o texto tem de chegar na meta (salvo, se `data-save="1"`) e caber no `data-max-keys`. Também roda as demonstrações e confere os exercícios. Com `--vim-real`, cada solução roda também no `vim.tiny` de verdade.
+- `tools/checar-privacidade.sh` procura, nas páginas e em todo o histórico do git, as strings da lista apontada por `PROIBIDO` (nomes, pastas e IPs reais, uma por linha; `re:` no começo = expressão regular). A lista fica fora do repositório.

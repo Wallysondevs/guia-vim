@@ -49,7 +49,7 @@
 
 <h3>F1. Letras trocadas</h3>
 <p>"Lniux" tem duas letras trocadas. Meta: <code>Linux</code>. Limite: 3 teclas.</p>
-<div class="vimtry" data-file="f1.txt" data-max-keys="3">
+<div class="vimtry" data-file="f1.txt" data-max-keys="3" data-solucao="lxp">
 <pre class="vim-inicial">Lniux</pre>
 <pre class="vim-meta">Linux</pre>
 <p class="try-task"><strong>Desafio F1:</strong> conserte a palavra em até 3 teclas.</p>
@@ -60,7 +60,7 @@
 
 <h3>F2. Linhas na ordem errada</h3>
 <p>Meta: <code>primeira</code> em cima de <code>segunda</code>. Limite: 3 teclas.</p>
-<div class="vimtry" data-file="f2.txt" data-max-keys="3">
+<div class="vimtry" data-file="f2.txt" data-max-keys="3" data-solucao="ddp">
 <pre class="vim-inicial">segunda
 primeira</pre>
 <pre class="vim-meta">primeira
@@ -73,7 +73,7 @@ segunda</pre>
 
 <h3>F3. Grite o erro</h3>
 <p>Meta: <code>ERRO FATAL</code>. Limite: 3 teclas.</p>
-<div class="vimtry" data-file="f3.txt" data-max-keys="3">
+<div class="vimtry" data-file="f3.txt" data-max-keys="3" data-solucao="gUU">
 <pre class="vim-inicial">erro fatal</pre>
 <pre class="vim-meta">ERRO FATAL</pre>
 <p class="try-task"><strong>Desafio F3:</strong> deixe a linha toda em maiúsculas em até 3 teclas.</p>
@@ -84,7 +84,7 @@ segunda</pre>
 
 <h3>F4. Só as duas primeiras</h3>
 <p>Meta: manter só as linhas <code>1</code> e <code>2</code>. Limite: 4 teclas.</p>
-<div class="vimtry" data-file="f4.txt" data-max-keys="4">
+<div class="vimtry" data-file="f4.txt" data-max-keys="4" data-solucao="3GdG">
 <pre class="vim-inicial">1
 2
 3
@@ -104,7 +104,7 @@ segunda</pre>
 
 <h3>M1. Quatro iguais</h3>
 <p>Meta: a linha <code>linha</code> repetida 4 vezes. Limite: 4 teclas.</p>
-<div class="vimtry" data-file="m1.txt" data-max-keys="4">
+<div class="vimtry" data-file="m1.txt" data-max-keys="4" data-solucao="yy3p">
 <pre class="vim-inicial">linha</pre>
 <pre class="vim-meta">linha
 linha
@@ -118,7 +118,7 @@ linha</pre>
 
 <h3>M2. Esvaziar as aspas</h3>
 <p>Meta: <code>msg = ""</code>. Limite: 3 teclas. O cursor está no começo da linha, longe das aspas.</p>
-<div class="vimtry" data-file="m2.py" data-max-keys="3">
+<div class="vimtry" data-file="m2.py" data-max-keys="3" data-solucao="di&quot;">
 <pre class="vim-inicial">msg = "texto antigo"</pre>
 <pre class="vim-meta">msg = ""</pre>
 <p class="try-task"><strong>Desafio M2:</strong> apague o que está dentro das aspas em até 3 teclas.</p>
@@ -129,7 +129,7 @@ linha</pre>
 
 <h3>M3. Novos argumentos</h3>
 <p>Meta: <code>soma(x)</code>. Limite: 5 teclas.</p>
-<div class="vimtry" data-file="m3.py" data-max-keys="5">
+<div class="vimtry" data-file="m3.py" data-max-keys="5" data-solucao="ci(x&lt;Esc&gt;">
 <pre class="vim-inicial">soma(a, b)</pre>
 <pre class="vim-meta">soma(x)</pre>
 <p class="try-task"><strong>Desafio M3:</strong> troque os argumentos por <code>x</code> em até 5 teclas.</p>
@@ -140,7 +140,7 @@ linha</pre>
 
 <h3>M4. Frase partida</h3>
 <p>Meta: <code>um dois três</code> numa linha só. Limite: 2 teclas.</p>
-<div class="vimtry" data-file="m4.txt" data-max-keys="2">
+<div class="vimtry" data-file="m4.txt" data-max-keys="2" data-solucao="3J">
 <pre class="vim-inicial">um
 dois
 três</pre>
@@ -157,7 +157,7 @@ três</pre>
 
 <h3>D1. Domínio novo</h3>
 <p>Meta: <code>url = http://novo.com/pagina</code>. Limite: 10 teclas.</p>
-<div class="vimtry" data-file="d1.conf" data-max-keys="10">
+<div class="vimtry" data-file="d1.conf" data-max-keys="10" data-solucao="fact.novo&lt;Esc&gt;">
 <pre class="vim-inicial">url = http://antigo.com/pagina</pre>
 <pre class="vim-meta">url = http://novo.com/pagina</pre>
 <p class="try-task"><strong>Desafio D1:</strong> troque <code>antigo</code> por <code>novo</code> em até 10 teclas.</p>
@@ -168,7 +168,7 @@ três</pre>
 
 <h3>D2. De trás para frente</h3>
 <p>Meta: as 4 linhas em ordem invertida. Limite: 8 teclas.</p>
-<div class="vimtry" data-file="d2.txt" data-max-keys="8">
+<div class="vimtry" data-file="d2.txt" data-max-keys="8" data-solucao=":g/^/m0&lt;CR&gt;">
 <pre class="vim-inicial">1. acordar
 2. café
 3. trabalhar
@@ -185,7 +185,7 @@ três</pre>
 
 <h3>D3. Comentar quatro linhas</h3>
 <p>Meta: <code>#</code> no começo de cada linha. Limite: 6 teclas.</p>
-<div class="vimtry" data-file="d3.sh" data-max-keys="6">
+<div class="vimtry" data-file="d3.sh" data-max-keys="6" data-solucao="&lt;C-v&gt;3jI#&lt;Esc&gt;">
 <pre class="vim-inicial">a
 b
 c
@@ -202,7 +202,7 @@ d</pre>
 
 <h3>D4. Espaços fantasmas</h3>
 <p>As linhas têm espaços sobrando no fim. Neste desafio a opção <code>list</code> está ligada: o <code>$</code> azul mostra onde cada linha termina. Meta: tirar todos os espaços do fim. Limite: 10 teclas.</p>
-<div class="vimtry" data-file="d4.txt" data-max-keys="10" data-set="list">
+<div class="vimtry" data-file="d4.txt" data-max-keys="10" data-set="list" data-solucao=":%s/ *$//&lt;CR&gt;">
 <pre class="vim-inicial">a   
 b 
 c  </pre>

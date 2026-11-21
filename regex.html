@@ -224,7 +224,7 @@ apagar 2</pre>
 
 <p>Você aprende mais sobre <code>:g</code> em <a href="ex-avancado.html">Comandos Ex</a>.</p>
 
-<div class="vimtry" data-file="config.ini">
+<div class="vimtry" data-file="config.ini" data-solucao=":g/^;/d&lt;CR&gt;">
 <pre class="vim-inicial">; comentário 1
 nome = app
 ; comentário 2
@@ -253,7 +253,7 @@ debug = sim</pre>
 </table>
 </div>
 
-<div class="vimtry" data-file="limpar.txt" data-text="linha com espaço no fim   \noutra linha  \nsem espaço\núltima\t">
+<div class="vimtry" data-file="limpar.txt" data-text="linha com espaço no fim   \noutra linha  \nsem espaço\núltima\t" data-solucao=":%s/\s\+$//&lt;CR&gt;">
 <pre class="vim-meta">linha com espaço no fim
 outra linha
 sem espaço

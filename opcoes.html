@@ -142,7 +142,7 @@ ERRO grave</pre>
 
 <p>Só <code>erro</code> minúsculo foi pintado: sem <code>ignorecase</code>, <code>Erro</code> e <code>ERRO</code> são outras palavras.</p>
 
-<div class="vimtry" data-file="log.txt" data-line="1">
+<div class="vimtry" data-file="log.txt" data-line="1" data-solucao=":set ignorecase&lt;CR&gt;:g/erro/d&lt;CR&gt;">
 <pre class="vim-inicial">Erro no login
 erro de rede
 servidor ok
@@ -167,7 +167,7 @@ backup ok</pre>
 
 <p>Para Python e muitos outros projetos, o comum é indentar com 4 espaços: <code>:set sw=4 ts=4 sts=4 et</code>.</p>
 
-<div class="vimtry" data-file="teste.py">
+<div class="vimtry" data-file="teste.py" data-solucao=":set sw=4 et&lt;CR&gt;j&gt;&gt;j&gt;&gt;">
 <pre class="vim-inicial">if pronto:
 print("ok")
 print("fim")</pre>

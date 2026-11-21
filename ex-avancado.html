@@ -107,7 +107,7 @@ morango</pre>
 
 <p>Só as três primeiras linhas (as selecionadas) foram ordenadas. As duas últimas ficaram onde estavam.</p>
 
-<div class="vimtry" data-file="itens.txt" data-set="number" data-line="1">
+<div class="vimtry" data-file="itens.txt" data-set="number" data-line="1" data-solucao=":3,6d&lt;CR&gt;">
 <pre class="vim-inicial">manter 1
 manter 2
 apagar A
@@ -214,7 +214,7 @@ z = 3</pre>
 <p>Escrever <code>&lt;Esc&gt;</code> no <code>:norm</code> digita os 5 caracteres literalmente, e não a tecla <kbd>Esc</kbd>. Para incluir um Esc no meio, digite <kbd>Ctrl</kbd>+<kbd>V</kbd> e depois <kbd>Esc</kbd> (aparece <code>^[</code>), ou use Vimscript: <code>:exe "norm Afim\&lt;Esc&gt;Iinício"</code>.</p>
 </div>
 
-<div class="vimtry" data-file="query.sql">
+<div class="vimtry" data-file="query.sql" data-solucao=":%norm I-- &lt;CR&gt;">
 <pre class="vim-inicial">SELECT nome
 FROM clientes
 WHERE ativo = 1
@@ -314,7 +314,7 @@ linha três</pre>
 <p>No Vim simulado, o <code>:g</code> pode falhar quando várias linhas casadas são idênticas (como duas linhas vazias seguidas). No Vim real ele funciona sempre. Por isso esse exemplo aparece como antes e depois.</p>
 </div>
 
-<div class="vimtry" data-file="log.txt">
+<div class="vimtry" data-file="log.txt" data-solucao=":v/ERRO/d&lt;CR&gt;">
 <pre class="vim-inicial">10:01 INFO servidor iniciado
 10:02 ERRO disco cheio
 10:03 INFO usuário entrou
@@ -358,7 +358,7 @@ Banana</pre>
 
 <p>E sem o <code>n</code>, números são comparados como texto: "120" vem antes de "30", porque "1" vem antes de "3". Com <code>:sort n</code>, a ordem fica a numérica:</p>
 
-<div class="vimtry" data-file="estoque.txt">
+<div class="vimtry" data-file="estoque.txt" data-solucao=":sort n&lt;CR&gt;">
 <pre class="vim-inicial">30 ovos
 4 maçãs
 120 grãos
@@ -476,7 +476,7 @@ Banana</pre>
 <label><input type="radio" name="q5"> <code>:%norm OK</code></label>
 </div>
 
-<div class="vimtry" data-file="tarefas.md">
+<div class="vimtry" data-file="tarefas.md" data-solucao=":v/TODO/m$&lt;CR&gt;">
 <pre class="vim-inicial">comprar pão
 TODO: pagar luz
 ligar para o banco

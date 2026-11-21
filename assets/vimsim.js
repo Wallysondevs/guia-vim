@@ -1486,8 +1486,16 @@
         if (depoisG.length < antesG.length && idx < pre) pre = idx; // apagou a própria linha: a mudança começa nela
         while (suf < antesG.length - pre && suf < depoisG.length - pre && antesG[antesG.length - 1 - suf] === depoisG[depoisG.length - 1 - suf]) suf++;
         var fimVelho = antesG.length - suf, delta = depoisG.length - antesG.length, apagouAtual = depoisG.length < antesG.length && idx >= pre && idx < fimVelho;
+        // :m dentro do :g troca linhas de lugar sem mudar o total: acompanha a rotação
+        var rotEsq = false, rotDir = false;
+        if (delta === 0 && fimVelho - pre >= 2) {
+          rotEsq = antesG[pre] === depoisG[fimVelho - 1] && antesG.slice(pre + 1, fimVelho).join("\n") === depoisG.slice(pre, fimVelho - 1).join("\n");
+          rotDir = !rotEsq && antesG[fimVelho - 1] === depoisG[pre] && antesG.slice(pre, fimVelho - 1).join("\n") === depoisG.slice(pre + 1, fimVelho).join("\n");
+        }
         for (var mj = mi + 1; mj < marc.length; mj++) {
-          if (marc[mj] >= fimVelho) marc[mj] += delta;
+          if (rotEsq && marc[mj] >= pre && marc[mj] < fimVelho) marc[mj] = marc[mj] === pre ? fimVelho - 1 : marc[mj] - 1;
+          else if (rotDir && marc[mj] >= pre && marc[mj] < fimVelho) marc[mj] = marc[mj] === fimVelho - 1 ? pre : marc[mj] + 1;
+          else if (marc[mj] >= fimVelho) marc[mj] += delta;
           else if (marc[mj] >= pre && delta < 0 && marc[mj] < pre - delta) marc[mj] = -1;
         }
       }

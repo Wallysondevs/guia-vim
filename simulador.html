@@ -103,7 +103,7 @@ nome = "Ana Maria"</pre>
 <p>Cada missão usa um comando do Nível 1. Faça na ordem; se travar, abra "Ver uma solução", mas tente antes. Clique na janela antes de digitar.</p>
 
 <h3>Missão 1: apagar uma letra</h3>
-<div class="vimtry" data-file="m1.txt" data-col="6">
+<div class="vimtry" data-file="m1.txt" data-col="6" data-solucao="x">
 <pre class="vim-inicial">O Vimm é rápido.</pre>
 <pre class="vim-meta">O Vim é rápido.</pre>
 <p class="try-task">O cursor está sobre o <code>m</code> sobrando. Apague-o.</p>
@@ -111,7 +111,7 @@ nome = "Ana Maria"</pre>
 <details><summary>Ver uma solução</summary><p><kbd>x</kbd> apaga o caractere sob o cursor. Veja <a href="apagar.html">Apagar</a>.</p></details>
 
 <h3>Missão 2: inserir uma palavra</h3>
-<div class="vimtry" data-file="m2.txt" data-col="10">
+<div class="vimtry" data-file="m2.txt" data-col="10" data-solucao="ido &lt;Esc&gt;">
 <pre class="vim-inicial">Eu gosto Vim.</pre>
 <pre class="vim-meta">Eu gosto do Vim.</pre>
 <p class="try-task">O cursor está no <code>V</code>. Escreva "do " antes dele.</p>
@@ -119,7 +119,7 @@ nome = "Ana Maria"</pre>
 <details><summary>Ver uma solução</summary><p><kbd>i</kbd>, digite <code>do </code> (com o espaço) e <kbd>Esc</kbd>. Veja <a href="inserir.html">Inserir Texto</a>.</p></details>
 
 <h3>Missão 3: acrescentar no fim da linha</h3>
-<div class="vimtry" data-file="m3.txt">
+<div class="vimtry" data-file="m3.txt" data-solucao="A:&lt;Esc&gt;">
 <pre class="vim-inicial">Lista de tarefas</pre>
 <pre class="vim-meta">Lista de tarefas:</pre>
 <p class="try-task">Coloque dois-pontos no fim da linha, sem andar com o cursor até lá.</p>
@@ -127,7 +127,7 @@ nome = "Ana Maria"</pre>
 <details><summary>Ver uma solução</summary><p><kbd>A</kbd> (maiúsculo) começa a escrever no fim da linha: <kbd>A</kbd>, <kbd>:</kbd>, <kbd>Esc</kbd>.</p></details>
 
 <h3>Missão 4: abrir uma linha nova</h3>
-<div class="vimtry" data-file="m4.txt" data-line="2">
+<div class="vimtry" data-file="m4.txt" data-line="2" data-solucao="oovos&lt;Esc&gt;">
 <pre class="vim-inicial">pão
 leite</pre>
 <pre class="vim-meta">pão
@@ -138,7 +138,7 @@ ovos</pre>
 <details><summary>Ver uma solução</summary><p><kbd>o</kbd> abre uma linha abaixo e já entra no modo de inserção: <kbd>o</kbd>, <code>ovos</code>, <kbd>Esc</kbd>.</p></details>
 
 <h3>Missão 5: apagar uma linha</h3>
-<div class="vimtry" data-file="m5.txt" data-line="2">
+<div class="vimtry" data-file="m5.txt" data-line="2" data-solucao="dd">
 <pre class="vim-inicial">um
 ERRO
 dois</pre>
@@ -149,7 +149,7 @@ dois</pre>
 <details><summary>Ver uma solução</summary><p><kbd>d</kbd><kbd>d</kbd> apaga a linha do cursor.</p></details>
 
 <h3>Missão 6: apagar uma palavra</h3>
-<div class="vimtry" data-file="m6.txt" data-col="8">
+<div class="vimtry" data-file="m6.txt" data-col="8" data-solucao="dw">
 <pre class="vim-inicial">O gato muito preto</pre>
 <pre class="vim-meta">O gato preto</pre>
 <p class="try-task">O cursor está no começo de "muito". Apague a palavra e o espaço depois dela, com duas teclas.</p>
@@ -157,7 +157,7 @@ dois</pre>
 <details><summary>Ver uma solução</summary><p><kbd>d</kbd><kbd>w</kbd>: apagar (<em>delete</em>) até a próxima palavra (<em>word</em>).</p></details>
 
 <h3>Missão 7: trocar uma palavra</h3>
-<div class="vimtry" data-file="m7.txt" data-col="9">
+<div class="vimtry" data-file="m7.txt" data-col="9" data-solucao="cwazul&lt;Esc&gt;">
 <pre class="vim-inicial">O céu é verde.</pre>
 <pre class="vim-meta">O céu é azul.</pre>
 <p class="try-task">O cursor está em "verde". Troque a palavra por "azul".</p>
@@ -165,7 +165,7 @@ dois</pre>
 <details><summary>Ver uma solução</summary><p><kbd>c</kbd><kbd>w</kbd> apaga a palavra e já entra no modo de inserção: <kbd>c</kbd><kbd>w</kbd>, <code>azul</code>, <kbd>Esc</kbd>. Veja <a href="operadores.html">Operadores</a>.</p></details>
 
 <h3>Missão 8: duplicar uma linha</h3>
-<div class="vimtry" data-file="m8.txt">
+<div class="vimtry" data-file="m8.txt" data-solucao="yyp">
 <pre class="vim-inicial">item</pre>
 <pre class="vim-meta">item
 item</pre>
@@ -174,7 +174,7 @@ item</pre>
 <details><summary>Ver uma solução</summary><p><kbd>y</kbd><kbd>y</kbd> copia a linha (<em>yank</em>) e <kbd>p</kbd> cola abaixo (<em>put</em>). Veja <a href="copiar-colar.html">Copiar e Colar</a>.</p></details>
 
 <h3>Missão 9: substituir em todo o arquivo</h3>
-<div class="vimtry" data-file="m9.txt">
+<div class="vimtry" data-file="m9.txt" data-solucao=":%s/gato/cão/g&lt;CR&gt;">
 <pre class="vim-inicial">gato gato
 gato</pre>
 <pre class="vim-meta">cão cão
@@ -184,7 +184,7 @@ cão</pre>
 <details><summary>Ver uma solução</summary><p><code>:%s/gato/cão/g</code> e <kbd>Enter</kbd>. O <code>%</code> é o arquivo inteiro e o <code>g</code>, todas as ocorrências de cada linha. Veja <a href="substituir.html">Substituir</a>.</p></details>
 
 <h3>Missão 10: corrigir e salvar</h3>
-<div class="vimtry" data-file="m10.txt" data-col="5" data-save="1">
+<div class="vimtry" data-file="m10.txt" data-col="5" data-save="1" data-solucao="rã:w&lt;CR&gt;">
 <pre class="vim-inicial">Versao 1</pre>
 <pre class="vim-meta">Versão 1</pre>
 <p class="try-task">O cursor está no <code>a</code> sem acento. Troque essa letra por <code>ã</code> e salve o arquivo.</p>
